@@ -33,11 +33,13 @@
 
 namespace Tablet_Keyboard {
 
-// Keyboard layouts
-#include "tabletkeymaps/us_qwerty.h"
+// Keyboard layouts (added in reverse order because the order is changed when added to linked list)
 #include "tabletkeymaps/us_dvorak.h"
-#include "tabletkeymaps/de_qwertz.h"
+#include "tabletkeymaps/us_qwerty.h"
+#include "tabletkeymaps/se_dvorak.h"
+#include "tabletkeymaps/se_qwerty.h"
 #include "tabletkeymaps/fr_azerty.h"
+#include "tabletkeymaps/de_qwertz.h"
 
 const TabletKeymap::LayoutFamily * TabletKeymap::LayoutFamily::s_firstFamily = NULL;
 
@@ -412,7 +414,7 @@ UKey TabletKeymap::map(int x, int y)
 		}
 #endif
 		// for letters, use alternate layout when symbol is active, for non-letter, use alternate layout when shift is active
-		if ((key >= Qt::Key_A && key <= Qt::Key_Z) ? m_layoutPage == eLayoutPage_Alternate : isShiftActive())
+		if (UKeyIsCharacter(key) ? m_layoutPage == eLayoutPage_Alternate : isShiftActive())
 			key = wkey.m_altkey;
 	}
 	return key;
@@ -822,6 +824,7 @@ QString TabletKeymap::getKeyDisplayString(UKey key, bool logging)
 		case cKey_DotGov:								return ".gov";
 		case cKey_DotNet:								return ".net";
 		case cKey_DotUs:								return ".us";
+		case cKey_DotSe:								return ".se";
 		case cKey_WWW:									return "www.";
 		case cKey_HTTPColonSlashSlash:					return "http://";
 		case cKey_HTTPSColonSlashSlash:					return "https://";
