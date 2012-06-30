@@ -47,35 +47,35 @@ static TabletKeymap::constUKeyArray sUsDvorak0_extended = { Qt::Key_0, Qt::Key_P
 
 #define US_DVORAK_TOP_9(w)				{ w, Qt::Key_Comma,		Qt::Key_Slash,							sCommaSlash_extended },\
 										{ w, Qt::Key_Period,	Qt::Key_Question,						sPeriodQuestion_extended },\
-										{ w, Qt::Key_P,			Qt::Key_BracketRight,					sP_extended },\
-										{ w, Qt::Key_Y,	 		Qt::Key_Bar,							sY_extended },\
-										{ w, Qt::Key_F,			Qt::Key_Plus,							NULL },\
-										{ w, Qt::Key_G,			UKey(0x00D7) /* multiplication sign */,	sG_extended },\
-										{ w, Qt::Key_C,			cKey_Emoticon_Frown,					sC_extended },\
-										{ w, Qt::Key_R,			Qt::Key_sterling,						sR_extended },\
-										{ w, Qt::Key_L,			Qt::Key_Colon,							sL_extended }
+										{ w, Qt::Key_P,			Qt::Key_QuoteLeft,						sP_extended },\
+										{ w, Qt::Key_Y,	 		Qt::Key_AsciiTilde,						sY_extended },\
+										{ w, Qt::Key_F,			Qt::Key_Backslash,						NULL },\
+										{ w, Qt::Key_G,			Qt::Key_Bar,							sG_extended },\
+										{ w, Qt::Key_C,			Qt::Key_degree,							sC_extended },\
+										{ w, Qt::Key_R,			Qt::Key_Colon,							sR_extended },\
+										{ w, Qt::Key_L,			Qt::Key_Semicolon,						sL_extended }
 										
 
 #define US_DVORAK_MID_10(w)				{ w, Qt::Key_A,			Qt::Key_Less,							sA_extended },\
-										{ w, Qt::Key_O,			Qt::Key_BracketLeft,					sO_extended },\
+										{ w, Qt::Key_O,			Qt::Key_Greater,						sO_extended },\
 										{ w, Qt::Key_E,			cKey_Euro,								sE_extended },\
-										{ w, Qt::Key_U,			Qt::Key_BraceLeft,						sU_extended },\
-										{ w, Qt::Key_I,			Qt::Key_BraceRight,						sI_extended },\
-										{ w, Qt::Key_D,			Qt::Key_Equal,							sD_extended },\
-										{ w, Qt::Key_H,			UKey(0x00F7) /* division sign */,		NULL },\
-										{ w, Qt::Key_T,			Qt::Key_Backslash,						sT_extended },\
-										{ w, Qt::Key_N,			cKey_Emoticon_Gasp,						sN_extended },\
-										{ w, Qt::Key_S,			Qt::Key_Greater,						sS_extended }
+										{ w, Qt::Key_U,			Qt::Key_sterling,						sU_extended },\
+										{ w, Qt::Key_I,			Qt::Key_BraceLeft,						sI_extended },\
+										{ w, Qt::Key_D,			Qt::Key_BraceRight,						sD_extended },\
+										{ w, Qt::Key_H,			Qt::Key_BracketLeft,					NULL },\
+										{ w, Qt::Key_T,			Qt::Key_BracketRight,					sT_extended },\
+										{ w, Qt::Key_N,			UKey(0x00D7) /* multiplication sign */,	sN_extended },\
+										{ w, Qt::Key_S,			UKey(0x00F7) /* division sign */,		sS_extended }
 										
 
-#define US_DVORAK_LOW_8(w)				{ w, Qt::Key_Q,			Qt::Key_QuoteLeft,						NULL },\
-										{ w, Qt::Key_J,			Qt::Key_degree,							NULL },\
-										{ w, Qt::Key_K,			Qt::Key_Semicolon,						NULL },\
-										{ w, Qt::Key_X,			cKey_Emoticon_Wink,						sOptions },\
+#define US_DVORAK_LOW_8(w)				{ w, Qt::Key_Q,			cKey_Emoticon_Smile,					NULL },\
+										{ w, Qt::Key_J,			cKey_Emoticon_Wink,						NULL },\
+										{ w, Qt::Key_K,			cKey_Emoticon_Frown,					NULL },\
+										{ w, Qt::Key_X,			cKey_Emoticon_Cry,						sOptions },\
 										{ w, Qt::Key_B,			cKey_Emoticon_Yuck,						sToggleLanguage_extended },\
-										{ w, Qt::Key_M,			cKey_Emoticon_Heart,					sM_extended },\
-										{ w, Qt::Key_W,			Qt::Key_AsciiTilde,						NULL },\
-										{ w, Qt::Key_V,			cKey_Emoticon_Cry,						NULL }
+										{ w, Qt::Key_M,			cKey_Emoticon_Gasp,						sM_extended },\
+										{ w, Qt::Key_W,			Qt::Key_Plus,							NULL },\
+										{ w, Qt::Key_V,			Qt::Key_Equal,							NULL }
 
 #define US_DVORAK_BOTTOM_ROW_DEFAULT \
 									KEY_1(1, Qt::Key_Tab),\
