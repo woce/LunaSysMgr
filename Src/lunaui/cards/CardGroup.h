@@ -63,6 +63,7 @@ public:
 	// returns whether the move was successful.
 	// NOTE: does not modify the GraphicsScene stacking order, you must 
 	// explicitly call raiseCards().
+  bool moveActiveCardTo(int location);
 	bool moveActiveCard(int direction);
 
 	// raises/lowers the current active card to the next/previous spot 
@@ -155,7 +156,8 @@ public:
 	bool testHit(QPointF scenePt);
 	void moveToActiveCard();
 
-	QVector<CardWindow*> cards() const { return m_cards; }
+  QList<CardWindow*> cards() const { return m_cards; }
+
 private:
 
 	QVector<CardWindow::Position> calculateOpenedPositions(qreal xOffset = 0.0);
@@ -168,7 +170,7 @@ private:
 	qreal m_nonCurScale;
 	int m_leftWidth;
 	int m_rightWidth;
-	QVector<CardWindow*> m_cards;
+  QList<CardWindow*> m_cards;
 	CardWindow* m_activeCard;
 	int m_cardGroupRotFactor;
 	double m_cardGroupXDistanceFactor;

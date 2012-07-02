@@ -307,11 +307,10 @@ void CardHostWindow::fullScreenEnabled(bool enabled)
 
 	if (enabled) {
 		AppDirectRenderingArbitrator::setLayerEnabled(this, true);
-        
-		m_channel->sendAsyncMessage(new View_FullScreenEnabled(m_data->key()));
-	}
-	else {
 
+    m_channel->sendAsyncMessage(new View_FullScreenEnabled(m_data->key()));
+	}
+	else {    
 		SystemUiController::instance()->aboutToSendSyncMessage();
 		
 		if(!m_channel->sendSyncMessage(new View_FullScreenDisabled(m_data->key()), kSyncCallTimeOutMs)){
@@ -321,12 +320,12 @@ void CardHostWindow::fullScreenEnabled(bool enabled)
 		AppDirectRenderingArbitrator::setLayerEnabled(this, false);
 	}
 
-	if (enabled) {
-		if (m_paused && m_winProps.hasPauseUi) {
-			resumeCard();
+	if (enabled) {        
+		if (m_paused && m_winProps.hasPauseUi) {      
+      resumeCard();
 		}
 	}
-	else {
+	else {        
 		if (!m_paused) {
 			pauseCard();
 		}
@@ -583,13 +582,13 @@ void CardHostWindow::drawInRotateAnim(PGContext* gc, bool maximized)
 
 bool CardHostWindow::touchEvent(QTouchEvent* event)
 {
+
+
 	if (!m_focused || m_pendingFocus == PendingFocusFalse) {
 		return false;
-	}
-
+	}  
 	if (m_paused)
 		return true;
-
     if (m_channel) {
 
 		typedef QList<QTouchEvent::TouchPoint> TouchPoints;
@@ -650,8 +649,7 @@ bool CardHostWindow::touchEvent(QTouchEvent* event)
 				evt.button = Event::Left;
 				evt.modifiers = Event::modifiersFromQt(event->modifiers());
 				evt.time = Time::curTimeMs();
-				evt.clickCount = 1;
-
+				evt.clickCount = 1;        
 				m_channel->sendAsyncMessage (new View_InputEvent(routingId(),
 																 SysMgrEventWrapper(&evt)));
 
@@ -726,7 +724,7 @@ void CardHostWindow::mousePressEvent(QGraphicsSceneMouseEvent* event)
 		m_penDownInPlayButton = true;
 		m_penInPlayButton = true;
 	}
-	
+
 	update();
 }
 

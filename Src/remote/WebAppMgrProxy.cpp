@@ -247,7 +247,7 @@ void WebAppMgrProxy::sendAsyncMessage(PIpcMessage* msg)
 	if(connected())	{
 		m_channel->sendAsyncMessage(msg);
 	} else {
-		// queue up the messages while not connected
+		// queue up the messages while not connected    
 		m_discMsgQueue.push(msg);
 	}
 }

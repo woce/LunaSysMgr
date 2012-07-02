@@ -110,6 +110,30 @@ void CardGroup::addToBack(CardWindow* c)
 		c->setPos(m_pos);
 }
 
+
+bool CardGroup::moveActiveCardTo(int location)
+{
+  if (location < 0 || m_cards.empty() || !m_activeCard)
+    return false;
+  if (location >= m_cards.size())
+    return false;
+
+  int activeIndex = m_cards.indexOf(m_activeCard);
+
+  //CardWindow* temp = m_cards[activeIndex];
+  //CardWindow* temp = m_cards[location];
+  //m_cards.removeAt(activeIndex);
+  //m_cards.append(temp);
+  m_cards.move(activeIndex,location);
+  //m_cards[location] = m_activeCard;
+  //m_cards[activeIndex] = temp;
+
+  m_currentPosition = location;
+  clampCurrentPosition();
+
+  return true;
+}
+
 bool CardGroup::moveActiveCard(int direction)
 {
 	if (direction == 0 || m_cards.empty() || !m_activeCard)
@@ -150,7 +174,7 @@ bool CardGroup::moveActiveCard()
 
 		if (activeX < m_cards[i]->mapToParent(m_cards[i]->pos()).x()) {
 
-			m_cards.remove(activeIndex);
+      m_cards.removeAt(activeIndex);
 			m_cards.insert(i, m_activeCard);
 
 			if (i < m_currentPosition) {
@@ -166,7 +190,7 @@ bool CardGroup::moveActiveCard()
 
 		if (activeX > m_cards[i]->mapToParent(m_cards[i]->pos()).x()) {
 
-			m_cards.remove(activeIndex);
+      m_cards.removeAt(activeIndex);
 			m_cards.insert(i, m_activeCard);
 
 			if (i > (m_currentPosition + kMaxStationaryCards - 1)) {
@@ -201,7 +225,7 @@ void CardGroup::removeFromGroup(CardWindow* c)
 	c->setCardGroup(0);
 	int index = m_cards.indexOf(c);
 	int activeIndex = m_cards.indexOf(m_activeCard);
-	m_cards.remove(index);
+  m_cards.removeAt(index);
 
 	if (m_cards.empty())
 		m_activeCard = 0;

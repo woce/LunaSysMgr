@@ -32,11 +32,13 @@
 #include <QParallelAnimationGroup>
 #include <QMap>
 #include <QEasingCurve>
+#include <QSignalMapper>
 #include <stdint.h>
 
 class CardWindowManagerState;
 class MinimizeState;
 class MaximizeState;
+class GroupState;
 class PreparingState;
 class LoadingState;
 class FocusState;
@@ -113,6 +115,7 @@ private Q_SLOTS:
 	void slotMinimizeActiveCardWindow();
 
 	void slotChangeCardWindow(bool next);
+  void slotSideSwipe(bool direction);
 
 	void slotFocusMaximizedCardWindow(bool focus);
 
@@ -121,6 +124,9 @@ private Q_SLOTS:
     void slotDismissActiveModalWindow();
     void slotDismissModalTimerStopped();
 
+    void slotFinishFlyback();
+    void slotCloseGroupAdjustAfterAnimationFinished(QObject* winObject);
+
 Q_SIGNALS:
 
 	void signalFocusWindow(CardWindow* win);
@@ -128,6 +134,7 @@ Q_SIGNALS:
 	void signalPreparingWindow(CardWindow* win);
 	void signalMaximizeActiveWindow();
 	void signalMinimizeActiveWindow();
+  void signalGroupWindow();
 	void signalEnterReorder(QPoint pt, int slice);
 	void signalExitReorder(bool canceled = true);
     void signalFirstCardRun();
@@ -145,15 +152,21 @@ private:
 	void handleMouseReleaseMinimized(QGraphicsSceneMouseEvent* event);
 	void handleMouseReleaseReorder(QGraphicsSceneMouseEvent* event);
 
+  void handleMousePressGroup(QGraphicsSceneMouseEvent* event);
+  void handleMouseMoveGroup(QGraphicsSceneMouseEvent* event);
+  void handleMouseReleaseGroup(QGraphicsSceneMouseEvent* event);
+
 	void handleFlickGestureMinimized(QGestureEvent* event);
 
 	void handleTapGestureMinimized(QTapGesture* event);
+  void handleTapGestureGroupView(QTapGesture* event);
+  void handleFlickGestureGroup(QGestureEvent* event);
 
 	void handleTapAndHoldGestureMinimized(QTapAndHoldGesture* event);
 
     void handleKeyNavigationMinimized(QKeyEvent* keyEvent);
 
-	void setCurrentState(CardWindowManagerState* newState) { m_curState = newState; }
+  void setCurrentState(CardWindowManagerState* newState) { m_prevState = m_curState; m_curState = newState; }
 
 	void maximizeActiveWindow(bool animate=true);
 	void minimizeActiveWindow(bool animate=true);
@@ -169,8 +182,9 @@ private:
 	void addWindowTimedOutNormal(CardWindow* win);
 
 	void removeCardFromGroupMaximized(CardWindow* win);
-	void removeCardFromGroup(CardWindow* win, bool adjustLayout=true);
+  void removeCardFromGroup(CardWindow* win, bool adjustLayout=true,bool dir = false);
 
+  void closeWindowGroup(CardWindow* win, bool dir, bool angryCard=false);
 	void closeWindow(CardWindow* win, bool angryCard=false);
 
 	CardGroup* groupClosestToCenterHorizontally() const;
@@ -192,11 +206,17 @@ private:
 	void switchToNextAppMaximized();
 	void switchToPrevAppMaximized();
 
+
+  // Display grouped cards to the side of a main card.
+  void showGroupCards(bool direction);
+  void showGroupCardsImmediate();
+  bool whichSideOfScreen(QPointF p);
+
 	// animate all groups to center around the active group.
 	// optionally include the active card in the active group.
 	// NOTE: If you exclude the active card, the animations will
-	// not be started automatically, you will have to call m_anims.start()
-	void slideAllGroups(bool includeActiveCard = true);
+	// not be started automatically, you will have to call m_anims.start()	
+  void slideAllGroups(bool includeActiveCard = true, int flyback = 0);
 	void slideAllGroupsTo(int xOffset);
 
 	// Does the same as slideAllGroups, but sets the positions immediately,
@@ -275,6 +295,12 @@ private:
 	bool m_modalDimissed;
 	bool m_dismissedFirstCard;
 
+  bool m_groupMove;
+  int m_groupShift;
+  int m_groupInitialMove;
+  bool m_groupMoveDir;
+  bool m_groupDir;
+
 
 	enum ModalWindowState {
 		NoModalWindow = 0,
@@ -318,12 +344,14 @@ private:
 	QStateMachine* m_stateMachine;
 	MinimizeState* m_minimizeState;
 	MaximizeState* m_maximizeState;
+  GroupState* m_groupState;
 	PreparingState* m_preparingState;
 	LoadingState* m_loadingState;
 	FocusState* m_focusState;
 	ReorderState* m_reorderState;
 
 	CardWindowManagerState* m_curState;
+  CardWindowManagerState* m_prevState;
 
 	// keep track of which windows have animations running
 	QMap<CardWindow*,QPropertyAnimation*> m_cardAnimMap;
@@ -341,6 +369,7 @@ private:
 	friend class CardWindowManagerState;
 	friend class MinimizeState;
 	friend class MaximizeState;
+  friend class GroupState;
 	friend class PreparingState;
 	friend class LoadingState;
 	friend class FocusState;

@@ -914,7 +914,7 @@ void SystemService::enterMSM()
 //	object {
 //	  boolean quicklaunch?;
 //	  boolean launcher?;
-//	  boolean "universal search"?
+//	  boolean " S search"?
 //	};*/
 //	// TODO: Move this out to a file
 //	std::string schema =
@@ -1086,7 +1086,7 @@ static bool cbSystemUi(LSHandle* lshandle, LSMessage *message, void *user_data)
 		if (CONV_OK == root["quicklaunch"].asBool(shown)) {
 			SystemUiController::instance()->showOrHideDock(shown);
 		}
-		if (CONV_OK == root["universal search"].asBool(shown)) {
+		if (CONV_OK == root["universal search"].asBool(shown)) {      
 			bool displayLauncher, speedDial = false;
 			if (CONV_OK != root["launcher"].asBool(displayLauncher))
 				displayLauncher = !shown;

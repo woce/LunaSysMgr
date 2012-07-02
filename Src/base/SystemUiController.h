@@ -312,6 +312,7 @@ Q_SIGNALS:
 	void signalCardWindowMaximized();
 	void signalCardWindowMinimized();
 	void signalChangeCardWindow(bool next);
+  void signalSideSwipe(bool direction);
 
 	void signalHideMenu();
 
@@ -402,6 +403,8 @@ private:
 	bool allowSuspend();
 	void setSuspended(bool);
 	void handleScreenEdgeFlickGesture(QGesture* gesture);
+  void handleSideScreenEdgeFlickGesture(bool direction);
+  void handleBottomScreenEdgeFlickGesture();
 
 	Window* m_parentOfModalWindow;
 	Window* m_activeCardWindow;

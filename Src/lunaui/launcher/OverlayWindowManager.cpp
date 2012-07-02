@@ -778,7 +778,7 @@ void OverlayWindowManager::mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event
 	ev.y = event->pos().y();
 	ev.modifiers = Event::modifiersFromQt(event->modifiers());
 	ev.clickCount = 2;
-	ev.time = Time::curSysTimeMs();
+	ev.time = Time::curSysTimeMs();  
 
 	if (handlePenDownEvent(&ev))
 		event->accept();
@@ -1564,7 +1564,7 @@ void OverlayWindowManager::setUniversalSearchShown(bool shown)
     // this brings back support for universal search being shown on top of a maximized app
     if (shown) {
         if (SystemUiController::instance()->isCardWindowMaximized())
-            SystemUiController::instance()->focusMaximizedCardWindow(false);
+            //SystemUiController::instance()->focusMaximizedCardWindow(false);  //Does this do anything besides mess up?
         if (!hasFocus()) {
             setFlag(QGraphicsItem::ItemIsFocusable, true);
             setFocus();
@@ -1635,7 +1635,7 @@ void OverlayWindowManager::slotHideUniversalSearch(bool displayLauncher, bool sp
 		m_ignoreKeyDueToSpeedDialEvent = true;
 	}
 
-	Q_EMIT signalFSMHideUniversalSearch();
+  Q_EMIT signalFSMHideUniversalSearch();
 	
 }
 

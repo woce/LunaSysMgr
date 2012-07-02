@@ -149,7 +149,8 @@ void IpcClientHost::onDisconnected()
 void IpcClientHost::onPrepareAddWindow(int key, int type, int width, int height)
 {
     bool isNativeQtWindow = (type == (1 << 3));
-	// FIXME: Magic numbers
+
+  // FIXME: Magic numbers
 	// 1 << 1: Card
 	// 1 << 2: Emergency
 	switch (type) {

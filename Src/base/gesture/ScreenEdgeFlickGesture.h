@@ -44,7 +44,7 @@ public:
 	ScreenEdgeFlickGesture(QObject* parent = 0)
 		: QGesture(parent, (Qt::GestureType) SysMgrGestureScreenEdgeFlick)
 		, m_edge(EdgeUnknown)
-		, m_yDistance(0){
+    , m_yDistance(0){
 	}
 
 	Edge edge() const { return m_edge; }

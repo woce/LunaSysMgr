@@ -242,7 +242,7 @@ void WebAppBase::setKeepAlive(bool val)
 
 void WebAppBase::relaunch(const char* args, const char* launchingAppId, const char* launchingProcId)
 {
-	bool ret = false;
+	bool ret = false;	
 	
 	if (m_page)
 		ret = m_page->relaunch(args, launchingAppId, launchingProcId);

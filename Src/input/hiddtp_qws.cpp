@@ -341,7 +341,7 @@ bool QWSHiddTpHandlerPrivate::updateTouchEvents(QList<QWSHiddTpHandlerPrivate::H
 							printf("flick on right border. distance: %d, yDist = %d\n", abs(touch.x - m_deviceWidth), xDown - touch.x);
 							if((xDown - touch.x) >= minimumYLength){
 								m_screenEdgeFlickGesture->m_edge = ScreenEdgeFlickGesture::EdgeRight;
-								m_screenEdgeFlickGesture->m_yDistance = (xDown - touch.x) ;
+                m_screenEdgeFlickGesture->m_yDistance = (xDown - touch.x);
 							} else {
 								printf("Rejected Flick\n");
 							}

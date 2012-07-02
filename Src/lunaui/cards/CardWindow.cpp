@@ -193,7 +193,7 @@ void CardWindow::init()
 	connect(IMEController::instance(), SIGNAL(signalShowIME()), SLOT(slotShowIME()));
 	connect(IMEController::instance(), SIGNAL(signalHideIME()), SLOT(slotHideIME()));
 
-	if (Window::Type_ModalChildWindowCard == type()) {
+	if (Window::Type_ModalChildWindowCard == type()) {    
 		m_ModalWindowEndY = 0;
 		m_modalWindowShrinkHeight = 0;
 		m_fRecomputeInitPositionsValues = true;
@@ -1149,7 +1149,7 @@ void CardWindow::focusEvent(bool enable)
 	if (m_channel)
 		m_channel->sendAsyncMessage(new View_Focus(routingId(), enable));
 
-	m_focused = enable;
+  m_focused = enable;
 	if (enable) {
 		setFocus();
 	    IMEController::instance()->setClient(this);
@@ -1254,11 +1254,9 @@ void CardWindow::fullScreenEnabled(bool val)
 {
 	if (!m_channel || !m_data)
 		return;
-
 	PIpcBuffer* metaDataBuffer = m_data->metaDataBuffer();
 	if (!metaDataBuffer)
 		return;
-
 	WindowMetaData* metaData = (WindowMetaData*) metaDataBuffer->data();
 
     if (val) {
@@ -1364,7 +1362,7 @@ void CardWindow::stopLoadingOverlay()
 }
 
 void CardWindow::slotLoadingFinished()
-{
+{  
 	if (m_loadingAnim) {
 		delete m_loadingAnim;
 		m_loadingAnim = 0;
@@ -1401,7 +1399,6 @@ gboolean CardWindow::loadingTimeout(gpointer data)
 	}
 
 	if (!win->prepareAddedToWindowManager()) {
-
 		// add it and reset our timer
 		win->setPrepareAddedToWindowManager();
 
@@ -1428,7 +1425,7 @@ gboolean CardWindow::loadingTimeout(gpointer data)
 			win->startLoadingOverlay();
 		}
 	}
-	else {
+	else {    
 		win->stopLoadingTimer();
 
 		if (!win->addedToWindowManager()) {
@@ -1815,6 +1812,7 @@ void CardWindow::setPosition(const CardWindow::Position& pos)
                 m_loadingAnim->setScale(pos.trans.z());
         }
 #endif
+update();
 }
 
 void CardWindow::setMaximized(bool enable)

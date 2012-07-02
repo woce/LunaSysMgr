@@ -64,6 +64,7 @@ static const unsigned int s_statusBarLauncherColor = 0x4f545AFF;
 static const unsigned int s_statusBarJustTypeColor = 0x4f545AFF;
 
 static const int kFlickMinimumYLengthWithKeyboardUp = 60;
+static const int kUniversalSearchSensitiveRegion = 200;
 
 SystemUiController* SystemUiController::instance()
 {
@@ -2043,25 +2044,50 @@ void SystemUiController::handleScreenEdgeFlickGesture(QGesture* gesture)
 		return;
 
     OrientationEvent::Orientation orientation = WindowServer::instance()->getUiOrientation();
+
+  int whichGesture = -1;  // 0 = From screen bottom, 1 = from left, 2 = from top, 3 = from right, -1 = never set
+
+  int xEdge = 0; // Used to limit Just Type search
+
 	switch (orientation) {
     case OrientationEvent::Orientation_Up: {
-		if (g->edge() != ScreenEdgeFlickGesture::EdgeBottom)
-			return;
+      xEdge = g->hotSpot().x();
+      if (g->edge() == ScreenEdgeFlickGesture::EdgeBottom)  whichGesture = 0;
+      if (g->edge() == ScreenEdgeFlickGesture::EdgeLeft)    whichGesture = 1;
+      if (g->edge() == ScreenEdgeFlickGesture::EdgeTop)     whichGesture = 2;
+      if (g->edge() == ScreenEdgeFlickGesture::EdgeRight)   whichGesture = 3;
+//    if (g->edge() != ScreenEdgeFlickGesture::EdgeBottom)
+//			return;
 		break;
 	}
     case OrientationEvent::Orientation_Down: {
-		if (g->edge() != ScreenEdgeFlickGesture::EdgeTop)
-			return;
+      xEdge = g->hotSpot().x();
+      if (g->edge() == ScreenEdgeFlickGesture::EdgeBottom)  whichGesture = 2;
+      if (g->edge() == ScreenEdgeFlickGesture::EdgeLeft)    whichGesture = 3;
+      if (g->edge() == ScreenEdgeFlickGesture::EdgeTop)     whichGesture = 0;
+      if (g->edge() == ScreenEdgeFlickGesture::EdgeRight)   whichGesture = 1;
+    //if (g->edge() != ScreenEdgeFlickGesture::EdgeTop)
+    //	return;
 		break;
 	}
     case OrientationEvent::Orientation_Left: {
-		if (g->edge() != ScreenEdgeFlickGesture::EdgeLeft)
-			return;
+      xEdge = g->hotSpot().y();
+      if (g->edge() == ScreenEdgeFlickGesture::EdgeBottom)  whichGesture = 3;
+      if (g->edge() == ScreenEdgeFlickGesture::EdgeLeft)    whichGesture = 0;
+      if (g->edge() == ScreenEdgeFlickGesture::EdgeTop)     whichGesture = 1;
+      if (g->edge() == ScreenEdgeFlickGesture::EdgeRight)   whichGesture = 2;
+    //if (g->edge() != ScreenEdgeFlickGesture::EdgeLeft)
+    //	return;
 		break;
 	}
     case OrientationEvent::Orientation_Right: {
-		if (g->edge() != ScreenEdgeFlickGesture::EdgeRight)
-			return;
+      xEdge = g->hotSpot().y();
+      if (g->edge() == ScreenEdgeFlickGesture::EdgeBottom)  whichGesture = 1;
+      if (g->edge() == ScreenEdgeFlickGesture::EdgeLeft)    whichGesture = 2;
+      if (g->edge() == ScreenEdgeFlickGesture::EdgeTop)     whichGesture = 3;
+      if (g->edge() == ScreenEdgeFlickGesture::EdgeRight)   whichGesture = 0;
+    //if (g->edge() != ScreenEdgeFlickGesture::EdgeRight)
+    //	return;
 		break;
 	}
 	default: {
@@ -2070,12 +2096,63 @@ void SystemUiController::handleScreenEdgeFlickGesture(QGesture* gesture)
 	}
 	}
 	
-	// enforce a larger minimum Y distance for the flick gesture when the keyboard is up
-	if(IMEController::instance()->isIMEOpened()) {
-		if(g->yDistance() < kFlickMinimumYLengthWithKeyboardUp)
-			return; // not long enough, so ignore it
-	}
+  // Advanced Gesture handling
+  switch (whichGesture) {
+    case (0) : {
+      // enforce a larger minimum Y distance for the flick gesture when the keyboard is up
+      if(IMEController::instance()->isIMEOpened()) {
+        if(g->yDistance() < kFlickMinimumYLengthWithKeyboardUp)
+          return; // not long enough, so ignore it
+      }
+      handleBottomScreenEdgeFlickGesture();
+      break;
+    }
+    case (1) : {
+      handleSideScreenEdgeFlickGesture(false);
+      break;
+    }
+    case (2) : {
+      // Just type
+      //mapFromScene(gesture->scenePos());
+        if (m_inDockMode) {
+          return;
+        }
 
+      if (fabs(xEdge - m_uiWidth/2) < kUniversalSearchSensitiveRegion) {  // Perhaps change to fraction?
+        if (m_universalSearchShown) {
+          Q_EMIT signalHideUniversalSearch(false,false);
+        } else {
+          Q_EMIT signalShowUniversalSearch();
+        }
+      }
+      break;
+    }
+    case (3) : {      
+      handleSideScreenEdgeFlickGesture(true);
+      break;
+    }
+  }
+}
+
+void SystemUiController::handleSideScreenEdgeFlickGesture(bool direction)
+// direction - left = false, right = true
+{
+  if (m_inDockMode) {
+          return;
+  }
+  if (m_menuVisible) {
+    Q_EMIT signalHideMenu();
+  }
+  if (!m_launcherShown) {
+    Q_EMIT signalHideUniversalSearch(false, false);
+
+    Q_EMIT signalSideSwipe(direction);
+    //Q_EMIT signalChangeCardWindow(!direction);
+  }
+}
+
+void SystemUiController::handleBottomScreenEdgeFlickGesture()
+{
 	if (m_inDockMode) {
 		enterOrExitDockModeUi(false);
 		return;

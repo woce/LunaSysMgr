@@ -156,7 +156,6 @@ const char *const regNames[NGREG] = {
 void logCrashRegisterContext(int sig, siginfo_t *info, void *data) {
     ucontext_t *context = reinterpret_cast<ucontext_t *>(data);
     crash_printf("reg context {\n");
-
     // Note: For ia32/x64, we dump all the registers because this is not for
     // field deployment.  Hence, there is no risk of violation of user privacy.
     for (int i = 0; i < NGREG; i++) {
@@ -175,7 +174,6 @@ void logCrashRegisterContext(int sig, siginfo_t *info, void *data) {
     ucontext_t *context = reinterpret_cast<ucontext_t *>(data);
     sigcontext *scon = &context->uc_mcontext;
     crash_printf("reg context {\n");
-
     // Dumping non-sensitive register content:
     crash_printf("  // non-sensitive register content:\n");
     crash_printf("  trap_no       = 0x%08x %d\n", scon->trap_no, scon->trap_no);
@@ -639,7 +637,7 @@ int main( int argc, char** argv)
 
 	std::set_terminate(generateGoodBacktraceTerminateHandler);
 
-	g_thread_init(NULL);
+  g_thread_init(NULL);
 
 	const char *renderMode;
 #if defined(TARGET_DEVICE) && defined(HAVE_OPENGL)
@@ -654,7 +652,7 @@ int main( int argc, char** argv)
 	renderMode = "Software";
 #endif
 
-	WindowServer::markBootStart();
+  WindowServer::markBootStart();
 
 	g_debug("SysMgr compiled against Qt %s, running on %s, %s render mode requested", QT_VERSION_STR, qVersion(), renderMode);
 
@@ -672,7 +670,7 @@ int main( int argc, char** argv)
     sysmgrPid = getpid();
 
 	// Load Settings (first!)
-	Settings* settings = Settings::LunaSettings();
+  Settings* settings = Settings::LunaSettings();
 
 	// Initialize logging handler
 	g_log_set_default_handler(logFilter, NULL);
@@ -716,13 +714,13 @@ int main( int argc, char** argv)
 	pid_t webKitPid= spawnWebKitProcess();
 	if(webKitPid < 0) { // failed to start the WebKit process
 		return -1;
-	}
+  }
 
 	// Tie LunaSysMgr to Processor 0
 	setCpuAffinity(getpid(), 1);
 
 	// Tie WebAppMgr to Processor 1
-	setCpuAffinity(webKitPid, 0);
+  setCpuAffinity(webKitPid, 0);
 
 	// Safe to create logging threads now
 	logInit();
@@ -751,18 +749,18 @@ int main( int argc, char** argv)
 	QApplication app(argc, argv);
 	QApplication::setStartDragDistance(settings->tapRadius);
 	QApplication::setDoubleClickInterval (Settings::LunaSettings()->tapDoubleClickDuration);
-	host->show();
+  host->show();
 	
 	initMallocStatsCb(HostBase::instance()->mainLoop(), s_mallocStatsInterval);
 
 	// Initialize Preferences handler
-	(void) Preferences::instance();
+  (void) Preferences::instance();
 
 	// Initialize Localization handler
-	(void) Localization::instance();
+  (void) Localization::instance();
 
 	//Register vibration/haptics support
-	HapticsController::instance()->startService();
+  HapticsController::instance()->startService();
 
 	(void) DeviceInfo::instance();
 
@@ -770,23 +768,23 @@ int main( int argc, char** argv)
 	(void) Security::instance();
 
 	// Initialize the System Service
-	SystemService::instance()->init();
+  SystemService::instance()->init();
 
 	// Initialize the application mgr
 	ApplicationManager::instance()->init();
 
 	// Initialize the Application Installer
-	ApplicationInstaller::instance();
+  ApplicationInstaller::instance();
 
 	// Start the window manager
 	WindowServer *windowServer = WindowServer::instance();
-	windowServer->installEventFilter(windowServer);
+  windowServer->installEventFilter(windowServer);
 
 	// Initialize the SysMgr MemoryMonitor
 	MemoryMonitor::instance();
 
 	// load all set policies
-	EASPolicyManager::instance()->load();
+  EASPolicyManager::instance()->load();
 
 	// Launching of the System UI launcher and headless apps has been moved to WebAppMgrProxy::connectWebAppMgr
 
