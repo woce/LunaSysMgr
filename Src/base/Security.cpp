@@ -16,6 +16,7 @@
 *
 * LICENSE@@@ */
 
+// this file was modified by "pcworld", 0188801@gmail.com
 
 
 
@@ -38,6 +39,7 @@
 
 #include "Time.h"
 #include "QtUtils.h"
+#include "Utils.h"
 
 #include <QCryptographicHash>
 #include <QDebug>
@@ -485,6 +487,10 @@ void Security::readDecryptedPasscode(std::string& passcode) const
 	else {
 		safelyEraseString(passcode);
 	}
+}
+
+bool Security::isPasswordOutdated() const {
+	return is_base64_string(readPasscode());
 }
 
 void Security::safelyEraseString(std::string& str) const

@@ -16,6 +16,7 @@
 *
 * LICENSE@@@ */
 
+// this file was modified by "pcworld", 0188801@gmail.com
 
 
 
@@ -48,6 +49,7 @@ public:
 
 	std::string getLockMode() const { return m_lockMode; };
 
+	bool isPasswordOutdated() const;
 	int setPasscode(const std::string& mode, const std::string& passcode, std::string& errorText);
 	bool matchPasscode(std::string passcode, int& retriesLeft, bool& lockedOut);
 

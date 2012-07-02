@@ -16,6 +16,7 @@
 *
 * LICENSE@@@ */
 
+// this file was modified by "pcworld", 0188801@gmail.com
 
 
 
@@ -581,6 +582,13 @@ struct json_object * JsonGetObject(struct json_object * root,const std::string& 
 
 static inline bool is_base64(unsigned char c) {
   return (isalnum(c) || (c == '+') || (c == '/'));
+}
+
+bool is_base64_string(std::string const& str) {
+	QString string = QString::fromStdString(str);
+	QRegExp rx("[^a-zA-Z0-9+/=]");
+	
+	return (rx.indexIn(string) == -1 && (string.length() % 4) == 0 && string.length() >= 4);
 }
 
 std::string base64_encode(unsigned char const* bytes_to_encode, unsigned int in_len) {
