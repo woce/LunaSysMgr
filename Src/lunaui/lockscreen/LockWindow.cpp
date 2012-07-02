@@ -16,6 +16,7 @@
 *
 * LICENSE@@@ */
 
+// this file was modified by "pcworld", 0188801@gmail.com
 
 
 
@@ -1256,7 +1257,7 @@ void LockWindow::tryUnlock()
 		return;
 
 	if (requiresPasscode()) {
-		if (EASPolicyManager::instance()->policyPending()) {
+		if (EASPolicyManager::instance()->policyPending() || Security::instance()->isPasswordOutdated()) {
 			// User needs to set up a new PIN/Password
 			changeState(StateNewPinDialog);
 
