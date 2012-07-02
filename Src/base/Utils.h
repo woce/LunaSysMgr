@@ -16,6 +16,7 @@
 *
 * LICENSE@@@ */
 
+// this file was modified by "pcworld", 0188801@gmail.com
 
 
 
@@ -79,6 +80,7 @@ bool extractFromJson(struct json_object * root,const std::string& key,int& r_val
 bool extractFromJson(struct json_object * root,const std::string& key,bool& r_value);
 struct json_object * JsonGetObject(struct json_object * root,const std::string& key);
 
+bool is_base64_string(std::string const& str);
 std::string base64_encode(unsigned char const* , unsigned int len);
 std::string base64_decode(std::string const& s);
 
