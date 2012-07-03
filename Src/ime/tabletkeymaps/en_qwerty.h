@@ -16,8 +16,8 @@
 *
 * LICENSE@@@ */
 
-#ifndef KEYBOARD_US_QWERTY_H
-#define KEYBOARD_US_QWERTY_H
+#ifndef KEYBOARD_EN_QWERTY_H
+#define KEYBOARD_EN_QWERTY_H
 #include "../TabletKeymap.h"
 #include "common_keys.h"
 
@@ -123,7 +123,7 @@ static TabletKeymap::LayoutRow sUsQwertyBottomRow_default = { US_QWERTY_BOTTOM_R
 static TabletKeymap::LayoutRow sUsQwertyBottomRow_url = { US_QWERTY_BOTTOM_ROW_URL };
 static TabletKeymap::LayoutRow sUsQwertyBottomRow_email = { US_QWERTY_BOTTOM_ROW_EMAIL };
 
-static TabletKeymap::LayoutFamily sUsQwertyFamily("us qwerty", "en", IME_KBD_LANG_English, IME_KBD_SEC_REGQwerty,
+static TabletKeymap::LayoutFamily sUsQwertyFamily("English", "en", IME_KBD_LANG_English, IME_KBD_SEC_REGQwerty,
                                                 "+ = [  ]" /* Spaces are "Unicode Character 'HAIR SPACE' (U+200A) ' ' " */, "Q w y" /* Spaces are "Unicode Character 'HAIR SPACE' (U+200A) ' ' " */,
                                                 0, 1, 10, 2, false, sUsQwerty, sUsQwertyBottomRow_default, sUsQwertyBottomRow_url, sUsQwertyBottomRow_email);
-#endif // KEYBOARD_US_QWERTY_H
+#endif // KEYBOARD_EN_QWERTY_H

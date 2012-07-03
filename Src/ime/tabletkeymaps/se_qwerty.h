@@ -127,7 +127,7 @@ static TabletKeymap::LayoutRow sSeQwertyBottomRow_default = { SE_QWERTY_BOTTOM_R
 static TabletKeymap::LayoutRow sSeQwertyBottomRow_url = { SE_QWERTY_BOTTOM_ROW_URL };
 static TabletKeymap::LayoutRow sSeQwertyBottomRow_email = { SE_QWERTY_BOTTOM_ROW_EMAIL };
 
-static TabletKeymap::LayoutFamily sSeQwertyFamily("se qwerty", "en", IME_KBD_LANG_English, IME_KBD_SEC_REGQwerty,
+static TabletKeymap::LayoutFamily sSeQwertyFamily("Swedish", "en", IME_KBD_LANG_English, IME_KBD_SEC_REGQwerty,
                                                 "+ = [  ]" /* Spaces are "Unicode Character 'HAIR SPACE' (U+200A) ' ' " */, "S E Q w y" /* Spaces are "Unicode Character 'HAIR SPACE' (U+200A) ' ' " */,
-                                                0, 1, 10, 2, false, sSeQwerty, sSeQwertyBottomRow_default, sSeQwertyBottomRow_url, sSeQwertyBottomRow_email);
+                                                0, 1, 11, 2, false, sSeQwerty, sSeQwertyBottomRow_default, sSeQwertyBottomRow_url, sSeQwertyBottomRow_email);
 #endif // KEYBOARD_SE_QWERTY_H

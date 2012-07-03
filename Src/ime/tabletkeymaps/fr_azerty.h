@@ -133,7 +133,7 @@ static TabletKeymap::LayoutRow sFrAzertyBottomRow_default = { FR_AZERTY_BOTTOM_D
 static TabletKeymap::LayoutRow sFrAzertyBottomRow_url = { FR_AZERTY_BOTTOM_URL };
 static TabletKeymap::LayoutRow sFrAzertyBottomRow_email = { FR_AZERTY_BOTTOM_EMAIL };
 
-static TabletKeymap::LayoutFamily sFrAzertyFamily("fr azerty", "fr", IME_KBD_LANG_French, IME_KBD_SEC_REGQwerty,
+static TabletKeymap::LayoutFamily sFrAzertyFamily("French", "fr", IME_KBD_LANG_French, IME_KBD_SEC_REGQwerty,
                                                 "+ = [  ]" /* Spaces are "Unicode Character 'HAIR SPACE' (U+200A) ' ' " */, "A z y" /* Spaces are "Unicode Character 'HAIR SPACE' (U+200A) ' ' " */,
                                                 0, 1, 11, 2, true, sFrAzerty, sFrAzertyBottomRow_default, sFrAzertyBottomRow_url, sFrAzertyBottomRow_email);
 #endif // KEYBOARD_FR_AZERTY_H

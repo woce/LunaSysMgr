@@ -128,7 +128,7 @@ static TabletKeymap::LayoutRow sDeQwertzBottomRow_default = { DE_QWERTZ_BOTTOM_R
 static TabletKeymap::LayoutRow sDeQwertzBottomRow_url = { DE_QWERTZ_BOTTOM_ROW_URL };
 static TabletKeymap::LayoutRow sDeQwertzBottomRow_email = { DE_QWERTZ_BOTTOM_ROW_EMAIL };
 
-static TabletKeymap::LayoutFamily sDeQwertzFamily("de qwertz", "de", IME_KBD_LANG_German, IME_KBD_SEC_REGQwerty,
+static TabletKeymap::LayoutFamily sDeQwertzFamily("German", "de", IME_KBD_LANG_German, IME_KBD_SEC_REGQwerty,
                                                 "+ ~ [  ]" /* Spaces are "Unicode Character 'HAIR SPACE' (U+200A) ' ' " */, "Q w z" /* Spaces are "Unicode Character 'HAIR SPACE' (U+200A) ' ' " */,
                                                 0, 1, 10, 2, false, sDeQwertz, sDeQwertzBottomRow_default, sDeQwertzBottomRow_url, sDeQwertzBottomRow_email);
 #endif // KEYBOARD_DE_QWERTZ_H

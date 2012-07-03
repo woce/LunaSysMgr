@@ -128,7 +128,7 @@ static TabletKeymap::LayoutRow sSeDvorakBottomRow_default = { SE_DVORAK_BOTTOM_R
 static TabletKeymap::LayoutRow sSeDvorakBottomRow_url = { SE_DVORAK_BOTTOM_ROW_URL };
 static TabletKeymap::LayoutRow sSeDvorakBottomRow_email = { SE_DVORAK_BOTTOM_ROW_EMAIL };
 
-static TabletKeymap::LayoutFamily sSeDvorakFamily("se dvorak", "en", IME_KBD_LANG_English, IME_KBD_SEC_REGQwerty,
+static TabletKeymap::LayoutFamily sSeDvorakFamily("Swedish (dvorak)", "en", IME_KBD_LANG_English, IME_KBD_SEC_REGQwerty,
                                                 "+ = [  ]" /* Spaces are "Unicode Character 'HAIR SPACE' (U+200A) ' ' " */, "S E D v k" /* Spaces are "Unicode Character 'HAIR SPACE' (U+200A) ' ' " */,
-                                                0, 1, 10, 2, false, sSeDvorak, sSeDvorakBottomRow_default, sSeDvorakBottomRow_url, sSeDvorakBottomRow_email);
+                                                0, 1, 12, 2, false, sSeDvorak, sSeDvorakBottomRow_default, sSeDvorakBottomRow_url, sSeDvorakBottomRow_email);
 #endif // KEYBOARD_SE_DVORAK_H

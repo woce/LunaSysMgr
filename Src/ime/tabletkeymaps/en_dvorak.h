@@ -17,8 +17,8 @@
 *
 * LICENSE@@@ */
 
-#ifndef KEYBOARD_US_DVORAK_H
-#define KEYBOARD_US_DVORAK_H
+#ifndef KEYBOARD_EN_DVORAK_H
+#define KEYBOARD_EN_DVORAK_H
 #include "../TabletKeymap.h"
 #include "common_keys.h"
 
@@ -125,7 +125,7 @@ static TabletKeymap::LayoutRow sUsDvorakBottomRow_default = { US_DVORAK_BOTTOM_R
 static TabletKeymap::LayoutRow sUsDvorakBottomRow_url = { US_DVORAK_BOTTOM_ROW_URL };
 static TabletKeymap::LayoutRow sUsDvorakBottomRow_email = { US_DVORAK_BOTTOM_ROW_EMAIL };
 
-static TabletKeymap::LayoutFamily sUsDvorakFamily("us dvorak", "en", IME_KBD_LANG_English, IME_KBD_SEC_REGQwerty,
+static TabletKeymap::LayoutFamily sUsDvorakFamily("English (dvorak)", "en", IME_KBD_LANG_English, IME_KBD_SEC_REGQwerty,
                                                 "+ = [  ]" /* Spaces are "Unicode Character 'HAIR SPACE' (U+200A) ' ' " */, "D v k" /* Spaces are "Unicode Character 'HAIR SPACE' (U+200A) ' ' " */,
-                                                0, 1, 10, 2, false, sUsDvorak, sUsDvorakBottomRow_default, sUsDvorakBottomRow_url, sUsDvorakBottomRow_email);
-#endif // KEYBOARD_US_DVORAK_H
+                                                0, 1, 11, 2, false, sUsDvorak, sUsDvorakBottomRow_default, sUsDvorakBottomRow_url, sUsDvorakBottomRow_email);
+#endif // KEYBOARD_EN_DVORAK_H

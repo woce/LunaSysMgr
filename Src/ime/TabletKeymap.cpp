@@ -34,12 +34,12 @@
 namespace Tablet_Keyboard {
 
 // Keyboard layouts (added in reverse order because the order is changed when added to linked list)
-#include "tabletkeymaps/us_dvorak.h"
-#include "tabletkeymaps/us_qwerty.h"
 #include "tabletkeymaps/se_dvorak.h"
 #include "tabletkeymaps/se_qwerty.h"
-#include "tabletkeymaps/fr_azerty.h"
 #include "tabletkeymaps/de_qwertz.h"
+#include "tabletkeymaps/fr_azerty.h"
+#include "tabletkeymaps/en_dvorak.h"
+#include "tabletkeymaps/en_qwerty.h"
 
 const TabletKeymap::LayoutFamily * TabletKeymap::LayoutFamily::s_firstFamily = NULL;
 
