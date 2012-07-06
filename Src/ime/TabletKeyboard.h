@@ -140,7 +140,7 @@ public:
 	bool	setBoolOption(const std::string & optionName, bool value);
 	bool	setIntOption(const std::string & optionName, int value);
 	bool	getValue(const std::string & name, std::string & outValue);
-	void	setKeyboardCombo(const std::string & layoutName, const std::string & languageName, bool showLanguageKey);
+	void	setKeyboardCombo(const std::string & keyboardLanguage, const std::string & keymap, const std::string & autoCorrectLanguage, bool showLanguageKey);
 	void	keyboardCombosChanged()					{ m_keymap.keyboardCombosChanged(); }	// called by VirtualKeyboardPreferences when combos change
 
 	QList<const char *>	getLayoutNameList()			{ return m_keymap.getLayoutList(); }

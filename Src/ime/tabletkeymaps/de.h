@@ -16,12 +16,14 @@
 *
 * LICENSE@@@ */
 
-#ifndef KEYBOARD_DE_QWERTZ_H
-#define KEYBOARD_DE_QWERTZ_H
+#ifndef KEYBOARD_DE_H
+#define KEYBOARD_DE_H
 #include "../TabletKeymap.h"
 #include "common_keys.h"
+static TabletKeymap::LayoutFamily sLayoutGerman("German", "de");
+static TabletKeymap::constUKeyArray sGerman_DotCom_Extended = { cKey_DotCom, cKey_DotDe, cKey_DotNet, cKey_DotOrg, cKey_DotEdu, cKey_None };
 
-static TabletKeymap::constUKeyArray sDeQwertz_DotCom_Extended = { cKey_DotCom, cKey_DotDe, cKey_DotNet, cKey_DotOrg, cKey_DotEdu, cKey_None };
+// Qwertz
 static TabletKeymap::constUKeyArray sDeQwertz1_extended = { Qt::Key_1, Qt::Key_Exclam, UKey(0x00B9) /* SUPERSCRIPT ONE ¹ */, UKey(0x00BC) /* VULGAR FRACTION ONE QUARTER ¼ */, UKey(0x00BD) /* VULGAR FRACTION ONE HALF ½ */, Qt::Key_exclamdown, cKey_None };
 static TabletKeymap::constUKeyArray sDeQwertz2_extended = { Qt::Key_2, Qt::Key_QuoteDbl, UKey(0x00B2) /* SUPERSCRIPT TWO ² */, UKey(0x201D) /* RIGHT DOUBLE QUOTATION MARK ” */, UKey(0x201E) /* DOUBLE LOW-9 QUOTATION MARK „ */, UKey(0x201C) /* LEFT DOUBLE QUOTATION MARK “ */, UKey(0x00AB) /* LEFT-POINTING DOUBLE ANGLE QUOTATION MARK « */, UKey(0x00BB) /* RIGHT-POINTING DOUBLE ANGLE QUOTATION MARK » */, cKey_None };
 static TabletKeymap::constUKeyArray sDeQwertz3_extended = { Qt::Key_3, Qt::Key_At, UKey(0x00B3) /* SUPERSCRIPT THREE ³ */, UKey(0x00BE) /* VULGAR FRACTION THREE QUARTERS ¾ */, cKey_None };
@@ -98,7 +100,7 @@ static TabletKeymap::constUKeyArray sMinusApostrophe_extended = { Qt::Key_Minus,
 									NOKEY_1,\
 									KEY_1(1, Qt::Key_Slash),\
 									KEY_1(SPACE_SIZE - 2, Qt::Key_Space),\
-									KEY_3(1, cKey_DotCom, cKey_DotCom, sDeQwertz_DotCom_Extended),\
+									KEY_3(1, cKey_DotCom, cKey_DotCom, sGerman_DotCom_Extended),\
 									KEY_3(1, Qt::Key_ssharp, Qt::Key_Question, sSSharpQuestion_extended),\
 									KEY_3(1, Qt::Key_Minus, Qt::Key_Apostrophe, sMinusApostrophe_extended),\
 									KEY_3(1, cKey_Hide, cKey_Hide, sHide_extended),\
@@ -110,7 +112,7 @@ static TabletKeymap::constUKeyArray sMinusApostrophe_extended = { Qt::Key_Minus,
 									NOKEY_1,\
 									KEY_1(1, Qt::Key_At),\
 									KEY_1(SPACE_SIZE - 2, Qt::Key_Space),\
-									KEY_3(1, cKey_DotCom, cKey_DotCom, sDeQwertz_DotCom_Extended),\
+									KEY_3(1, cKey_DotCom, cKey_DotCom, sGerman_DotCom_Extended),\
 									KEY_3(1, Qt::Key_ssharp, Qt::Key_Question, sSSharpQuestion_extended),\
 									KEY_3(1, Qt::Key_Minus, Qt::Key_Apostrophe, sMinusApostrophe_extended),\
 									KEY_3(1, cKey_Hide, cKey_Hide, sHide_extended),\
@@ -128,7 +130,7 @@ static TabletKeymap::LayoutRow sDeQwertzBottomRow_default = { DE_QWERTZ_BOTTOM_R
 static TabletKeymap::LayoutRow sDeQwertzBottomRow_url = { DE_QWERTZ_BOTTOM_ROW_URL };
 static TabletKeymap::LayoutRow sDeQwertzBottomRow_email = { DE_QWERTZ_BOTTOM_ROW_EMAIL };
 
-static TabletKeymap::LayoutFamily sDeQwertzFamily("German", "de", IME_KBD_LANG_German, IME_KBD_SEC_REGQwerty,
+static TabletKeymap::Keymap sDeQwertzFamily(&sLayoutGerman, "Qwertz", IME_KBD_LANG_German, IME_KBD_SEC_REGQwerty,
                                                 "+ ~ [  ]" /* Spaces are "Unicode Character 'HAIR SPACE' (U+200A) ' ' " */, "Q w z" /* Spaces are "Unicode Character 'HAIR SPACE' (U+200A) ' ' " */,
                                                 0, 1, 10, 2, false, sDeQwertz, sDeQwertzBottomRow_default, sDeQwertzBottomRow_url, sDeQwertzBottomRow_email);
-#endif // KEYBOARD_DE_QWERTZ_H
+#endif // KEYBOARD_DE_H

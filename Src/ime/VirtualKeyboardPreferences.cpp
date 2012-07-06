@@ -97,7 +97,17 @@ void VirtualKeyboardPreferences::localeChanged()
 		mActiveCombo = getDefault();
         activateCombo();
         saveSettings();
-		g_message("VirtualKeyboardPreferences::localeChanged: resetting to locale default: %s/%s", mActiveCombo.layout.c_str(), mActiveCombo.language.c_str());
+		g_message("VirtualKeyboardPreferences::localeChanged: resetting to locale default: %s/%s", mActiveCombo.keyboardLanguage.c_str(), mActiveCombo.autoCorrectLanguage.c_str());
+	}
+}
+
+void VirtualKeyboardPreferences::selectKeymap(const std::string keymap)
+{
+	if (mVirtualKeyboard && !keymap.empty())
+	{
+		mActiveCombo.setKeymap(keymap);
+		activateCombo();
+		saveSettings();
 	}
 }
 
@@ -136,7 +146,7 @@ void VirtualKeyboardPreferences::selectLayoutCombo(const char * layoutName)
 	// first, find a combo using that layout...
 	for (std::vector<SKeyboardCombo>::iterator iter = mCombos.begin(); iter != mCombos.end(); ++iter)
 	{
-		if (strcasecmp(iter->layout.c_str(), layoutName) == 0)
+		if (strcasecmp(iter->keyboardLanguage.c_str(), layoutName) == 0)
 		{
 			mActiveCombo = *iter;
 			activateCombo();
@@ -150,8 +160,8 @@ void VirtualKeyboardPreferences::selectLayoutCombo(const char * layoutName)
 		const char * language = mVirtualKeyboard->getLayoutDefaultLanguage(layoutName);
 		if (language)
 		{
-			mActiveCombo.layout = layoutName;
-			mActiveCombo.language = language;
+			mActiveCombo.keyboardLanguage = layoutName;
+			mActiveCombo.autoCorrectLanguage = language;
 			activateCombo();
 			saveSettings();
 		}
@@ -164,12 +174,14 @@ void VirtualKeyboardPreferences::activateCombo()
 	{
         if (mCombos.size() == 0 || (mCombos.size() == 1 && mActiveCombo == mCombos[0]))
 		{
-			if (mActiveCombo.layout.empty())
-				mActiveCombo = getDefault();
-			mVirtualKeyboard->setKeyboardCombo(mActiveCombo.layout, mActiveCombo.language, false);
+			if (mActiveCombo.keyboardLanguage.empty())
+				mActiveCombo = getDefault(); // @@@ Default?
+			mVirtualKeyboard->setKeyboardCombo(mActiveCombo.keyboardLanguage, mActiveCombo.keymap, mActiveCombo.autoCorrectLanguage, true);
 		}
 		else
-			mVirtualKeyboard->setKeyboardCombo(mActiveCombo.layout, mActiveCombo.language, true);
+		{
+			mVirtualKeyboard->setKeyboardCombo(mActiveCombo.keyboardLanguage, mActiveCombo.keymap, mActiveCombo.autoCorrectLanguage, true);
+		}
 	}
 }
 
@@ -189,9 +201,28 @@ void VirtualKeyboardPreferences::saveSettings()
 	Preferences * prefs = Preferences::instance();
 	if (VERIFY(prefs))
 	{
-		pbnjson::JValue settings = jsonPair("layout", mActiveCombo.layout.c_str(), "language", mActiveCombo.language.c_str());
+		pbnjson::JValue keymapsPref = pbnjson::Object();
+		size_t i = 0;
+		
+		pbnjson::JValue settings = jsonPair("layout", mActiveCombo.keyboardLanguage.c_str(), "language", mActiveCombo.autoCorrectLanguage.c_str());
 		settings.put("keyboard size", mKeyboardSize);
 		prefs->setStringPreference(PALM_VIRTUAL_KEYBOARD_SETTINGS, jsonToString(settings).c_str());
+
+		// Save keymap settings
+		i = 0;
+		while (i < mCombos.size())
+		{
+			if (mCombos[i] == mActiveCombo)
+			{
+				mCombos[i].setKeymap(mActiveCombo.keymap);
+			}
+			if (!mCombos[i].keymap.empty())
+			{
+				keymapsPref.put(mCombos[i].keyboardLanguage.c_str(), mCombos[i].keymap);
+			}
+			i++;
+		}
+		prefs->setStringPreference(PALM_VIRTUAL_KEYBOARD_SELECTED_KEYMAPS, jsonToString(keymapsPref).c_str());
 	}
 }
 
@@ -213,7 +244,7 @@ void VirtualKeyboardPreferences::virtualKeyboardPreferencesChanged(const char * 
 				{
 					JsonValue value(array[index]);
 					SKeyboardCombo combo;
-					if (value.get("layout", combo.layout) && value.get("language", combo.language) && !combo.empty())
+					if (value.get("layout", combo.keyboardLanguage) && value.get("language", combo.autoCorrectLanguage) && !combo.empty())
                     {
 						mCombos.push_back(combo);
                         if (mActiveCombo == combo)
@@ -250,14 +281,14 @@ void VirtualKeyboardPreferences::virtualKeyboardSettingsChanged(const char * set
 		{
 			//g_debug("%s: Parsed '%s'", __FUNCTION__, settings);
 			SKeyboardCombo combo;
-			if (parser.get("layout", combo.layout) && parser.get("language", combo.language) && !combo.empty())
+			if (parser.get("layout", combo.keyboardLanguage) && parser.get("language", combo.autoCorrectLanguage) && !combo.empty())
 			{
 				mSettingsReceived = true;	// we got some valid settings: don't force them again (required by the smartkey service to work properly)
 				if (combo != mActiveCombo)
 				{
 					mActiveCombo = combo;
-					if (mActiveCombo.language.empty())
-						mActiveCombo.language = getDefault().language;
+					if (mActiveCombo.autoCorrectLanguage.empty())
+						mActiveCombo.autoCorrectLanguage = getDefault().autoCorrectLanguage;
 					activateCombo();
 				}
 			}
@@ -271,6 +302,35 @@ void VirtualKeyboardPreferences::virtualKeyboardSettingsChanged(const char * set
 	}
 }
 
+void VirtualKeyboardPreferences::virtualKeyboardSelectedKeymapsChanged(const char * selectedKeymaps)
+{
+	if (mVirtualKeyboard)
+	{
+		JsonMessageParser	parser(selectedKeymaps, SCHEMA_ANY);
+		if (parser.parse(__FUNCTION__))
+		{
+			mSelectedKeymapsReceived = true;
+			//g_debug("%s: Parsed '%s'", __FUNCTION__, prefs);
+			unsigned int i=0;
+			while (i<mCombos.size())
+			{
+				std::string keymap;
+				if (parser.get(mCombos[i].keyboardLanguage.c_str(), keymap))
+				{
+					mCombos[i].setKeymap(keymap);
+					if (mCombos[i] == mActiveCombo)
+					{
+						mActiveCombo.setKeymap(keymap);
+					}
+				}
+				i++;
+			}
+			mVirtualKeyboard->keyboardCombosChanged();
+			activateCombo();
+		}
+	}
+}
+
 VirtualKeyboardPreferences::SKeyboardCombo	VirtualKeyboardPreferences::getDefault()
 {
 	std::string	locale;
@@ -279,20 +339,20 @@ VirtualKeyboardPreferences::SKeyboardCombo	VirtualKeyboardPreferences::getDefaul
 	if (prefs)
 		locale = prefs->locale();
 	const char * language = NULL;
-	if (mVirtualKeyboard && strncasecmp(locale.c_str(), "fr_fr", 5) == 0 && (language = mVirtualKeyboard->getLayoutDefaultLanguage("AZERTY")) != NULL && strcasecmp(language, "fr") == 0)
+	if (mVirtualKeyboard && strncasecmp(locale.c_str(), "fr_fr", 5) == 0)
 	{
-        combo.language = "fr";
-        combo.layout = "azerty";
+        combo.autoCorrectLanguage = "fr";
+        combo.keyboardLanguage = "French";
 	}
-	else if (mVirtualKeyboard && strncasecmp(locale.c_str(), "de_de", 5) == 0 && (language = mVirtualKeyboard->getLayoutDefaultLanguage("QWERTZ")) != NULL && strcasecmp(language, "de") == 0)
+	else if (mVirtualKeyboard && strncasecmp(locale.c_str(), "de_de", 5) == 0)
 	{
-        combo.language = "de";
-        combo.layout = "qwertz";
+        combo.autoCorrectLanguage = "de";
+        combo.keyboardLanguage = "German";
 	}
 	else
 	{
-        combo.layout = "qwerty";
-		combo.language = locale;
+        combo.keyboardLanguage = "English";
+		combo.autoCorrectLanguage = locale;
 	}
 	return combo;
 }
@@ -318,7 +378,7 @@ void VirtualKeyboardPreferences::createDefaultKeyboards()
 			if (VERIFY(language))
 				array.append(jsonPair("layout", layout, "language", language));
 		}
-		array.append(jsonPair("layout", "QWERTY", "language", "none"));
+		array.append(jsonPair("layout", "English", "language", "none"));
 		pref.put("keyboards", array);
 		pref.put("TapSounds", mTapSounds);
 		pref.put("spaces2period", mSpaces2period);
@@ -346,7 +406,9 @@ void VirtualKeyboardPreferences::savePreferences(const std::vector<SKeyboardComb
 		pbnjson::JValue pref = pbnjson::Object();
 		pbnjson::JValue array = pbnjson::Array();
 		for (std::vector<SKeyboardCombo>::const_iterator iter = combos.begin(); iter != combos.end(); ++iter)
-			array.append(jsonPair("layout", iter->layout.c_str(), "language", iter->language.c_str()));
+		{
+			array.append(jsonPair("layout", iter->keyboardLanguage.c_str(), "language", iter->autoCorrectLanguage.c_str()));
+		}
 		pref.put("keyboards", array);
 		pref.put("TapSounds", mTapSounds);
 		pref.put("spaces2period", mSpaces2period);

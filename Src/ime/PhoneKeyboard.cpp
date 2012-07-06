@@ -233,9 +233,9 @@ void PhoneKeyboard::setSymbolMode(PhoneKeymap::ESymbolMode symbolMode)
 		keyboardLayoutChanged();
 }
 
-void PhoneKeyboard::setKeyboardCombo(const std::string & layoutName, const std::string & languageName, bool showLanguageKey)
+void PhoneKeyboard::setKeyboardCombo(const std::string & keyboardLanguage, const std::string & keymap, const std::string & autoCorrectLanguage, bool showLanguageKey)
 {
-	const PhoneKeymap::LayoutFamily * layoutFamily = PhoneKeymap::LayoutFamily::findLayoutFamily(layoutName.c_str(), false);	// get default if not found
+	const PhoneKeymap::LayoutFamily * layoutFamily = PhoneKeymap::LayoutFamily::findLayoutFamily(keyboardLanguage.c_str(), false);	// get default if not found
 	bool changed = false;
 
 	if (m_keymap.setLayoutFamily(layoutFamily))
@@ -245,10 +245,10 @@ void PhoneKeyboard::setKeyboardCombo(const std::string & layoutName, const std::
 	}
 	syncKeymap();
 
-	if (m_keymap.setLanguageName(showLanguageKey ? languageName : ""))
+	if (m_keymap.setLanguageName(showLanguageKey ? autoCorrectLanguage : ""))
 		changed = true;
 
-	m_candidateBar.setLanguage(languageName);
+	m_candidateBar.setLanguage(autoCorrectLanguage);
 
 	if (changed)
 		keyboardLayoutChanged();

@@ -243,22 +243,22 @@ void TabletKeyboard::setSymbolMode(TabletKeymap::ESymbolMode symbolMode)
 		keyboardLayoutChanged();
 }
 
-void TabletKeyboard::setKeyboardCombo(const std::string & layoutName, const std::string & languageName, bool showLanguageKey)
+void TabletKeyboard::setKeyboardCombo(const std::string & keyboardLanguage, const std::string & keymap, const std::string & autoCorrectLanguage, bool showLanguageKey)
 {
-	const TabletKeymap::LayoutFamily * layoutFamily = TabletKeymap::LayoutFamily::findLayoutFamily(layoutName.c_str(), false);	// get default if not found
+	const TabletKeymap::LayoutFamily * layoutFamily = TabletKeymap::LayoutFamily::findLayoutFamily(keyboardLanguage.c_str(), false);	// get default if not found
 	bool changed = false;
 
-	if (m_keymap.setLayoutFamily(layoutFamily))
+	if (m_keymap.setLayoutFamily(layoutFamily) || m_keymap.setKeymap(keymap))
 	{
 		changed = true;
 		KeyLocationRecorder::instance().keyboardSizeChanged(m_keymap.layoutName(), m_keymap.rect());
 	}
 	syncKeymap();
 
-	if (m_keymap.setLanguageName(showLanguageKey ? languageName : ""))
+	if (m_keymap.setLanguageName(showLanguageKey ? autoCorrectLanguage : ""))
 		changed = true;
 
-	m_candidateBar.setLanguage(languageName);
+	m_candidateBar.setLanguage(autoCorrectLanguage);
 
 	if (changed)
 		keyboardLayoutChanged();
@@ -276,7 +276,7 @@ void TabletKeyboard::syncKeymap()
 	}
 	if (m_candidateBarLayoutOutdated && m_generatedKeymapLayout)
 	{
-		if (m_candidateBar.loadKeyboardLayoutFile(IME_KDB_XML_FILENAME, m_generatedKeymapLayout->m_primaryID, m_generatedKeymapLayout->m_secondaryID))
+		if (m_candidateBar.loadKeyboardLayoutFile(IME_KDB_XML_FILENAME, m_generatedKeymapLayout->m_currentKeymap->m_primaryID, m_generatedKeymapLayout->m_currentKeymap->m_secondaryID))
 			m_candidateBarLayoutOutdated = false;
 	}
 }
@@ -742,8 +742,8 @@ void TabletKeyboard::handleKey(UKey key, QPointF where)
 	}
 	else if (UKeyIsKeyboardComboKey(key))
 	{
-		int index = key - cKey_KeyboardComboChoice_First;
-		VirtualKeyboardPreferences::instance().selectKeyboardCombo(index);
+		QString keymap = m_keymap.getKeyDisplayString(key, false);
+		VirtualKeyboardPreferences::instance().selectKeymap(keymap.toStdString());
 	}
 	else
 	{

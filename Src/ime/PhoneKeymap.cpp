@@ -929,7 +929,7 @@ QString PhoneKeymap::getKeyDisplayString(UKey key, bool logging)
 			int index = key - cKey_KeyboardComboChoice_First;
 			VirtualKeyboardPreferences & prefs = VirtualKeyboardPreferences::instance();
 			if (VERIFY(index >= 0 && index < prefs.getKeyboardComboCount()))
-				return prefs.getkeyboardCombo(index).language.c_str();
+				return prefs.getkeyboardCombo(index).autoCorrectLanguage.c_str();
 			return NULL;
 		}
 

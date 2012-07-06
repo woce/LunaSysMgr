@@ -581,6 +581,7 @@ bool Preferences::serverConnectCallback(LSHandle *sh, LSMessage *message, void *
 													   \"muteSound\",\
 													   \"" PALM_VIRTUAL_KEYBOARD_PREFS "\",\
 													   \"" PALM_VIRTUAL_KEYBOARD_SETTINGS "\",\
+													   \"" PALM_VIRTUAL_KEYBOARD_SELECTED_KEYMAPS "\",\
 					 	 	 	 	 	 	 	 	   \"enableVoiceCommand\",\
 													   \"enableALS\",\
 													   \"deviceName\" ]}",
@@ -930,13 +931,26 @@ bool Preferences::getPreferencesCallback(LSHandle *sh, LSMessage *message, void 
 		}
 	}
 
+	g_warning("Load virtual keyboard settings");
 	label = json_object_object_get(json, PALM_VIRTUAL_KEYBOARD_SETTINGS);
 	if ((label) && (!is_error(label)))
+	{
 		VirtualKeyboardPreferences::instance().virtualKeyboardSettingsChanged(json_object_get_string(label));
+	}
 
+	g_warning("Load virtual keyboard preferences");
 	label = json_object_object_get(json, PALM_VIRTUAL_KEYBOARD_PREFS);
 	if ((label) && (!is_error(label)))
+	{
 		VirtualKeyboardPreferences::instance().virtualKeyboardPreferencesChanged(json_object_get_string(label));
+	}
+	
+	g_warning("Load virtual keyboard selected keymap");
+	label = json_object_object_get(json, PALM_VIRTUAL_KEYBOARD_SELECTED_KEYMAPS);
+	if ((label) && (!is_error(label)))
+	{
+		VirtualKeyboardPreferences::instance().virtualKeyboardSelectedKeymapsChanged(json_object_get_string(label));
+	}
 
 	label = json_object_object_get(json, "enableVoiceCommand");
 	if (label && !is_error(label)) {

@@ -174,20 +174,40 @@ public:
 	typedef LayoutRow	Layout[cKeymapRows];
 	typedef float		HLimits[cKeymapRows][cKeymapColumns];
 	typedef float		VLimits[cKeymapRows];
-
+	
+	struct Keymap;
 	struct LayoutFamily {
+		LayoutFamily(const char * name, const char * language);
+		
+		const char *                m_name;
+		const char *                m_language;
+		
+		// registration of key layouts
+		Keymap *                  m_currentKeymap;
+		Keymap *                  m_firstKeymap;
+		Keymap *                  findKeymap(const char * name, bool returnNullNotDefaultIfNotFound = true);
+		bool                      setCurrentKeymap(const char * keymap) { Keymap* kmap = findKeymap(keymap); if (kmap != NULL) m_currentKeymap = kmap; else return false; return true; }
 
-		LayoutFamily(const char * name, const char * defaultLanguage, uint16_t primaryID, uint16_t secondaryID,
+		
+		// self registration of layout families. Start with first, iterate until nextFamily is null.
+		const LayoutFamily *		m_nextFamily;
+
+		static const LayoutFamily * findLayoutFamily(const char * name, bool returnNullNotDefaultIfNotFound = true);
+		static const LayoutFamily * s_firstFamily ;
+	};
+	struct Keymap {
+		Keymap(LayoutFamily * layoutFamily, const char * name, uint16_t primaryID, uint16_t secondaryID,
 						const char * symbolKeyLabel, const char * noLanguageKeyLabel,
 						int tabX, int symbolX, int returnX, int returnY, bool needNumbLock, Layout & layout,
 						LayoutRow & defaultBottomRow, LayoutRow & urlBottomRow, LayoutRow & emailBottomRow);
+
+		Keymap *        m_nextKeymap;
 
 		const WKey &	wkey(int x, int y) const						{ return m_layout[y][x]; }
 		UKey			key(int x, int y, ELayoutPage page) const		{ return (page == eLayoutPage_plain) ? wkey(x, y).m_key : wkey(x, y).m_altkey; }
 		float			weight(int x, int y) const						{ return wkey(x, y).m_weight; }
 
 		const char *	m_name;
-		const char *	m_defaultLanguage;
 
 		uint16_t		m_primaryID;
 		uint16_t		m_secondaryID;
@@ -208,14 +228,6 @@ public:
 		LayoutRow &		m_defaultBottomRow;
 		LayoutRow &		m_urlBottomRow;
 		LayoutRow &		m_emailBottomRow;
-
-		// self registration of layout families. Start with first, iterate until nextFamily is null.
-		const LayoutFamily *		m_nextFamily;
-
-		static const LayoutFamily * findLayoutFamily(const char * name, bool returnNullNotDefaultIfNotFound = true);
-
-		static const LayoutFamily * s_firstFamily;
-
 	};
 
 	TabletKeymap();
@@ -229,6 +241,7 @@ public:
 
 	// The following functions that return a bool return true when the layout effectively changed (and you probably need to update your display)
 	bool				setLayoutFamily(const LayoutFamily * layoutFamily);
+	bool				setKeymap(const std::string & keymap);
 	const LayoutFamily*	layoutFamily() const					{ return m_layoutFamily; }
 	bool				setLanguageName(const std::string & name);		// if empty string, hide language key, otherwise show it.
 	void				keyboardCombosChanged();						// called when available keyboard combos change
@@ -257,22 +270,22 @@ public:
 	UKey				map(QPoint p)							{ return map(p.x(), p.y()); }
 	UKey				map(int x, int y);
 	UKey				map(QPoint p, ELayoutPage page)			{ return map(p.x(), p.y(), page); }
-	UKey				map(int x, int y, ELayoutPage page)		{ return isValidLocation(x, y) ? m_layoutFamily->key(x, y, page) : cKey_None; }
+	UKey				map(int x, int y, ELayoutPage page)		{ return isValidLocation(x, y) ? m_layoutFamily->m_currentKeymap->key(x, y, page) : cKey_None; }
 	quint32				getPage() const							{ return m_layoutPage; }
 
 	ETabAction			tabAction() const;
 
 	const char *		layoutName()							{ return m_layoutFamily->m_name; }
 
-	uint16_t			primaryKeyboardID()						{ return m_layoutFamily->m_primaryID; }
-	uint16_t			secondaryKeyboardID()					{ return m_layoutFamily->m_secondaryID; }
+	uint16_t			primaryKeyboardID()						{ return m_layoutFamily->m_currentKeymap->m_primaryID; }
+	uint16_t			secondaryKeyboardID()					{ return m_layoutFamily->m_currentKeymap->m_secondaryID; }
 
 	bool				generateKeyboardLayout(const char * fullPath);
 	std::string			getKeyboardLayoutAsJson();
 
-	int					getCachedGlyphsCount() const			{ return m_layoutFamily->m_cachedGlyphsCount; }
-	void				incCachedGlyphs()						{ const_cast<LayoutFamily *>(m_layoutFamily)->m_cachedGlyphsCount++; }
-	void				resetCachedGlyphsCount()				{ if (m_layoutFamily->m_cachedGlyphsCount > 1) const_cast<LayoutFamily *>(m_layoutFamily)->m_cachedGlyphsCount = 1; }
+	int					getCachedGlyphsCount() const			{ return m_layoutFamily->m_currentKeymap->m_cachedGlyphsCount; }
+	void				incCachedGlyphs()						{ const_cast<Keymap *>(m_layoutFamily->m_currentKeymap)->m_cachedGlyphsCount++; }
+	void				resetCachedGlyphsCount()				{ if (m_layoutFamily->m_currentKeymap->m_cachedGlyphsCount > 1) const_cast<Keymap *>(m_layoutFamily->m_currentKeymap)->m_cachedGlyphsCount = 1; }
 
 	static inline bool	isValidLocation(int x, int y)			{ return x >= 0 && x < cKeymapColumns && y >= 0 && y < cKeymapRows; }
 	static inline bool	isValidLocation(QPoint location)		{ return isValidLocation(location.x(), location.y()); }
@@ -294,7 +307,7 @@ private:
 	bool				m_autoCap;
 	bool				m_numLock;							// in number & phone fields, when numbers need shift.
 	PalmIME::EditorState m_editorState;
-	const LayoutFamily * m_layoutFamily;
+	LayoutFamily *      m_layoutFamily;
 	ELayoutPage			m_layoutPage;
 	QRect				m_rect;
 	int					m_rowHeight[cKeymapRows];

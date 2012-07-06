@@ -34,26 +34,35 @@
 namespace Tablet_Keyboard {
 
 // Keyboard layouts (added in reverse order because the order is changed when added to linked list)
-#include "tabletkeymaps/se_dvorak.h"
-#include "tabletkeymaps/se_qwerty.h"
-#include "tabletkeymaps/de_qwertz.h"
-#include "tabletkeymaps/fr_azerty.h"
-#include "tabletkeymaps/en_dvorak.h"
-#include "tabletkeymaps/en_qwerty.h"
+#include "tabletkeymaps/se.h"
+#include "tabletkeymaps/de.h"
+#include "tabletkeymaps/fr.h"
+#include "tabletkeymaps/en.h"
 
+/* --- Layout Family --- */
 const TabletKeymap::LayoutFamily * TabletKeymap::LayoutFamily::s_firstFamily = NULL;
-
-TabletKeymap::LayoutFamily::LayoutFamily(const char * name, const char * defaultLanguage, uint16_t primaryID, uint16_t secondaryID,
-										 const char * symbolKeyLabel, const char * noLanguageKeyLabel, int tab_x, int symbol_x, int return_x, int return_y, bool needNumLock, Layout & layout,
-										 LayoutRow & defaultBottomRow, LayoutRow & urlBottomRow, LayoutRow & emailBottomRow) :
-	m_name(name), m_defaultLanguage(defaultLanguage), m_primaryID(primaryID), m_secondaryID(secondaryID), m_symbolKeyLabel(symbolKeyLabel), m_noLanguageKeyLabel(noLanguageKeyLabel),
-	m_tab_x(tab_x), m_symbol_x(symbol_x), m_return_x(return_x), m_return_y(return_y), m_needNumLock(needNumLock), m_cachedGlyphsCount(0), m_layout(layout),
-	m_defaultBottomRow(defaultBottomRow), m_urlBottomRow(urlBottomRow), m_emailBottomRow(emailBottomRow)
+TabletKeymap::LayoutFamily::LayoutFamily(const char * name, const char * defaultLanguage) :
+	m_name(name), m_language(defaultLanguage)
 {
 	m_nextFamily = s_firstFamily;
 	s_firstFamily = this;
 }
-
+TabletKeymap::Keymap * TabletKeymap::LayoutFamily::findKeymap(const char * name, bool returnNullNotDefaultIfNotFound)
+{
+	Keymap * keymap = m_firstKeymap;
+	while (keymap)
+	{
+		if (strcasecmp(keymap->m_name, name) == 0)
+			return keymap;
+		else
+			keymap = keymap->m_nextKeymap;
+	}
+	if (returnNullNotDefaultIfNotFound)
+		return NULL;
+	keymap = m_firstKeymap;
+	g_warning("LayoutFamily::findKeymap<%s>: '%s' not found, returning '%s' by default.", this->m_name, name, keymap->m_name);
+	return keymap;
+}
 const TabletKeymap::LayoutFamily * TabletKeymap::LayoutFamily::findLayoutFamily(const char * name, bool returnNullNotDefaultIfNotFound)
 {
 	const LayoutFamily * family = s_firstFamily;
@@ -66,13 +75,29 @@ const TabletKeymap::LayoutFamily * TabletKeymap::LayoutFamily::findLayoutFamily(
 	}
 	if (returnNullNotDefaultIfNotFound)
 		return NULL;
-	family = &sUsQwertyFamily;
+	family = &sLayoutEnglish;
 	g_warning("LayoutFamily::findLayoutFamily: '%s' not found, returning '%s' by default.", name, family->m_name);
 	return family;
 }
 
+/* --- Keymap --- */
+
+TabletKeymap::Keymap::Keymap(LayoutFamily * layoutFamily, const char * name, uint16_t primaryID, uint16_t secondaryID,
+										 const char * symbolKeyLabel, const char * noLanguageKeyLabel, int tab_x, int symbol_x, int return_x, int return_y, bool needNumLock, Layout & layout,
+										 LayoutRow & defaultBottomRow, LayoutRow & urlBottomRow, LayoutRow & emailBottomRow) :
+	m_name(name), m_primaryID(primaryID), m_secondaryID(secondaryID), m_symbolKeyLabel(symbolKeyLabel), m_noLanguageKeyLabel(noLanguageKeyLabel),
+	m_tab_x(tab_x), m_symbol_x(symbol_x), m_return_x(return_x), m_return_y(return_y), m_needNumLock(needNumLock), m_cachedGlyphsCount(0), m_layout(layout),
+	m_defaultBottomRow(defaultBottomRow), m_urlBottomRow(urlBottomRow), m_emailBottomRow(emailBottomRow)
+{
+	m_nextKeymap = layoutFamily->m_firstKeymap;
+	layoutFamily->m_firstKeymap = this;
+	layoutFamily->m_currentKeymap = this;
+}
+
+/* --- Tablet Keymap --- */
+
 TabletKeymap::TabletKeymap() : m_shiftMode(TabletKeymap::eShiftMode_Off), m_symbolMode(eSymbolMode_Off), m_shiftDown(false), m_symbolDown(false), m_autoCap(false), m_numLock(false),
-	m_layoutFamily(&sUsQwertyFamily), m_layoutPage(eLayoutPage_plain), m_limitsDirty(true), m_limitsVersion(0)
+	m_layoutFamily(&sLayoutEnglish), m_layoutPage(eLayoutPage_plain), m_limitsDirty(true), m_limitsVersion(0)
 {
 	for (int r = 0; r < cKeymapRows; ++r)
 		m_rowHeight[r] = 1;
@@ -84,8 +109,11 @@ QList<const char *> TabletKeymap::getLayoutList()
 	const LayoutFamily * family = LayoutFamily::s_firstFamily;
 	while (family)
 	{
-		list.push_back(family->m_name);
-		family = family->m_nextFamily;
+		if (family->m_firstKeymap != NULL)
+		{
+			list.push_back(family->m_name);
+			family = family->m_nextFamily;
+		}
 	}
 	return list;
 }
@@ -94,7 +122,7 @@ const char * TabletKeymap::getLayoutDefaultLanguage(const char * layoutName)
 {
 	const TabletKeymap::LayoutFamily * family = LayoutFamily::findLayoutFamily(layoutName);
 	if (family)
-		return family->m_defaultLanguage;
+		return family->m_language;
 	return NULL;
 }
 
@@ -108,7 +136,19 @@ bool TabletKeymap::setLayoutFamily(const LayoutFamily * layoutFamily)
 {
 	if (m_layoutFamily != layoutFamily)
 	{
-		m_layoutFamily = layoutFamily;
+		m_layoutFamily = const_cast<LayoutFamily*>(layoutFamily);
+		updateLanguageKey();
+		setEditorState(m_editorState);
+		m_limitsDirty = true;
+		resetCachedGlyphsCount();
+		return true;
+	}
+	return false;
+}
+bool TabletKeymap::setKeymap(const std::string & keymap)
+{
+	if (m_layoutFamily->setCurrentKeymap(keymap.c_str()))
+	{
 		updateLanguageKey();
 		setEditorState(m_editorState);
 		m_limitsDirty = true;
@@ -118,6 +158,7 @@ bool TabletKeymap::setLayoutFamily(const LayoutFamily * layoutFamily)
 	return false;
 }
 
+// @@@ CHECK!
 bool TabletKeymap::setLanguageName(const std::string & name)
 {
 	QString displayName = getLanguageDisplayName(name, m_layoutFamily);
@@ -133,39 +174,35 @@ bool TabletKeymap::setLanguageName(const std::string & name)
 
 QString TabletKeymap::getLanguageDisplayName(const std::string & languageName, const LayoutFamily * layoutFamily)
 {
-	QString name;
-	if (::strcasecmp(languageName.c_str(), "none") == 0)
-		name = QString::fromUtf8(layoutFamily->m_noLanguageKeyLabel);
-	else
-	{
-		if (languageName.length() > 0)
-			name += QChar(languageName[0]).toUpper();
-		if (languageName.length() > 1)
-			name += QChar(languageName[1]).toLower();
-		if (languageName.length() > 2 && languageName[2] != '-')
-			for (size_t k = 2; k < languageName.size(); ++k)
-				name += QChar(languageName[k]).toLower();
-	}
+	QString name = QString::fromUtf8(layoutFamily->m_name);
 	return name;
 }
 
 void TabletKeymap::keyboardCombosChanged()
 {
-	VirtualKeyboardPreferences & prefs = VirtualKeyboardPreferences::instance();
-	int count = qMin<int>(G_N_ELEMENTS(sLanguageChoices_Extended), prefs.getKeyboardComboCount());
-	for (int k = 0; k < count; k++)
+	int k = 0;
+	const TabletKeymap::Keymap* keymap = m_layoutFamily->m_firstKeymap;
+	while (keymap)
+	{
 		sLanguageChoices_Extended[k] = (UKey) (cKey_KeyboardComboChoice_First + k);
-	sLanguageChoices_Extended[count] = cKey_None;
+		keymap = keymap->m_nextKeymap;
+		k++;
+	}
+	if (k==1) // if only one keymap, do not display keymaps list
+		sLanguageChoices_Extended[k-1] = cKey_None;
+	else
+		sLanguageChoices_Extended[k] = cKey_None;
 }
 
 inline float fabs(float f) { return f >= 0.f ? f : -f; }
 
+// @@@ CHECK!
 bool TabletKeymap::updateLanguageKey(LayoutRow * bottomRow)
 {
 	if (bottomRow == NULL)
-		bottomRow = &m_layoutFamily->m_layout[cKeymapRows - 1];
-	WKey & symbol = (*bottomRow)[m_layoutFamily->m_symbol_x];
-	WKey & language = (*bottomRow)[m_layoutFamily->m_symbol_x + 1];
+		bottomRow = &m_layoutFamily->m_currentKeymap->m_layout[cKeymapRows - 1];
+	WKey & symbol = (*bottomRow)[m_layoutFamily->m_currentKeymap->m_symbol_x];
+	WKey & language = (*bottomRow)[m_layoutFamily->m_currentKeymap->m_symbol_x + 1];
 	int symbolWeightBefore = symbol.m_weight;
 	int languageWeightBefore = language.m_weight;
 	if (!m_languageName.isEmpty())
@@ -195,7 +232,7 @@ int TabletKeymap::updateLimits()
 				float width = 0.0001f;	// handle possible rounding errors by nudging up
 				for (int x = 0; x < cKeymapColumns; ++x)
 				{
-					width += fabs(m_layoutFamily->weight(x, y));
+					width += fabs(m_layoutFamily->m_currentKeymap->weight(x, y));
 					m_hlimits[y][x] = width;
 				}
 				for (int x = 0; x < cKeymapColumns; ++x)
@@ -279,7 +316,7 @@ bool TabletKeymap::setEditorState(const PalmIME::EditorState & editorState)
 	bool	layoutChanged = false;
 	bool	weightChanged = false;
 	bool	numLock = false;
-	LayoutRow * newBottomRow = &m_layoutFamily->m_defaultBottomRow;
+	LayoutRow * newBottomRow = &m_layoutFamily->m_currentKeymap->m_defaultBottomRow;
 
 	if (!(m_editorState == editorState))
 	{
@@ -292,10 +329,10 @@ bool TabletKeymap::setEditorState(const PalmIME::EditorState & editorState)
 	switch (m_editorState.type)
 	{
 	case PalmIME::FieldType_Email:
-		newBottomRow = &m_layoutFamily->m_emailBottomRow;
+		newBottomRow = &m_layoutFamily->m_currentKeymap->m_emailBottomRow;
 		break;
 	case PalmIME::FieldType_URL:
-		newBottomRow = &m_layoutFamily->m_urlBottomRow;
+		newBottomRow = &m_layoutFamily->m_currentKeymap->m_urlBottomRow;
 		break;
 	default:
 	case PalmIME::FieldType_Text:
@@ -306,14 +343,14 @@ bool TabletKeymap::setEditorState(const PalmIME::EditorState & editorState)
 		break;
 	case PalmIME::FieldType_Phone:
 	case PalmIME::FieldType_Number:
-		if (m_layoutFamily->m_needNumLock)
+		if (m_layoutFamily->m_currentKeymap->m_needNumLock)
 			numLock = true;
 		break;
 	}
 
 	updateLanguageKey(newBottomRow);
 	const int lastRow = cKeymapRows - 1;
-	LayoutRow & bottomRow = m_layoutFamily->m_layout[lastRow];
+	LayoutRow & bottomRow = m_layoutFamily->m_currentKeymap->m_layout[lastRow];
 
 	for (int x = 0; x < cKeymapColumns; ++x)
 	{
@@ -375,7 +412,7 @@ int TabletKeymap::keyboardToKeyZone(QPoint keyboardCoordinate, QRect & outZone)
 		outZone.setCoords(left, top, right, bottom);
 
 		if (right > left)
-			count = m_layoutFamily->weight(x, y) < 0 ? -1 : 1;
+			count = m_layoutFamily->m_currentKeymap->weight(x, y) < 0 ? -1 : 1;
 	}
 	return count;
 }
@@ -386,9 +423,9 @@ UKey TabletKeymap::map(int x, int y)
 		return cKey_ResizeHandle;
 	if (!isValidLocation(x, y))
 		return cKey_None;
-	const WKey & wkey = m_layoutFamily->wkey(x, y);
+	const WKey & wkey = m_layoutFamily->m_currentKeymap->wkey(x, y);
 	UKey key = wkey.m_key;
-	if ((m_numLock || (m_layoutFamily->m_needNumLock && m_shiftMode == eShiftMode_CapsLock)) && wkey.m_altkey >= Qt::Key_0 && wkey.m_altkey <= Qt::Key_9)
+	if ((m_numLock || (m_layoutFamily->m_currentKeymap->m_needNumLock && m_shiftMode == eShiftMode_CapsLock)) && wkey.m_altkey >= Qt::Key_0 && wkey.m_altkey <= Qt::Key_9)
 	{
 		if (!isShiftActive())
 			key = wkey.m_altkey;
@@ -510,7 +547,7 @@ QPoint TabletKeymap::pointToKeyboard(const QPoint & location, bool useDiamondOpt
 		if (x < cKeymapColumns)
 		{
 			bool changed = false;
-			const WKey & wkey = m_layoutFamily->wkey(x, y);
+			const WKey & wkey = m_layoutFamily->m_currentKeymap->wkey(x, y);
 			if (useDiamondOptimizations)
 			{	// try to improve accuracy by looking if the touch point is closer to some other key above or below...
 				int center_y = yCenterOfRow(y, wkey.m_key);	// vertical center of found key
@@ -530,7 +567,7 @@ QPoint TabletKeymap::pointToKeyboard(const QPoint & location, bool useDiamondOpt
 					if (ox < cKeymapColumns)
 					{
 						int center_x = xCenterOfKey(locx, x, y, wkey.m_weight);								// horizontal center of first found key
-						const WKey & owkey = m_layoutFamily->wkey(ox, oy);
+						const WKey & owkey = m_layoutFamily->m_currentKeymap->wkey(ox, oy);
 						int center_ox = xCenterOfKey(locx, ox, oy, owkey.m_weight);							// horizontal center of other candidate
 						int center_oy = yCenterOfRow(oy, owkey.m_key);										// vertical center of other candidate
                         int first_d = square(locy - center_y);                          					// "distance" between tap location & first found key
@@ -552,7 +589,7 @@ QPoint TabletKeymap::pointToKeyboard(const QPoint & location, bool useDiamondOpt
 			{ // "invisible" key. Look for the visible neighbor that has the same key...
 				for (int xo = (x == 0) ? 0 : x - 1; xo <= x + 1 && xo < cKeymapColumns; ++xo)
 					for (int yo = (y == 0) ? 0 : y - 1; yo <= y + 1 && yo < cKeymapRows; ++yo)
-						if ((x != xo || y != yo) && m_layoutFamily->wkey(xo, yo).m_key == wkey.m_key)
+						if ((x != xo || y != yo) && m_layoutFamily->m_currentKeymap->wkey(xo, yo).m_key == wkey.m_key)
 						{
 							x = xo; y = yo; xo = cKeymapColumns; yo = cKeymapRows;	// update x & y, then exit both loops
 						}
@@ -645,13 +682,13 @@ bool TabletKeymap::generateKeyboardLayout(const char * fullPath)
 		updateLimits();
         file.write("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n\n");
         file.write(string_printf("<keyboard primaryId=\"0x%02X\" secondaryId=\"0x%02X\" defaultLayoutWidth=\"%d\" defaultLayoutHeight=\"%d\">\n\n",
-                m_layoutFamily->m_primaryID, m_layoutFamily->m_secondaryID >> 8, rect().width(), rect().height()).c_str());
+                m_layoutFamily->m_currentKeymap->m_primaryID, m_layoutFamily->m_currentKeymap->m_secondaryID >> 8, rect().width(), rect().height()).c_str());
 		file.write("<area conditionValue=\"0\">\n");
 		QRect	r;
 		for (int y = 0; y < cKeymapRows; ++y)
 			for (int x = 0; x < cKeymapColumns; ++x)
 			{
-				const WKey & wkey = m_layoutFamily->wkey(x, y);
+				const WKey & wkey = m_layoutFamily->m_currentKeymap->wkey(x, y);
 				UKey key = wkey.m_key;
 				if (UKeyIsUnicodeQtKey(key) && keyboardToKeyZone(QPoint(x, y), r) > 0)
 				{
@@ -701,7 +738,7 @@ bool TabletKeymap::generateKeyboardLayout(const char * fullPath)
 std::string TabletKeymap::getKeyboardLayoutAsJson()
 {
 	pbnjson::JValue layout = pbnjson::Object();
-	layout.put("layout", m_layoutFamily->m_name);
+	layout.put("layout", m_layoutFamily->m_currentKeymap->m_name);
 	layout.put("width", rect().width());
 	layout.put("height", rect().height());
 	pbnjson::JValue keys = pbnjson::Array();
@@ -713,7 +750,7 @@ std::string TabletKeymap::getKeyboardLayoutAsJson()
 			if (keyboardToKeyZone(QPoint(x, y), r) > 0)
 			{
 				QPoint center = r.center();
-				const WKey & wkey = m_layoutFamily->wkey(x, y);
+				const WKey & wkey = m_layoutFamily->m_currentKeymap->wkey(x, y);
 				UKey key = wkey.m_key;
 				pbnjson::JValue jkey = pbnjson::Object();
 				jkey.put("label", (const char *) getKeyDisplayString(key, true).toUtf8().data());
@@ -755,7 +792,7 @@ const UKey * TabletKeymap::getExtendedChars(QPoint keyboardCoordinate)
 {
 	if (isValidLocation(keyboardCoordinate))
 	{
-		const WKey & wkey = m_layoutFamily->wkey(keyboardCoordinate.x(), keyboardCoordinate.y());
+		const WKey & wkey = m_layoutFamily->m_currentKeymap->wkey(keyboardCoordinate.x(), keyboardCoordinate.y());
 		if (wkey.m_key < Qt::Key_A || wkey.m_key > Qt::Key_Z || !isSymbolActive())
 			return wkey.m_extended;
 	}
@@ -784,10 +821,17 @@ QString TabletKeymap::getKeyDisplayString(UKey key, bool logging)
 		if (UKeyIsKeyboardComboKey(key))
 		{
 			int index = key - cKey_KeyboardComboChoice_First;
-			VirtualKeyboardPreferences & prefs = VirtualKeyboardPreferences::instance();
-			if (VERIFY(index >= 0 && index < prefs.getKeyboardComboCount()))
-				return getLanguageDisplayName(prefs.getkeyboardCombo(index).language, LayoutFamily::findLayoutFamily(prefs.getkeyboardCombo(index).layout.c_str(), false));
-			return NULL;
+			int k = 0;
+			const TabletKeymap::Keymap* keymap = m_layoutFamily->m_firstKeymap;
+			while (keymap != NULL && k != index)
+			{
+				keymap = keymap->m_nextKeymap;
+				k++;
+			}
+			if (keymap != NULL)
+				return QString::fromUtf8(keymap->m_name);
+			else
+				return NULL;
 		}
 
 		switch ((int)key)
@@ -814,7 +858,7 @@ QString TabletKeymap::getKeyDisplayString(UKey key, bool logging)
 		case cKey_Emoticon_Yuck:						return ":-P";
 		case cKey_Emoticon_Gasp:						return ":-O";
 		case cKey_Emoticon_Heart:						return "<3";
-		case cKey_Symbol:								return  QString::fromUtf8((symbolMode() == TabletKeymap::eSymbolMode_Lock) ? "A B C"/* Spaces are "Unicode Character 'HAIR SPACE' (U+200A) ' ' " */ : m_layoutFamily->m_symbolKeyLabel);
+		case cKey_Symbol:								return  QString::fromUtf8((symbolMode() == TabletKeymap::eSymbolMode_Lock) ? "A B C"/* Spaces are "Unicode Character 'HAIR SPACE' (U+200A) ' ' " */ : m_layoutFamily->m_currentKeymap->m_symbolKeyLabel);
 		case cKey_DotCom:								return ".com";
 		case cKey_DotCoUK:								return ".co.uk";
 		case cKey_DotOrg:								return ".org";
