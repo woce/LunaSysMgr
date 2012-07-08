@@ -248,7 +248,9 @@ void TabletKeyboard::setKeyboardCombo(const std::string & keyboardLanguage, cons
 	const TabletKeymap::LayoutFamily * layoutFamily = TabletKeymap::LayoutFamily::findLayoutFamily(keyboardLanguage.c_str(), false);	// get default if not found
 	bool changed = false;
 
-	if (m_keymap.setLayoutFamily(layoutFamily) || m_keymap.setKeymap(keymap))
+	bool layoutFamilyChanged = m_keymap.setLayoutFamily(layoutFamily);
+	bool keymapChanged = m_keymap.setKeymap(keymap);
+	if (layoutFamilyChanged || keymapChanged)
 	{
 		changed = true;
 		KeyLocationRecorder::instance().keyboardSizeChanged(m_keymap.layoutName(), m_keymap.rect());
@@ -1728,7 +1730,7 @@ bool TabletKeyboard::idle()
 		}
 		uint64_t timeLimit = CURRENT_TIME + 10;	// process 10ms max
 		do {
-			if (extendedChars)
+			if (extendedChars && extendedChars[0] != cKey_None)
 			{
 				UKey key = extendedChars[extendedIndex];
 				if (UKeyIsUnicodeQtKey(key))
