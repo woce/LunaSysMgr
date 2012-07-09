@@ -1,6 +1,7 @@
 /* @@@LICENSE
 *
 *      Copyright (c) 2010-2012 Hewlett-Packard Development Company, L.P.
+*                    2012 Måns Andersson <mail@mansandersson.se>
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,7 +17,46 @@
 *
 * LICENSE@@@ */
 
-
+/*
+ * Tablet Keyboard - Keymaps - Layout Families and more...
+ * --The guide--
+ * 
+ * This is a somewhat complete guide into how to set up a new keyboard
+ * layout for Luna Sys Manager. Please help out and fill out the guide if
+ * something is missing.
+ * 
+ * --Wordlist
+ * Autocorrect Language - the language used by the autocorrection service. An
+ *                        autocorrect language does not imply that the keyboard
+ *                        language is the same.
+ *                        autocorrect language != keyboard language
+ * Layout Family        - a specific keyboard language, e.g. English, French
+ * Keymap               - a keyboard layout for a layout family. One layout
+ *                        family can have many keymaps but not the other way
+ *                        around.
+ * Keyboard Language    - see layout family
+ * 
+ * --Files and their responsibilities
+ * TabletKeymap.cpp/.h holds the actual keyboard layouts and keyboard languages
+ * TabletKeyboard.cpp/.h handles drawing the keyboard and interfacing with other components
+ * VirtualKeyboard.cpp/.h parent class of TabletKeyboard, more or less just an interface
+ * VirtualKeyboardPreferences.cpp/.h handles storage of keyboard preferences, reading them and knowing which layout to display when
+ * 
+ * --Creating your own keyboard layout
+ * 1. All layout files are stored in the tabletkeymaps folder
+ * 2. If your layout is part of a new layout family, copy any of the current
+ *    keymap files.
+ * 3. Open the file and edit the keymap (will not go into details about this
+ *    step since it's quite straight forward). Make sure you always keep 12
+ *    keys per row. Add and remove NOKEY-definitions as needed.
+ * 4. Register your new layout family by including the file you've created
+ *    in TabletKeymap.cpp. Make sure to add the layouts in alphabetical
+ *    descending order, otherwise they won't appear in ascending order
+ *    in the regional settings app.
+ * 5. If you are using some obscure character that is not recognize yet,
+ *    you may add it to the function UKeyIsCharacter in this file.
+ * 5. Compile and happy typing! :-)
+ */
 
 #ifndef TABLET_KEYMAP_H
 #define TABLET_KEYMAP_H
