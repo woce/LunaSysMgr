@@ -46,6 +46,7 @@ TabletKeymap::LayoutFamily::LayoutFamily(const char * name, const char * default
 {
 	m_nextFamily = s_firstFamily;
 	s_firstFamily = this;
+	m_numKeymaps = 0;
 }
 TabletKeymap::Keymap * TabletKeymap::LayoutFamily::findKeymap(const char * name, bool returnNullNotDefaultIfNotFound)
 {
@@ -92,6 +93,7 @@ TabletKeymap::Keymap::Keymap(LayoutFamily * layoutFamily, const char * name, uin
 	m_nextKeymap = layoutFamily->m_firstKeymap;
 	layoutFamily->m_firstKeymap = this;
 	layoutFamily->m_currentKeymap = this;
+	layoutFamily->m_numKeymaps++;
 }
 
 /* --- Tablet Keymap --- */
@@ -126,6 +128,11 @@ const char * TabletKeymap::getLayoutDefaultLanguage(const char * layoutName)
 	return NULL;
 }
 
+void TabletKeymap::setHasMoreThanOneLayoutFamily(bool has)
+{
+	m_hasMoreThanOneLayoutFamily = has;
+}
+
 void TabletKeymap::setRowHeight(int rowIndex, int height)
 {
 	if (VERIFY(rowIndex >= 0 && rowIndex < cKeymapRows))
@@ -158,24 +165,14 @@ bool TabletKeymap::setKeymap(const std::string & keymap)
 	return false;
 }
 
-// @@@ CHECK!
-bool TabletKeymap::setLanguageName(const std::string & name)
+QString TabletKeymap::getLanguageDisplayName(const LayoutFamily * layoutFamily)
 {
-	QString displayName = getLanguageDisplayName(name, m_layoutFamily);
-	if (displayName != m_languageName)
+	if (m_hasMoreThanOneLayoutFamily || layoutFamily->m_numKeymaps > 1)
 	{
-		m_languageName = displayName;
-		if (updateLanguageKey())
-			m_limitsDirty = true;
-		return true;
+		QString name = QString::fromUtf8(layoutFamily->m_name);
+		return name;
 	}
-	return false;
-}
-
-QString TabletKeymap::getLanguageDisplayName(const std::string & languageName, const LayoutFamily * layoutFamily)
-{
-	QString name = QString::fromUtf8(layoutFamily->m_name);
-	return name;
+	return "";
 }
 
 void TabletKeymap::keyboardCombosChanged()
@@ -205,6 +202,9 @@ bool TabletKeymap::updateLanguageKey(LayoutRow * bottomRow)
 	WKey & language = (*bottomRow)[m_layoutFamily->m_currentKeymap->m_symbol_x + 1];
 	int symbolWeightBefore = symbol.m_weight;
 	int languageWeightBefore = language.m_weight;
+	
+	m_languageName = getLanguageDisplayName(m_layoutFamily);
+	
 	if (!m_languageName.isEmpty())
 	{
 		symbol.m_weight = 1;

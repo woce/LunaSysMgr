@@ -176,7 +176,7 @@ void VirtualKeyboardPreferences::activateCombo()
 		{
 			if (mActiveCombo.keyboardLanguage.empty())
 				mActiveCombo = getDefault(); // @@@ Default?
-			mVirtualKeyboard->setKeyboardCombo(mActiveCombo.keyboardLanguage, mActiveCombo.keymap, mActiveCombo.autoCorrectLanguage, true);
+			mVirtualKeyboard->setKeyboardCombo(mActiveCombo.keyboardLanguage, mActiveCombo.keymap, mActiveCombo.autoCorrectLanguage, false);
 		}
 		else
 		{

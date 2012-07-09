@@ -68,7 +68,7 @@ public:
 	virtual bool	getValue(const std::string & name, std::string & outValue) = 0;
 
 	// Set keyboard & language pair.
-	virtual	void	setKeyboardCombo(const std::string & keyboardLanguage, const std::string & keymap, const std::string & autoCorrectLanguage, bool showLanguageKey) = 0;
+	virtual	void	setKeyboardCombo(const std::string & keyboardLanguage, const std::string & keymap, const std::string & autoCorrectLanguage, bool hasMoreThanOneKeyboardLayout) = 0;
 	// Notification that language settings where changed (by the user?)
 	virtual	void	keyboardCombosChanged() = 0;
 

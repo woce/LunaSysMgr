@@ -243,7 +243,7 @@ void TabletKeyboard::setSymbolMode(TabletKeymap::ESymbolMode symbolMode)
 		keyboardLayoutChanged();
 }
 
-void TabletKeyboard::setKeyboardCombo(const std::string & keyboardLanguage, const std::string & keymap, const std::string & autoCorrectLanguage, bool showLanguageKey)
+void TabletKeyboard::setKeyboardCombo(const std::string & keyboardLanguage, const std::string & keymap, const std::string & autoCorrectLanguage, bool hasMoreThanOneKeyboardLayout)
 {
 	const TabletKeymap::LayoutFamily * layoutFamily = TabletKeymap::LayoutFamily::findLayoutFamily(keyboardLanguage.c_str(), false);	// get default if not found
 	bool changed = false;
@@ -256,9 +256,8 @@ void TabletKeyboard::setKeyboardCombo(const std::string & keyboardLanguage, cons
 		KeyLocationRecorder::instance().keyboardSizeChanged(m_keymap.layoutName(), m_keymap.rect());
 	}
 	syncKeymap();
-
-	if (m_keymap.setLanguageName(showLanguageKey ? autoCorrectLanguage : ""))
-		changed = true;
+	
+	m_keymap.setHasMoreThanOneLayoutFamily(hasMoreThanOneKeyboardLayout);
 
 	m_candidateBar.setLanguage(autoCorrectLanguage);
 
@@ -1069,7 +1068,7 @@ void TabletKeyboard::repeatChar()
 bool TabletKeyboard::setExtendedKeys(QPoint keyCoord, bool cancelIfSame)
 {
 	const UKey * newExtended = m_keymap.getExtendedChars(keyCoord);
-	if (cancelIfSame && newExtended == m_extendedKeys)
+	if ((cancelIfSame && newExtended == m_extendedKeys) || newExtended[0] == cKey_None)
 		return false;
 	m_extendedKeys = newExtended;
 	if (m_extendedKeys)

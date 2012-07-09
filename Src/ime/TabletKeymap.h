@@ -185,10 +185,10 @@ public:
 		// registration of key layouts
 		Keymap *                  m_currentKeymap;
 		Keymap *                  m_firstKeymap;
+		unsigned int              m_numKeymaps;
 		Keymap *                  findKeymap(const char * name, bool returnNullNotDefaultIfNotFound = true);
 		bool                      setCurrentKeymap(const char * keymap) { Keymap* kmap = findKeymap(keymap); if (kmap != NULL) m_currentKeymap = kmap; else return false; return true; }
-
-		
+				
 		// self registration of layout families. Start with first, iterate until nextFamily is null.
 		const LayoutFamily *		m_nextFamily;
 
@@ -243,10 +243,10 @@ public:
 	bool				setLayoutFamily(const LayoutFamily * layoutFamily);
 	bool				setKeymap(const std::string & keymap);
 	const LayoutFamily*	layoutFamily() const					{ return m_layoutFamily; }
-	bool				setLanguageName(const std::string & name);		// if empty string, hide language key, otherwise show it.
 	void				keyboardCombosChanged();						// called when available keyboard combos change
 	QList<const char *>	getLayoutList();
 	const char *		getLayoutDefaultLanguage(const char * layoutName);
+	void                setHasMoreThanOneLayoutFamily(bool has);
 
 	bool				setShiftMode(EShiftMode shiftMode);
 	EShiftMode			shiftMode() const						{ return m_shiftMode; }
@@ -315,6 +315,7 @@ private:
 	VLimits				m_vlimits;
 	bool				m_limitsDirty;
 	int					m_limitsVersion;
+	bool                m_hasMoreThanOneLayoutFamily;
 
 	QString				m_languageName;
 
@@ -326,7 +327,7 @@ private:
 
 	bool				updateMapping();					// true if layout changed
 	bool				updateLanguageKey(LayoutRow * bottomRow = NULL);
-	QString				getLanguageDisplayName(const std::string & languageName, const LayoutFamily * layoutFamily);
+	QString				getLanguageDisplayName(const LayoutFamily * layoutFamily);
 
 	int					xCenterOfKey(int touchX, int x, int y, float weight);
 	int					yCenterOfRow(int y, UKey key);
