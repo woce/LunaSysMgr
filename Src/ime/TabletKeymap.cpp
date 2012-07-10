@@ -452,7 +452,7 @@ UKey TabletKeymap::map(int x, int y)
 		}
 #endif
 		// for letters, use alternate layout when symbol is active, for non-letter, use alternate layout when shift is active
-		if (UKeyIsCharacter(key) ? m_layoutPage == eLayoutPage_Alternate : isShiftActive())
+		if (UKeyIsCharacter(key) && !(UKeyIsNumber(key) || UKeyIsNumber(wkey.m_altkey)) ? m_layoutPage == eLayoutPage_Alternate : isShiftActive())
 			key = wkey.m_altkey;
 	}
 	return key;

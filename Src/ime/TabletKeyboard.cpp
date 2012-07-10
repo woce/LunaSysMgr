@@ -1069,7 +1069,7 @@ void TabletKeyboard::repeatChar()
 bool TabletKeyboard::setExtendedKeys(QPoint keyCoord, bool cancelIfSame)
 {
 	const UKey * newExtended = m_keymap.getExtendedChars(keyCoord);
-	if ((cancelIfSame && newExtended == m_extendedKeys) || newExtended[0] == cKey_None)
+	if ((cancelIfSame && newExtended == m_extendedKeys) || newExtended == NULL || newExtended[0] == cKey_None)
 		return false;
 	m_extendedKeys = newExtended;
 	if (m_extendedKeys)
