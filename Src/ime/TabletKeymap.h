@@ -143,7 +143,7 @@ inline bool UKeyIsKeyboardComboKey(UKey ukey)	{ return ukey >= cKey_KeyboardComb
 inline bool UKeyIsKeyboardSizeKey(UKey ukey)	{ return ukey >= cKey_Resize_First && ukey <= cKey_Resize_Last;}
 inline bool UKeyIsEmoticonKey(UKey ukey)		{ return ukey >= cKey_Emoticon_Frown && ukey <= cKey_Emoticon_Heart; }
 inline bool UKeyIsCharacter(UKey ukey)          { return (ukey >= Qt::Key_A && ukey <= Qt::Key_Z) || (ukey >= Qt::Key_Agrave && ukey <= Qt::Key_ydiaeresis && ukey != Qt::Key_multiply && ukey != Qt::Key_division); }
-inline bool UKeyIsNumber(UKey ukey)         { return (ukey >= Qt::Key_0 && ukey <= Qt::Key_9); }
+inline bool UKeyIsNumber(UKey ukey)             { return (ukey >= Qt::Key_0 && ukey <= Qt::Key_9); }
 
 const QPoint cOutside(-1, -1);		// special value meaning representing "outside of keyboard", or "no key".
 

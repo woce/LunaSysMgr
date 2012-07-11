@@ -1,6 +1,7 @@
 /* @@@LICENSE
 *
 *      Copyright (c) 2010-2012 Hewlett-Packard Development Company, L.P.
+*                    2012 Måns Andersson <mail@mansandersson.se>
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -47,7 +48,8 @@
 	#define sToggleLanguage_extended NULL
 	#define sOptions NULL
 #else
-	static TabletKeymap::constUKeyArray sToggleLanguage_extended = { cKey_SwitchToQwerty, cKey_SwitchToAzerty, cKey_SwitchToQwertz, cKey_CreateDefaultKeyboards, cKey_ClearDefaultKeyboards, cKey_None };
+//	static TabletKeymap::constUKeyArray sToggleLanguage_extended = { cKey_SwitchToQwerty, cKey_SwitchToAzerty, cKey_SwitchToQwertz, cKey_CreateDefaultKeyboards, cKey_ClearDefaultKeyboards, cKey_None };
+	#define sToggleLanguage_extended NULL
 	static TabletKeymap::constUKeyArray sOptions = { cKey_ToggleSuggestions, cKey_ShowXT9Regions, cKey_ShowKeymapRegions, cKey_StartStopRecording, cKey_ToggleSoundFeedback, cKey_None };
 #endif
 

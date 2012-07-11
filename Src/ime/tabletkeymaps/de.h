@@ -1,6 +1,7 @@
 /* @@@LICENSE
 *
 *      Copyright (c) 2010-2012 Hewlett-Packard Development Company, L.P.
+*                    2012 Måns Andersson <mail@mansandersson.se>
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -72,13 +73,13 @@ static TabletKeymap::constUKeyArray sMinusApostrophe_extended = { Qt::Key_Minus,
 										{ w, Qt::Key_K,			Qt::Key_Asterisk,						NULL },\
 										{ w, Qt::Key_L,			Qt::Key_NumberSign,						sL_extended }
 
-#define DE_QWERTZ_LOW_9(w)				{ w, Qt::Key_Y,			cKey_Emoticon_Smile,					sY_extended },\
-										{ w, Qt::Key_X,			cKey_Emoticon_Wink,						sOptions },\
-										{ w, Qt::Key_C,			cKey_Emoticon_Frown,					sC_extended },\
-										{ w, Qt::Key_V,			cKey_Emoticon_Cry,						NULL },\
-										{ w, Qt::Key_B,			cKey_Emoticon_Yuck,						sToggleLanguage_extended },\
-										{ w, Qt::Key_N,			cKey_Emoticon_Gasp,						sN_extended },\
-										{ w, Qt::Key_M,			cKey_Emoticon_Heart,					sM_extended },\
+#define DE_QWERTZ_LOW_9(w)				{ w, Qt::Key_Y,			Qt::Key_Up,								sY_extended },\
+										{ w, Qt::Key_X,			Qt::Key_Down,							sOptions },\
+										{ w, Qt::Key_C,			Qt::Key_Left,							sC_extended },\
+										{ w, Qt::Key_V,			Qt::Key_Right,							NULL },\
+										{ w, Qt::Key_B,			cKey_Emoticon_Smile,					sToggleLanguage_extended },\
+										{ w, Qt::Key_N,			cKey_Emoticon_Wink,						sN_extended },\
+										{ w, Qt::Key_M,			cKey_Emoticon_Frown,					sM_extended },\
 										{ w, Qt::Key_Comma, 	Qt::Key_Semicolon,						sCommaSemiColon_extended },\
 										{ w, Qt::Key_Period,	Qt::Key_Colon,							sPeriodColon_extended }
 

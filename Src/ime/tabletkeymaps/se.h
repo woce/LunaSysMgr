@@ -1,6 +1,7 @@
 /* @@@LICENSE
 *
 *      Copyright (c) 2010-2012 Hewlett-Packard Development Company, L.P.
+*                    2012 Måns Andersson <mail@mansandersson.se>
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -70,13 +71,13 @@ static TabletKeymap::constUKeyArray sSeDvorak0_extended = { Qt::Key_0, Qt::Key_P
 										{ w, Qt::Key_S,			UKey(0x00F7) /* division sign */,		sS_extended }
 										
 
-#define SE_DVORAK_LOW_10(w)				{ w, Qt::Key_Odiaeresis,cKey_Emoticon_Smile,					NULL },\
-										{ w, Qt::Key_Adiaeresis,cKey_Emoticon_Wink,						NULL },\
-										{ w, Qt::Key_Q,			cKey_Emoticon_Frown,					NULL },\
-										{ w, Qt::Key_J,			cKey_Emoticon_Cry,						NULL },\
-										{ w, Qt::Key_K,			cKey_Emoticon_Yuck,						NULL },\
-										{ w, Qt::Key_X,			cKey_Emoticon_Gasp,						sOptions },\
-										{ w, Qt::Key_B,			cKey_Emoticon_Heart,					sToggleLanguage_extended },\
+#define SE_DVORAK_LOW_10(w)				{ w, Qt::Key_Odiaeresis,Qt::Key_Up,								NULL },\
+										{ w, Qt::Key_Adiaeresis,Qt::Key_Down,							NULL },\
+										{ w, Qt::Key_Q,			Qt::Key_Left,							NULL },\
+										{ w, Qt::Key_J,			Qt::Key_Right,							NULL },\
+										{ w, Qt::Key_K,			cKey_Emoticon_Smile,					NULL },\
+										{ w, Qt::Key_X,			cKey_Emoticon_Wink,						sOptions },\
+										{ w, Qt::Key_B,			cKey_Emoticon_Frown,					sToggleLanguage_extended },\
 										{ w, Qt::Key_M,			Qt::Key_Plus,							sM_extended },\
 										{ w, Qt::Key_W,			Qt::Key_Equal,							NULL },\
 										{ w, Qt::Key_V,			Qt::Key_notsign,						NULL }
@@ -121,7 +122,7 @@ static TabletKeymap::Layout sSeDvorakLayout = {
 	{ KEY_2(-0.5, Qt::Key_Q, Qt::Key_BracketLeft), SE_DVORAK_NUMBERS_10(1), KEY_1(-0.5, Qt::Key_Backspace) },
 	{ SE_DVORAK_TOP_10(1), KEY_1(1, Qt::Key_Backspace) },
 	{ KEY_2(-0.5, Qt::Key_A, Qt::Key_Less), SE_DVORAK_MID_10(1), KEY_1(1.5, Qt::Key_Return) },
-	{ KEY_1(1, Qt::Key_Shift), SE_DVORAK_LOW_10(1), KEY_1(1, Qt::Key_Shift) },
+	{ KEY_1(1, Qt::Key_Shift), SE_DVORAK_LOW_10(1), KEY_1(2.3, Qt::Key_Shift) },
 	{ SE_DVORAK_BOTTOM_ROW_DEFAULT },
 };
 
@@ -180,13 +181,13 @@ static TabletKeymap::constUKeyArray sSeQwerty0_extended = { Qt::Key_0, Qt::Key_Q
 										{ w, Qt::Key_Odiaeresis,Qt::Key_section,						NULL },\
 										{ w, Qt::Key_Adiaeresis,Qt::Key_Backslash,						NULL }
 
-#define SE_QWERTY_LOW_9(w)				{ w, Qt::Key_Z,			cKey_Emoticon_Smile,					sZ_extended },\
-										{ w, Qt::Key_X,			cKey_Emoticon_Wink,						sOptions },\
-										{ w, Qt::Key_C,			cKey_Emoticon_Frown,					sC_extended },\
-										{ w, Qt::Key_V,			cKey_Emoticon_Cry,						NULL },\
-										{ w, Qt::Key_B,			cKey_Emoticon_Yuck,						sToggleLanguage_extended },\
-										{ w, Qt::Key_N,			cKey_Emoticon_Gasp,						sN_extended },\
-										{ w, Qt::Key_M,			cKey_Emoticon_Heart,					sM_extended },\
+#define SE_QWERTY_LOW_9(w)				{ w, Qt::Key_Z,			Qt::Key_Up,								sZ_extended },\
+										{ w, Qt::Key_X,			Qt::Key_Down,							sOptions },\
+										{ w, Qt::Key_C,			Qt::Key_Left,							sC_extended },\
+										{ w, Qt::Key_V,			Qt::Key_Right,							NULL },\
+										{ w, Qt::Key_B,			cKey_Emoticon_Smile,					sToggleLanguage_extended },\
+										{ w, Qt::Key_N,			cKey_Emoticon_Wink,						sN_extended },\
+										{ w, Qt::Key_M,			cKey_Emoticon_Frown,					sM_extended },\
 										{ w, Qt::Key_Comma,		Qt::Key_Semicolon,						sCommaSlash_extended },\
 										{ w, Qt::Key_Period,	Qt::Key_Colon,							sPeriodQuestion_extended }
 
@@ -228,9 +229,9 @@ static TabletKeymap::constUKeyArray sSeQwerty0_extended = { Qt::Key_0, Qt::Key_Q
 
 static TabletKeymap::Layout sSeQwertyLayout = {
 	{ KEY_2(-0.5, Qt::Key_Q, Qt::Key_BracketLeft), SE_QWERTY_NUMBERS_10(1), KEY_1(-0.5, Qt::Key_Backspace) },
-	{ SE_QWERTY_TOP_11(1), KEY_1(1, Qt::Key_Backspace) },
-	{ SE_QWERTY_MID_11(1), KEY_1(1.5, Qt::Key_Return) },
-	{ KEY_1(1, Qt::Key_Shift), SE_QWERTY_LOW_9(1), KEY_1(1, Qt::Key_Shift), NOKEY_1 },
+	{ SE_QWERTY_TOP_11(1), KEY_1(2, Qt::Key_Backspace) },
+	{ SE_QWERTY_MID_11(1), KEY_1(1.3, Qt::Key_Return) },
+	{ KEY_1(1, Qt::Key_Shift), SE_QWERTY_LOW_9(1), KEY_1(1.5, Qt::Key_Shift), NOKEY_1 },
 	{ SE_QWERTY_BOTTOM_ROW_DEFAULT },
 };
 
