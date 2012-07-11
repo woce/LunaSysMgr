@@ -1,7 +1,9 @@
-LunaSysMgr
-==========
+LunaSysMgr - Features
+=====================
 
-LunaSysMgr
+LunaSysMgr - Features
+
+This is where new features for LunaSysMgr go. 
 
 For version 3.0.5 of webOS
 
