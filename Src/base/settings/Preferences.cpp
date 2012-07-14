@@ -65,6 +65,7 @@ Preferences::Preferences()
 	, m_playFeedbackSounds(true)
 	, m_sysUiNoHomeButtonMode(true)
 	, m_sysUiEnableNextPrevGestures(false)
+	, m_sysUiStatusBarSlide(false)
 	, m_lockTimeout(0)
 	, m_lsHandle(0)
 	, m_imeEnabled(false)
@@ -565,6 +566,7 @@ bool Preferences::serverConnectCallback(LSHandle *sh, LSMessage *message, void *
 													   \"imeType\", \
 													   \"sysUiNoHomeButtonMode\", \
 													   \"sysUiEnableNextPrevGestures\", \
+													   \"sysUiStatusBarSlide\", \
 													   \"airplaneMode\", \
 													   \"hideWANAlert\", \
 													   \"roamingIndicator\", \
@@ -839,6 +841,13 @@ bool Preferences::getPreferencesCallback(LSHandle *sh, LSMessage *message, void 
 			setAdvancedGestures(prefObjPtr->m_sysUiEnableNextPrevGestures ? 1 : 0);
 #endif
 		}
+	}
+
+	label = json_object_object_get(json, "sysUiStatusBarSlide");
+	if (label && !is_error(label)) {
+
+		if (prefObjPtr)
+			prefObjPtr->m_sysUiStatusBarSlide = json_object_get_boolean(label);
 	}
 
 	label = json_object_object_get(json, "lockTimeout");
