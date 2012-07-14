@@ -39,6 +39,9 @@
 #include <Qt>
 #include <QImage>
 
+static const int kGestureBorderSize = 15;
+static const int kFlickMinimumYLengthWithKeyboardUp = 60;
+
 class QWidget;
 
 struct HostInfo

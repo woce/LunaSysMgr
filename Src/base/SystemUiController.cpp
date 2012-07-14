@@ -63,8 +63,6 @@ static const char* kSystemUiAppId = "com.palm.systemui";
 static const unsigned int s_statusBarLauncherColor = 0x4f545AFF;
 static const unsigned int s_statusBarJustTypeColor = 0x4f545AFF;
 
-static const int kFlickMinimumYLengthWithKeyboardUp = 60;
-
 SystemUiController* SystemUiController::instance()
 {
     if (G_UNLIKELY(!s_instance))
@@ -247,9 +245,6 @@ bool SystemUiController::handleMouseEvent(QMouseEvent *event)
 	{
 		//Adhere to 'Enable Advanced Gestures'
 		if (!Preferences::instance()->sysUiEnableNextPrevGestures()) return false;
-
-		//Adhere to 'Gesture Detection'
-		if (Preferences::instance()->sysUiGestureDetection() != 1) return false;
 		
 		int INVALID_COORD = 0xFFFFFFFF;
 		int xDown = INVALID_COORD;

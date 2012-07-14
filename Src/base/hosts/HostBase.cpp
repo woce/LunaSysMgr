@@ -62,7 +62,6 @@
 
 static HostBase* sInstance = 0;
 
-
 bool HostBase::hostIsQemu() {
 
 	FILE* f = ::fopen("/proc/cpuinfo", "r");
