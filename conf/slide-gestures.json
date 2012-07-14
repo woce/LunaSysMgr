@@ -1,0 +1,22 @@
+[
+  {
+    "category": "luna",
+    "prefs": [ {
+      "group": "gestures",
+      "restart": "none",
+      "prefserv": "sysUiGestureDetection",
+      "label": "Gesture Trigger",
+      "help": "Control the conditions for firing a gesture.",
+      "key": "fluidGestures",
+      "type": "ListSelector",
+      "value": 0,
+      "choices": [ {
+        "label": "Swipe",
+        "value": 0
+      }, {
+        "label": "Slide",
+        "value": 1
+      } ]
+    } ]
+  }
+]
