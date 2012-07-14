@@ -121,7 +121,7 @@ CardLoading::CardLoading(Window* win)
     }
 
 	// set up the pulsing animation
-	qreal frameInterval = 1000/AS(slowFPS);
+	qreal frameInterval = 1000/AS(lunaFPS);
 	m_pulseTimer.setInterval(frameInterval);
 	m_pulseTimer.setSingleShot(false);
 
