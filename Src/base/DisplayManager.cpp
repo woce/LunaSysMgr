@@ -99,9 +99,6 @@
 #define DEFAULT_TIMEOUT          120
 #define DEFAULT_BRIGHTNESS       40
 
-#define MINIMUM_ON_BRIGHTNESS     1  // do not go below 1 as we can messup the touchpanel.
-#define MINIMUM_DIMMED_BRIGHTNESS 1  //
-
 #define DISPLAY_UNDEFINED  -1
 #define DISPLAY_OFF         0
 #define DISPLAY_DIMMED      1

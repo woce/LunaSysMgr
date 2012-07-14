@@ -61,6 +61,8 @@
 
 #define ACTIVE_MESSAGE_PATTERN_SIZE         6
 
+#define MINIMUM_ON_BRIGHTNESS     1  // do not go below 1 as we can messup the touchpanel.
+#define MINIMUM_DIMMED_BRIGHTNESS 1  //
 
 class DisplayManager : public QObject
 {
