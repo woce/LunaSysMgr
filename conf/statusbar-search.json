@@ -1,0 +1,14 @@
+[
+  {
+    "category": "luna",
+    "prefs": [ {
+      "group": "status bar",
+      "restart": "none",
+      "prefserv": "sysUiEnableStatusBarSearch",
+      "label": "enable status bar search",
+      "key": "statusbarsearch",
+      "type": "ToggleButton",
+      "value": false,
+    } ]
+  }
+]
