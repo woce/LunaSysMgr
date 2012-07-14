@@ -50,8 +50,6 @@
 #define BLUETOOTH_PREFS_APP_ID  "com.palm.app.bluetooth"
 #define VPN_PREFS_APP_ID   "com.palm.app.vpn"
 
-#define MINIMUM_BRIGHTNESS  10
-
 static const int kDateTimerInterval = 30000; // Tick every 30 seconds
 
 static std::string airplaneModeStateText[4] = { // $$$ LOCALIZE
@@ -865,13 +863,13 @@ void SystemMenu::slotMuteToggleTriggered(bool isMuted)
 
 void SystemMenu::slotMenuBrightnessChanged(qreal value, bool save)
 {
-	DisplayManager::instance()->setMaximumBrightness((int)(value * (100 - MINIMUM_BRIGHTNESS)) + MINIMUM_BRIGHTNESS, save);
+	DisplayManager::instance()->setMaximumBrightness((int)(value * (100 - MINIMUM_ON_BRIGHTNESS)) + MINIMUM_ON_BRIGHTNESS, save);
 }
 
 void SystemMenu::slotDisplayMaxBrightnessChanged(int brightness)
 {
 	QMetaObject::invokeMethod(m_menuObject, "setSystemBrightness",
-			                                Q_ARG(QVariant, (qreal)(((qreal)(brightness - MINIMUM_BRIGHTNESS)) / (100.0 - MINIMUM_BRIGHTNESS))));
+			                                Q_ARG(QVariant, (qreal)(((qreal)(brightness - MINIMUM_ON_BRIGHTNESS)) / (100.0 - MINIMUM_ON_BRIGHTNESS))));
 }
 
 void SystemMenu::slotRotationLockChanged(OrientationEvent::Orientation rotationLock)
