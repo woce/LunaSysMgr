@@ -1483,7 +1483,7 @@ void CardWindow::sceneTransitionRun(const std::string& transitionName)
 	m_transition = new CardTransition(this,
 									  m_data->acquireTransitionPixmap(),
 									  transitionName);
-	m_transitionTimer.start((int) (1000/AS(normalFPS)));
+	m_transitionTimer.start((int) (1000/AS(lunaFPS)));
 }
 
 void CardWindow::sceneTransitionCancel()

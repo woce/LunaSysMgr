@@ -237,7 +237,7 @@ void CardHostWindow::aboutToFocusEvent(bool enable)
 	if (runRotateAnimation) {
 		m_inRotateAnim = true;
 		m_rotateTimerStart = 0;
-		m_rotateAnimTimer.start((int) 1000/AS(slowFPS), false);
+		m_rotateAnimTimer.start((int) 1000/AS(lunaFPS), false);
 	}
 }
 
