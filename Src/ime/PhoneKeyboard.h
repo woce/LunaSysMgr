@@ -162,6 +162,7 @@ public:
 	virtual void paint(QPainter& painter);
 	virtual void tapEvent(const QPoint& tapPt);
 	virtual void screenEdgeFlickEvent();
+  virtual void screenEdgeFlickEventDir(bool dir) {}
 
 protected:
 	void	updateTouch(int id, QPointF position);

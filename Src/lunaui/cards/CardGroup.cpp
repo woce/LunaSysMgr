@@ -494,11 +494,30 @@ bool CardGroup::testHit(QPointF scenePt) {
 	for (int i=m_cards.size()-1; i>=0; i--) {
 
 		mappedPt = m_cards[i]->mapFromScene(scenePt);
+
 		if (m_cards[i]->contains(mappedPt)) {
 			return true;
 		}
 	}
 	return false;
+}
+
+int CardGroup::testCardHit(QPointF scenePt) {
+  // Returns the actual card...otherwise -1
+  if (m_cards.empty())
+    return -1;
+
+  // does this point fall on any of the cards in this group?
+  QPointF mappedPt;
+  for (int i=m_cards.size()-1; i>=0; i--) {
+
+    mappedPt = m_cards[i]->mapFromScene(scenePt);
+
+    if (m_cards[i]->contains(mappedPt)) {
+      return i;
+    }
+  }
+  return -1;
 }
 
 bool CardGroup::setActiveCard(QPointF scenePt)

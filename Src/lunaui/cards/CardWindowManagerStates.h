@@ -29,7 +29,9 @@
 #include <QRect>
 #include <QSignalTransition>
 #include <QGraphicsItem>
+#include <QTouchEvent>
 #include <stdint.h>
+#include <QDebug>
 
 class CardWindow;
 class CardWindowManager;
@@ -53,6 +55,7 @@ public:
 	virtual void flickGestureEvent(QGestureEvent* event) {}
 	virtual void tapGestureEvent(QTapGesture* event) {}
 	virtual void tapAndHoldGestureEvent(QTapAndHoldGesture* event) {}
+  virtual bool touchEvent(QTouchEvent* event) {qCritical() << "Hiya"; return true;}
 
 	virtual void windowAdded(CardWindow* win);
 	virtual void windowRemoved(CardWindow* win);
@@ -100,6 +103,7 @@ public:
 	virtual void flickGestureEvent(QGestureEvent* event);
 	virtual void tapGestureEvent(QTapGesture* event);
 	virtual void tapAndHoldGestureEvent(QTapAndHoldGesture* event);
+  virtual bool touchEvent(QTouchEvent* event);
 
 	virtual void animationsFinished();
 	virtual void changeCardWindow(bool);

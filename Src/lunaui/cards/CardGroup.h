@@ -154,9 +154,11 @@ public:
 	void setY(const qreal& y);
 	bool shouldMaximizeOrScroll(QPointF scenePt);
 	bool testHit(QPointF scenePt);
+  int  testCardHit(QPointF scenePt);
 	void moveToActiveCard();
 
   QList<CardWindow*> cards() const { return m_cards; }
+  void removeCardWithoutDeleting(int cardNumber) {m_cards.removeAt(cardNumber);}
 
 private:
 

@@ -151,7 +151,7 @@ static TabletKeymap::constUKeyArray sAzerty_DotCom_Extended = { cKey_DotCom, cKe
 									{ w, Qt::Key_N,			cKey_Emoticon_Gasp,						sN_extended },\
 									{ w, Qt::Key_M,			cKey_Emoticon_Heart,					sM_extended },\
 									{ w, Qt::Key_Comma,		Qt::Key_Slash,							sCommaSlash_extended },\
-									{ w, Qt::Key_Period,	Qt::Key_Question,						sPeriodQuestion_extended }
+                  { w, Qt::Key_Period,	Qt::Key_Question,						sPeriodQuestion_extended }
 
 #define QWERTY_BOTTOM_ROW_DEFAULT \
 									KEY_1(1, Qt::Key_Tab),\

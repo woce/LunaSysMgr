@@ -135,6 +135,13 @@ bool MinimizeState::handleKeyNavigation(QKeyEvent* keyEvent)
     return true;
 }
 
+bool MinimizeState::touchEvent(QTouchEvent* event)
+{
+    qCritical() << "Touchevent";
+
+    return true;
+}
+
 void MinimizeState::animationsFinished()
 {
     // attempt to process any tap-to-share actions

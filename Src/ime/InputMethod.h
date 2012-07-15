@@ -33,6 +33,7 @@ public:
 	virtual void paint(QPainter& painter) = 0;
 	virtual void tapEvent(const QPoint& tapPt) = 0;
 	virtual void screenEdgeFlickEvent() = 0;
+  virtual void screenEdgeFlickEventDir(bool dir) = 0;
 };
 
 #endif

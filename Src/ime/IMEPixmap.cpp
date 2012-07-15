@@ -49,10 +49,32 @@ QPixmap &	IMEPixmap::pixmap()
 		else
 			m_pixmap.load((Settings::LunaSettings()->lunaSystemResourcesPath + "/keyboard/" + m_name).c_str());
 		if (m_pixmap.isNull())
-			FAILURE(string_printf("IMEPixmap failed to load keyboard asset '%s'", m_name).c_str());
-	}
+			FAILURE(string_printf("IMEPixmap failed to load keyboard asset '%s'", m_name).c_str());    
+
+    setAlphaChannel(m_alpha);
+	}  
 	return m_pixmap;
 }
+
+void IMEPixmap::setAlphaChannel(float alpha)
+{
+  m_alpha = alpha;
+  if (!m_pixmap.isNull())  {
+    QImage imageToMakeTransparent(m_pixmap.toImage());
+    //QImage blendedImage (imageToMakeTransparent.width(),imageToMakeTransparent.height(), QImage::Format_ARGB32);
+    for (int i = 0; i < imageToMakeTransparent.width(); i++)  {
+      for (int j = 0; j < imageToMakeTransparent.height(); j++)  {
+        QRgb pixel = imageToMakeTransparent.pixel(i,j);
+        if (qAlpha(pixel)>=(alpha*255)) {
+          imageToMakeTransparent.setPixel(i,j,qRgba(qRed(pixel),qGreen(pixel),qBlue(pixel),alpha*255.0));
+        }
+      }
+    }
+    m_pixmap.convertFromImage(imageToMakeTransparent);
+    //m_pixmap = QPixmap::fromImage(blendedImage);
+  }
+}
+
 
 NineTileSprites::~NineTileSprites()
 {

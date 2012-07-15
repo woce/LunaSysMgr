@@ -31,6 +31,7 @@
 #include <QApplication>
 #include <stdlib.h>
 #include <glib.h>
+#include <math.h>
 
 namespace Tablet_Keyboard {
 /**
@@ -64,6 +65,7 @@ const uint64_t cWordDeleteDelay = cFirstRepeatDelay + 1500;
 
 const QPainter::RenderHints cRenderHints = QPainter::SmoothPixmapTransform | QPainter::HighQualityAntialiasing | QPainter::TextAntialiasing;
 
+const int cNumPadShift = 400;
 // constants used to draw the popup for extended keys
 const int cPopupFontSize = 22;
 const int cPopupLeftSide = 11;
@@ -117,14 +119,15 @@ TabletKeyboard * TabletKeyboard::s_instance = NULL;
 
 TabletKeyboard::TabletKeyboard(IMEDataInterface * dataInterface) : VirtualKeyboard(dataInterface),
 	m_shiftDown(false),
-	m_symbolDown(false),
+  m_shiftLR(0),
+  m_symbolDown(false),
 	m_resizeMode(false),
 	m_lastShiftTime(0),
 	m_lastUnlockTime(0),
 	m_keyboardTopPading(0),
 	m_requestedHeight(-1),
 	m_9tileCorner(13, 13),
-	m_keyboardBackgound(NULL),
+  m_keyboardBackgound(NULL),
 	m_keyboardLimitsVersion(0),
 	m_keyboardDirty(true),
 	m_candidateBar(m_keymap, m_IMEDataInterface),
@@ -155,11 +158,14 @@ TabletKeyboard::TabletKeyboard(IMEDataInterface * dataInterface) : VirtualKeyboa
 	m_emoticon_yuck_small("/usr/palm/emoticons/emoticon-yuck.png"),
 	m_emoticon_gasp_small("/usr/palm/emoticons/emoticon-gasp.png"),
 	m_emoticon_heart_small("/usr/palm/emoticons/emoticon-heart.png"),
-	m_background("keyboard-bg.png"),
+//  m_background("/media/internal/sunset1.jpg"),
+//  m_backgroundStretched("/media/internal/sunset1.jpg"),
+  m_background("keyboard-bg.png"),
+  m_backgroundStretched("keyboard-bg.png"),
 	m_drag_handle("drag-handle.png"),
 	m_drag_highlight("drag-highlight.png"),
-	m_white_key("key-white.png"),
-	m_gray_key("key-gray.png"),
+  m_white_key("key-white.png"),
+  m_gray_key("key-gray.png"),
 	m_short_gray_key("key-gray-short.png"),
 	m_black_key("key-black.png"),
 	m_shift_on_key("key-shift-on.png"),
@@ -169,6 +175,8 @@ TabletKeyboard::TabletKeyboard(IMEDataInterface * dataInterface) : VirtualKeyboa
 	m_popup_key("popup-key.png"),
 	m_glyphCache(440, 800)
 {
+  m_background.setAlphaChannel(1);
+
 	if (VERIFY(s_instance == NULL))
 		s_instance = this;
 
@@ -571,7 +579,7 @@ inline int MinMax(int min, int v, int max) { return v < min ? min : (v < max ? v
 void TabletKeyboard::updateTouch(int id, QPointF position)
 {
 	uint64_t	now = CURRENT_TIME;
-	QPointF		touchPosition(position.x(), position.y() - m_keymap.rect().top());
+  QPointF		touchPosition(position.x(), position.y() - m_keymap.rect().top());
 	UKey		extendedKey;
 	QPoint		keyCoordinate = (!pointToExtendedPopup(touchPosition, extendedKey) && position.y() > m_keymap.rect().top() - m_keyboardTopPading) ? m_keymap.pointToKeyboard(position.toPoint(), m_diamondOptimization) : cOutside;
 	bool		newTouch = m_touches.find(id) == m_touches.end();
@@ -700,8 +708,76 @@ void TabletKeyboard::updateTouch(int id, QPointF position)
 					touch.m_consumed = true;
 			}
 		}
-	}
-	touch.m_keyCoordinate = keyCoordinate;
+  }
+  // Adding hysteresis here
+  if (touch.m_keyCoordinate != keyCoordinate)  {
+    QRect r1;
+    m_keymap.keyboardToKeyZone(touch.m_keyCoordinate, r1);
+
+    if (!r1.isNull())  {
+      QRect r2;
+      m_keymap.keyboardToKeyZone(keyCoordinate, r2);
+      QRect keyboardRect = m_keymap.rect();
+      // Distance^2 from center to other center
+      float disX = (r1.center().x()-r2.center().x())*(r1.center().x()-r2.center().x());
+      float disY = (r1.center().y()-r2.center().y())*(r1.center().y()-r2.center().y());
+
+      // Distance^2 from recent touch each point
+      float disL1X = (touchPosition.x()-r1.center().x())*(touchPosition.x()-r1.center().x());
+      float disL1Y = (touchPosition.y()+keyboardRect.top()-r1.center().y())*(touchPosition.y()+keyboardRect.top()-r1.center().y());
+
+      // Want to give a litle slack to a boundary key?  Yes, perhaps just once?
+      if (!touch.m_changedOnce)  {
+        float disO1X = (touch.m_firstPosition.x()-r1.center().x())*(touch.m_firstPosition.x()-r1.center().x());
+        float disO1Y = (touch.m_firstPosition.y()+keyboardRect.top()-r1.center().y())*(touch.m_firstPosition.y()+keyboardRect.top()-r1.center().y());
+
+        if (fabs(sqrt(disO1X) - sqrt(disX)/2.0)<(r1.width()*0.05)) {
+          //if (abs(sqrt(disL1X) - sqrt(disX)/2)<(r1.width()*0.10)) {
+            // Are directions the same?
+            if (((touchPosition.x()-r1.center().x())>=0)==((touch.m_firstPosition.x()-r1.center().x())>=0)) {
+              touch.m_changedOnce = true;
+              touch.m_keyCoordinate = keyCoordinate;
+              touch.m_firstPosition = touchPosition;
+            }
+          //}
+        } else if (fabs(sqrt(disO1Y) - sqrt(disY)/2.0)<(r1.height()*0.05)) {
+          //if (abs((sqrt(disL1Y) - sqrt(disY))/2.0)<(r1.height()*0.10)) {
+            if (((touchPosition.y()+keyboardRect.top()-r1.center().y())>=0)==((touch.m_firstPosition.y()+keyboardRect.top()-r1.center().y())>=0)) {
+              touch.m_changedOnce = true;
+              touch.m_keyCoordinate = keyCoordinate;
+              touch.m_firstPosition = touchPosition;
+            }
+          //}
+        }
+      }
+
+      if (sqrt(disL1X+disL1Y)>=sqrt(disX+disY)) {
+          touch.m_changedOnce = true;
+          touch.m_keyCoordinate = keyCoordinate;
+          touch.m_firstPosition = touchPosition;
+      }
+
+      /*
+      if (disX == 0)  {
+        // I tend to type down, so giving me some extra slack :)
+        if (disL1Y >=(1.25*disY))  {
+          touch.m_keyCoordinate = keyCoordinate;
+          touch.m_firstPosition = touchPosition;
+        }
+      } else if (disY == 0)  {
+        if (disL1X >=disX)  {
+          touch.m_keyCoordinate = keyCoordinate;
+          touch.m_firstPosition = touchPosition;
+        }
+      } else if ((disL1X >= disX)||(disL1Y >=(1.25*disY)))  {
+        // This key was not
+        touch.m_keyCoordinate = keyCoordinate;
+        touch.m_firstPosition = touchPosition;
+      }*/
+
+    } else touch.m_keyCoordinate = keyCoordinate;
+  }
+  //touch.m_keyCoordinate = keyCoordinate;
 	if (m_extendedKeys && touch.m_visible != (extendedKey == cKey_None))
 	{	// show keyboard key when NOT on the extended bar
 		touch.m_visible = !touch.m_visible;
@@ -964,7 +1040,7 @@ void TabletKeyboard::touchEvent(const QTouchEvent& te)
 			bool	presses = false;
 			for (QList<QTouchEvent::TouchPoint>::ConstIterator iter = touchPoints.constBegin(); iter != touchPoints.constEnd(); ++iter)
 			{
-				const QTouchEvent::TouchPoint & touchPoint = *iter;
+        const QTouchEvent::TouchPoint & touchPoint = *iter;
 				Qt::TouchPointState state = touchPoint.state();
 				if (state == Qt::TouchPointReleased)
 				{
@@ -1019,6 +1095,27 @@ void TabletKeyboard::tapEvent(const QPoint& tapPt)
 	g_debug("tapEvent: %d, %d", tapPt.x(), tapPt.y());
 #endif
 	m_candidateBar.tapEvent(tapPt);
+}
+
+void TabletKeyboard::screenEdgeFlickEventDir(bool dir)
+{
+  // Mark all touches as consumed
+  for (std::map<int, Touch>::iterator iter = m_touches.begin(); iter != m_touches.end(); ++iter) {
+    iter->second.m_consumed = true;
+  }
+  /*
+  if (dir) {
+    // Move to right
+    m_shiftLR += -cNumPadShift;
+    if (m_shiftLR < -cNumPadShift) m_shiftLR = -cNumPadShift;
+  } else {
+    // Move to left
+    m_shiftLR += cNumPadShift;
+    if (m_shiftLR > cNumPadShift) m_shiftLR = cNumPadShift;
+  }
+  m_shiftKeyboardLR = true;
+  m_keyboardDirty = true;
+  triggerRepaint();*/
 }
 
 void TabletKeyboard::screenEdgeFlickEvent()
@@ -1170,7 +1267,7 @@ void TabletKeyboard::paint(QPainter & painter)
 	if (updateBackground())
 		perf.trace("background rebuilt");
 	painter.setCompositionMode(QPainter::CompositionMode_Source);
-	painter.drawPixmap(QPointF(keyboardFrame.left(), keyboardFrame.top()), *m_keyboardBackgound);
+  painter.drawPixmap(QPointF(keyboardFrame.left(), keyboardFrame.top()), *m_keyboardBackgound);
 	painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
 	perf.trace("Draw background");
 	DoubleDrawRenderer				doubleDrawRenderer;
@@ -1184,10 +1281,10 @@ void TabletKeyboard::paint(QPainter & painter)
 			QRect r;
 			int count = m_keymap.keyboardToKeyZone(keyCoord, r);
 			if (count > 0 && key != cKey_None)
-			{
-				if (key == Qt::Key_Shift)
-					drawKeyBackground(painter, r, keyCoord, key, false, count);
-				drawKeyCap(&painter, renderer, r, keyCoord, key, false);
+      {
+        if (key == Qt::Key_Shift)
+          drawKeyBackground(painter, r, keyCoord, key, false, count);
+        drawKeyCap(&painter, renderer, r, keyCoord, key, false);
 			}
 		}
 	}
@@ -1204,14 +1301,15 @@ void TabletKeyboard::paint(QPainter & painter)
 		{
 			if (touch.m_visible)
 			{
-				int count = m_keymap.keyboardToKeyZone(touch.m_keyCoordinate, r);
+        int count = m_keymap.keyboardToKeyZone(touch.m_keyCoordinate, r);
 				if (count > 0)
 				{
 					UKey key = m_keymap.map(touch.m_keyCoordinate);
 					if (key != cKey_None)
-					{
-						painter.setClipRect(r);
-						painter.drawPixmap(r.left(), keyboardFrame.top(), r.width(), keyboardFrame.height(), m_background.pixmap());
+          {
+            painter.setClipRect(r);
+            //painter.drawPixmap(QPointF(keyboardFrame.left(), keyboardFrame.top()), m_backgroundStretched);
+            painter.drawPixmap(r.left(), keyboardFrame.top(), r.width(), keyboardFrame.height(), m_background.pixmap());
 						painter.setClipping(false);
 						drawKeyBackground(painter, r, touch.m_keyCoordinate, key, true, count);
 						drawKeyCap(&painter, renderer, r, touch.m_keyCoordinate, key, true);
@@ -1231,8 +1329,8 @@ void TabletKeyboard::paint(QPainter & painter)
 			{
 				if (m_keymap.getExtendedChars(QPoint(x, y)) && m_keymap.keyboardToKeyZone(QPoint(x, y), r) > 0)
 				{
-					r.setWidth(r.width() - 9 + m_9tileCorner.m_trimH); r.setHeight(r.height() - 9 + m_9tileCorner.m_trimV);
-					renderer.render(r, GlyphSpec(sElipsis, cElipsisFontSize, false, cActiveColor, cActiveColor_back), sFont, Qt::AlignRight | Qt::AlignBottom);
+          r.setWidth(r.width() - 9 + m_9tileCorner.m_trimH); r.setHeight(r.height() - 9 + m_9tileCorner.m_trimV);
+          renderer.render(r, GlyphSpec(sElipsis, cElipsisFontSize, false, cActiveColor, cActiveColor_back), sFont, Qt::AlignRight | Qt::AlignBottom);
 				}
 			}
 		}
@@ -1240,7 +1338,7 @@ void TabletKeyboard::paint(QPainter & painter)
 		int cellCount, lineCount, lineLength;
 		getExtendedPopupSpec(cellCount, lineCount, lineLength);
 		IMEPixmap & popup = (lineCount > 1) ? m_popup_2 : m_popup;
-		QRect	r(m_extendedKeysFrame);
+    QRect	r(m_extendedKeysFrame);
 		int left = r.left() + cPopupSide;
 		int right = r.right() - cPopupSide + 1;
 		painter.drawPixmap(r.left(), r.top(), popup.pixmap(), 0, 0, cPopupSide, popup.height());
@@ -1266,7 +1364,7 @@ void TabletKeyboard::paint(QPainter & painter)
 		}
 		r.setWidth(m_popup_key.width() - 3);
 		r.setHeight(m_popup_key.height() / 2 - 2);
-		QRect	cell(r);
+    QRect	cell(r);
 		for (int k = 0; (key = m_extendedKeys[k]) != cKey_None; ++k)
 		{
 			if (k < lineLength)
@@ -1298,7 +1396,7 @@ void TabletKeyboard::paint(QPainter & painter)
 	triggerRepaint();
 #endif
 	if (renderer.getCacheMissCount() > 0 && (!m_glyphCache.isFull() || m_keymap.getCachedGlyphsCount() < 3))
-		queueIdlePrerendering();
+    queueIdlePrerendering();
 }
 
 bool TabletKeyboard::updateBackground()
@@ -1308,20 +1406,28 @@ bool TabletKeyboard::updateBackground()
 		QRect	keymapFrame(m_keymap.rect());
 		int width = keymapFrame.width();
 		int usedHeight = keymapFrame.height() + m_keyboardTopPading;
-		QRect	keyboardFrame(keymapFrame.left(), keymapFrame.top() - m_keyboardTopPading, width, usedHeight);
+    QRect	keyboardFrame(keymapFrame.left(), keymapFrame.top() - m_keyboardTopPading, width, usedHeight);
 		if (!m_keyboardBackgound || m_keyboardBackgound->width() != width || m_keyboardBackgound->height() != usedHeight)
 		{
 			PixmapCache::instance().dispose(m_keyboardBackgound);
-			m_keyboardBackgound = PixmapCache::instance().get(width, usedHeight);
+      m_keyboardBackgound = PixmapCache::instance().get(width, usedHeight);
 		}
-		if (m_keymap.updateLimits() != m_keyboardLimitsVersion)
-		{
-			//g_critical("Rebuilding BACKGROUND");
-			m_keyboardLimitsVersion = m_keymap.updateLimits();
+    if ((m_keymap.updateLimits() != m_keyboardLimitsVersion))
+    {
+      //g_critical("Rebuilding BACKGROUND");
+      m_keyboardLimitsVersion = m_keymap.updateLimits();
+
+      /* REMOVED FOR NOW
+        m_backgroundStretched = m_background.pixmap().scaledToWidth(width);
+        if (m_backgroundStretched.height() < usedHeight) m_backgroundStretched = m_background.pixmap().scaledToHeight(usedHeight);
+        //take center of image
+        m_backgroundStretched = m_backgroundStretched.copy(m_backgroundStretched.width()/2-width/2,0,width,usedHeight);
+      //}
+      */
 			QPainter	offscreenPainter(m_keyboardBackgound);
 			//m_keyboardBackgound->fill(QColor(255, 0, 0));
-			offscreenPainter.drawPixmap(QRect(0, 0, width, usedHeight), m_background.pixmap());
-			offscreenPainter.translate(0, -keyboardFrame.top());
+      offscreenPainter.drawPixmap(QRect(0, 0, width, usedHeight), m_background);
+      offscreenPainter.translate(0, -keyboardFrame.top());
 			offscreenPainter.setRenderHints(cRenderHints, true);
 #if RESIZE_HANDLES
 			int xoffset = 3 - m_9tileCorner.m_trimH;
@@ -1368,8 +1474,8 @@ bool TabletKeyboard::updateBackground()
 					}
 				}
 			}
-		}
-		m_keyboardDirty = false;
+    }
+    m_keyboardDirty = false;
 		return true;
 	}
 	return false;

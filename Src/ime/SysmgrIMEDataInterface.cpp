@@ -65,6 +65,12 @@ void SysmgrIMEModel::screenEdgeFlickEvent()
 		m_inputMethod->screenEdgeFlickEvent();
 }
 
+void SysmgrIMEModel::screenEdgeFlickEventDir(bool dir)
+{
+  if (m_inputMethod)
+    m_inputMethod->screenEdgeFlickEventDir(dir);
+}
+
 void SysmgrIMEModel::setComposingText(const std::string& text)
 {
 	IMEController::instance()->setComposingText(text);

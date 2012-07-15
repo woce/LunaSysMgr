@@ -98,6 +98,9 @@ CardWindowManager::CardWindowManager(int maxWidth, int maxHeight)
   , m_groupMove(false)
   , m_groupShift(0)
   , m_groupDir(true)
+  , m_disableMouseEvents(false)
+  , m_forcePositiveGesture(false)
+  , m_maxTouches(0)
 	, m_addingModalWindow(false)
 	, m_initModalMaximizing(false)
 	, m_parentOfModalCard(0)
@@ -154,6 +157,8 @@ CardWindowManager::CardWindowManager(int maxWidth, int maxHeight)
 	grabGesture(Qt::TapAndHoldGesture);
 	grabGesture((Qt::GestureType) SysMgrGestureFlick);
 
+
+  setAcceptTouchEvents(true);
 }
 
 CardWindowManager::~CardWindowManager()
@@ -1085,7 +1090,7 @@ void CardWindowManager::removeCardFromGroup(CardWindow* win, bool adjustLayout,b
 	group->removeFromGroup(win);
 	if (group->empty()) {
 		// clean up this group
-		m_groups.remove(m_groups.indexOf(group));
+    m_groups.removeAt(m_groups.indexOf(group));
 		removeAnimationForGroup(group);
 		delete group;
 	}
@@ -1324,6 +1329,7 @@ void CardWindowManager::setActiveCardOffScreen(bool fullsize)
 
 void CardWindowManager::mousePressEvent(QGraphicsSceneMouseEvent* event)
 {
+  if (m_disableMouseEvents) return;
 	// We may get a second pen down. Just ignore it.
 	if (m_penDown)
 		return;
@@ -1341,11 +1347,16 @@ void CardWindowManager::mousePressEvent(QGraphicsSceneMouseEvent* event)
 
 void CardWindowManager::mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event)
 {
+  if (m_disableMouseEvents) return;
 	mousePressEvent(event);
 }
 
 void CardWindowManager::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
 {
+  if (m_disableMouseEvents) {
+    return;
+  }
+
 	if (!m_penDown || m_seenFlickOrTap)
 		return;
 
@@ -1354,11 +1365,269 @@ void CardWindowManager::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
 
 void CardWindowManager::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
 {
+
 	if (m_penDown)
 		m_curState->mouseReleaseEvent(event);
 
 	resetMouseTrackState();
 }
+
+bool CardWindowManager::touchEvent(QTouchEvent* event)
+{
+  // Simple pinch gesture handling.  Done this way to have a little more control than over QGesture.
+  // Right now I am keeping all code in this function for "patch compartmentalization".  Eventually, this
+  // will probably want to be cleaned up. -ABH
+
+
+  int curSize = event->touchPoints().size();
+  int activePointNumber = 0;
+  QList<QPointF> cp;
+
+  for (int i = 0; i < curSize; i++)  {
+    if (event->touchPoints().at(i).state() != Qt::TouchPointReleased) {
+      activePointNumber++;
+      cp << QPointF(0,0);
+      if (!m_initialTouchPointsId.contains(event->touchPoints().at(i).id())) {
+        m_initialTouchPoints << QPointF(event->touchPoints().at(i).scenePos());
+        m_initialTouchPointsId << (event->touchPoints().at(i).id());
+      }
+    } else {
+      int index = m_initialTouchPointsId.indexOf(event->touchPoints().at(i).id());
+      m_initialTouchPoints.removeAt(index);
+      m_initialTouchPointsId.removeAt(index);
+    }
+  }
+
+  for (int i = 0; i < curSize; i++)  {
+    if (event->touchPoints().at(i).state() != Qt::TouchPointReleased) {
+      cp.replace(m_initialTouchPointsId.indexOf(event->touchPoints().at(i).id()),mapFromScene(event->touchPoints().at(i).scenePos()));
+    }
+  }
+
+  if (activePointNumber > m_maxTouches) {
+    //reset
+    m_maxTouches = activePointNumber;
+    if (m_maxTouches > 1) {
+      m_disableMouseEvents = true;
+    }
+
+    if (m_maxTouches == 2)  {
+
+      // Determine which card groups are nearest a touch.
+      m_groupAtTouch.clear();
+      for (int i = 0; i < m_maxTouches; i++)  {
+        m_groupAtTouch << -1;
+        for (int j = 0; j < m_groups.size(); j++)  {
+          if (m_groups[j]->testHit(m_initialTouchPoints[i])) {
+            m_groupAtTouch[i] = j;
+            break;
+          }
+        }
+      }
+
+      if ((m_groupAtTouch[0] == -1)||(m_groupAtTouch[1] == -1))  {
+        // basically forcing the system to reset until both are inside cards
+        m_maxTouches = 0;
+        m_disableMouseEvents = false;
+        m_initialTouchPointsId.clear();
+        m_initialTouchPoints.clear();
+        m_groupAtTouch.clear();
+        return true;
+      }
+
+      if ((m_groupAtTouch[0] == m_groupAtTouch[1]))  {
+        // If both are within a card group.  Need to determine the actual cards themselves.
+        // Once determined, split, then force that change can only be positive.
+        int card1 = m_groups[m_groupAtTouch[0]]->testCardHit(m_initialTouchPoints[0]);
+        int card2 = m_groups[m_groupAtTouch[1]]->testCardHit(m_initialTouchPoints[1]);
+
+        if ((card1 != card2)&&(card1 != -1)&&(card2 != -1)&&(m_groupAtTouch[0]==m_groups.indexOf(m_activeGroup)))  {
+          // Cards are unique.  Split them into separate groups, and make the active group the right one.
+
+          // First ensure that card1 is less than card2
+          if (card1 > card2) {
+            int tempCard = card1;
+            int tempId = m_initialTouchPointsId[0];
+            QPointF tempPoint = m_initialTouchPoints[0];
+            //int tempGroup = m_groupAtTouch[0]; // excessive...they're the same!
+            card1 = card2;
+            card2 = tempCard;
+
+            m_initialTouchPointsId[0] = m_initialTouchPointsId[1]; m_initialTouchPointsId[1] = tempId;
+            m_initialTouchPoints[0] = m_initialTouchPoints[1]; m_initialTouchPoints[1] = tempPoint;
+
+            // reorder initialPt, groupAtTouch,initialId
+          }
+
+          //Split Right Group
+          CardWindow *rightCard = m_groups[m_groupAtTouch[1]]->cards().value(card2);
+          CardWindow::Position rightPos = rightCard->position();
+
+          CardGroup* newRightGroup = new CardGroup(kActiveScale, kNonActiveScale);
+          newRightGroup->setPos(m_activeGroup->pos());
+          //newRightGroup->setPos(QPoint(rightPos.trans.x(),rightPos.trans.y()));
+          // Add cards to right group
+          for (int i = m_groups[m_groupAtTouch[1]]->cards().size()-1; i >= card2; i--)  {
+            newRightGroup->addToBack(m_groups[m_groupAtTouch[1]]->cards().value(i));
+            m_groups[m_groupAtTouch[1]]->removeCardWithoutDeleting(i);
+          }
+          m_groups.insert(m_groupAtTouch[1]+1, newRightGroup);
+          newRightGroup->raiseCards();
+          m_groupAtTouch[1] += 1; // Maybe 2
+
+          //Split Right Group
+          CardWindow *leftCard = m_groups[m_groupAtTouch[0]]->cards().value(card1);
+          CardWindow::Position leftPos = leftCard->position();
+
+          CardGroup* newLeftGroup = new CardGroup(kActiveScale, kNonActiveScale);
+          newLeftGroup->setPos(m_activeGroup->pos());
+//          newLeftGroup->setPos(QPoint(leftPos.trans.x(),leftPos.trans.y()));
+          // Add cards to right group
+          for (int i = card1; i >= 0; i--)  {
+            newLeftGroup->addToBack(m_groups[m_groupAtTouch[0]]->cards().value(i));
+            m_groups[m_groupAtTouch[0]]->removeCardWithoutDeleting(i);
+          }
+          m_groups.insert(m_groupAtTouch[0], newLeftGroup);
+          newLeftGroup->raiseCards();
+
+          if (m_activeGroup->cards().size() == 0)  {
+            // Completely removed middle cards.
+            m_groups.removeAt(m_groupAtTouch[0]+1);
+            setActiveGroup(newLeftGroup);
+          } else {
+            m_groupAtTouch[1] += 1; //Add one more, since we created two groups
+          }
+          m_activeGroup->raiseCards();
+        } else {
+          // Touched on same card.  Nothing to see here.  Or double-touched on a non-central card.  Also nothing to see
+          m_maxTouches = 0;
+          m_disableMouseEvents = false;
+          m_initialTouchPointsId.clear();
+          m_initialTouchPoints.clear();
+          m_groupAtTouch.clear();
+          return true;
+        }
+        m_forcePositiveGesture = true;
+      } else m_forcePositiveGesture = false;
+
+      resetMouseTrackState();
+      clearAnimations();
+
+      m_originalActiveGroupBeforeTouch = m_groups.indexOf(m_activeGroup);
+      if (m_groupAtTouch[0] > m_originalActiveGroupBeforeTouch) setActiveGroup(m_groups[m_groupAtTouch[0]]);
+      else if (m_groupAtTouch[1] > m_originalActiveGroupBeforeTouch) setActiveGroup(m_groups[m_groupAtTouch[1]]);
+      m_activeGroup->raiseCards();
+
+      m_twoTouchDX = fabs(cp[0].x()-cp[1].x());
+
+
+      // Now remap the initial touchpoints so they're useful later on.
+      for (int i = 0; i < m_maxTouches; i++)  {
+        m_initialTouchPoints.replace(i,mapFromScene(m_initialTouchPoints[i]));
+      }
+    }
+
+  } else if (activePointNumber == m_maxTouches && m_maxTouches != 0) {
+    //touch move
+    if (m_maxTouches == 2)  {
+      float x1 = cp[0].x() - m_initialTouchPoints[0].x() + m_groups[m_groupAtTouch[0]]->x();
+      float x2 = cp[1].x() - m_initialTouchPoints[1].x() + m_groups[m_groupAtTouch[1]]->x();
+
+      if (m_forcePositiveGesture)  {
+        //Force positive change (for splitting)
+        if ((x2 - x1) < 0) {
+          m_twoTouchDX = 0;
+          return true;
+        }
+      }
+      m_twoTouchDX = fabs(cp[0].x()-cp[1].x());
+      m_initialTouchPoints.replace(0,cp[0]);
+      m_initialTouchPoints.replace(1,cp[1]);
+
+
+      m_groups[m_groupAtTouch[0]]->setX(x1);
+      m_groups[m_groupAtTouch[1]]->setX(x2);
+
+      // Change Scale:
+      if ((x1 > 0)&&(m_groupAtTouch[0] >= m_originalActiveGroupBeforeTouch)) {
+        // Make larger
+        float depth = x1*(kNonActiveScale-kActiveScale)/512.0+kActiveScale;
+        for (int i = 0; i < m_groups[m_groupAtTouch[0]]->cards().size();i++)  {
+          CardWindow *card = m_groups[m_groupAtTouch[0]]->cards().value(i);
+          CardWindow::Position pos = card->position();
+          if (m_groupAtTouch[0] == m_originalActiveGroupBeforeTouch) pos.trans.setZ(kActiveScale);
+          else pos.trans.setZ(depth);
+          card->setPosition(pos);
+        }
+      }
+
+      if ((x2 > 0)&&(m_groupAtTouch[1] >= m_originalActiveGroupBeforeTouch)) {
+        // Make larger
+        float depth = x2*(kNonActiveScale-kActiveScale)/512.0+kActiveScale;
+        for (int i = 0; i < m_groups[m_groupAtTouch[1]]->cards().size();i++)  {
+          CardWindow *card = m_groups[m_groupAtTouch[1]]->cards().value(i);
+          CardWindow::Position pos = card->position();
+          if (m_groupAtTouch[1] == m_originalActiveGroupBeforeTouch) pos.trans.setZ(kActiveScale);
+          else pos.trans.setZ(depth);
+          card->setPosition(pos);
+        }
+      }
+
+      update();
+    }
+  } else {//if (activePointNumber == 0)  {
+    //touch release.  do nothing if touches are < than # of touches.
+    if (m_maxTouches == 2)  {
+      //Determine whether or not to add/subtract group/card.
+      //reset ActiveGroup
+      setActiveGroup(m_groups[m_originalActiveGroupBeforeTouch]);
+      m_activeGroup->raiseCards();
+      int dX = m_twoTouchDX;
+
+      if (dX < 256)  { //half?
+        //Add to Group
+        int activeGroupIndex = m_groups.indexOf(m_activeGroup);
+
+        qSort(m_groupAtTouch.begin(),m_groupAtTouch.end(),qGreater<int>());  // Sort from largest number to lowest, so when I make changes about group size, it is unaffected.
+
+        for (int i = 0; i < m_groupAtTouch.size(); i++)  {
+          if (m_groupAtTouch[i] < activeGroupIndex)  {
+            // Add to group from front
+            for (int j = m_groups[m_groupAtTouch[i]]->cards().size()-1; j >= 0 ; j--)  {
+              m_activeGroup->addToBack(m_groups[m_groupAtTouch[i]]->cards().value(j));
+              m_groups[m_groupAtTouch[i]]->removeCardWithoutDeleting(j);
+            }
+            m_groups.removeAt(m_groupAtTouch[i]);
+          } else if (m_groupAtTouch[i] > activeGroupIndex)  {
+            // Add to group from behind
+            int groupSiz = m_groups[m_groupAtTouch[i]]->cards().size();
+            for (int j = 0; j < groupSiz ; j++)  {
+              m_activeGroup->addToFront(m_groups[m_groupAtTouch[i]]->cards().value(0));
+              m_groups[m_groupAtTouch[i]]->removeCardWithoutDeleting(0);
+            }
+            m_groups.removeAt(m_groupAtTouch[i]);
+          }
+        }
+      }
+      m_activeGroup->makeFrontCardActive();
+      m_activeGroup->raiseCards();
+      SystemUiController::instance()->setActiveCardWindow(m_activeGroup ? m_activeGroup->activeCard() : 0);
+      slideAllGroups();
+    }
+
+    if (m_maxTouches != 1) {
+      //Trying not to mess up single touch (mouse) events.
+      m_maxTouches = 0;
+      m_disableMouseEvents = false;
+      m_initialTouchPoints.clear();
+      m_initialTouchPointsId.clear();
+      m_groupAtTouch.clear();
+    }
+  }
+
+  return true;
+}
+
 
 bool CardWindowManager::playAngryCardSounds() const
 {
@@ -1366,7 +1635,19 @@ bool CardWindowManager::playAngryCardSounds() const
 }
 
 bool CardWindowManager::sceneEvent(QEvent* event)
-{
+{  
+  if ((event->type() == QEvent::TouchBegin
+      || event->type() == QEvent::TouchUpdate
+      || event->type() == QEvent::TouchEnd) && m_curState == m_minimizeState)  {
+
+    QTouchEvent* te = static_cast<QTouchEvent*>(event);
+    touchEvent(te);
+
+    event->accept();
+    return true;
+  }
+
+
 	if (event->type() == QEvent::GestureOverride && m_curState != m_maximizeState) {
 		QGestureEvent* ge = static_cast<QGestureEvent*>(event);
 		QGesture* g = ge->gesture(Qt::TapGesture);
@@ -1837,7 +2118,7 @@ void CardWindowManager::moveReorderSlotRight()
 		if (m_activeGroup->empty()) {
 			// this was a temporarily created group.
 			// delete the temp group.
-			m_groups.remove(activeIndex);
+      m_groups.removeAt(activeIndex);
 			delete m_activeGroup;
 
             newActiveGroup = m_groups[activeIndex];
@@ -1891,7 +2172,7 @@ void CardWindowManager::moveReorderSlotLeft()
 		if (m_activeGroup->empty()) {
 			// this was a temporarily created group.
 			// delete the temp group
-			m_groups.remove(activeIndex);
+      m_groups.removeAt(activeIndex);
 			delete m_activeGroup;
 
 			// the previous group is the new active group

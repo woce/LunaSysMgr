@@ -34,6 +34,7 @@
 #include <QEasingCurve>
 #include <QSignalMapper>
 #include <stdint.h>
+#include <QTouchEvent>
 
 class CardWindowManagerState;
 class MinimizeState;
@@ -93,7 +94,8 @@ protected:
 	virtual void mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event);
 	virtual void mouseMoveEvent(QGraphicsSceneMouseEvent* event);
 	virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent* event);
-	void tapGestureEvent(QTapGesture* event);
+  virtual bool touchEvent(QTouchEvent* event);
+  void tapGestureEvent(QTapGesture* event);
 	void tapAndHoldGestureEvent(QTapAndHoldGesture* event);
 	void flickGestureEvent(QGestureEvent* event);
 
@@ -275,7 +277,7 @@ private:
 	QSet<CardWindow*> m_pendingActionWinSet;
     QSet<CardWindow*> m_pendingTouchToShareWinSet;
 
-	QVector<CardGroup*> m_groups;
+  QList<CardGroup*> m_groups;
 	CardGroup* m_activeGroup;
 
 	QRect m_normalScreenBounds;
@@ -301,6 +303,16 @@ private:
   bool m_groupMoveDir;
   bool m_groupDir;
 
+  bool m_disableMouseEvents;
+  int m_maxTouches;
+
+  // This could/should probably be a class, instead of three separate QLists
+  QList<QPointF> m_initialTouchPoints;
+  QList<int> m_initialTouchPointsId;
+  QList<int> m_groupAtTouch;
+  int m_twoTouchDX;
+  int m_originalActiveGroupBeforeTouch;
+  bool m_forcePositiveGesture;
 
 	enum ModalWindowState {
 		NoModalWindow = 0,
