@@ -2087,7 +2087,6 @@ void SystemUiController::handleScreenEdgeFlickGesture(QGesture* gesture)
 	
 	Q_EMIT signalEnterSwitch();
 	
-/*
 	if (m_inDockMode) {
 		enterOrExitDockModeUi(false);
 		return;
@@ -2123,7 +2122,6 @@ void SystemUiController::handleScreenEdgeFlickGesture(QGesture* gesture)
 	}
 
 	Q_EMIT signalToggleLauncher();		
-*/			
 }
 
 void SystemUiController::handleScreenEdgeSlideGesture(QGesture* gesture)
@@ -2194,5 +2192,7 @@ void SystemUiController::handleSideSlide(bool next) {
 		Q_EMIT signalHideMenu();
 	}
 
-	Q_EMIT signalChangeCardWindow(next);
+	//Q_EMIT signalChangeCardWindow(next);
+	
+	Q_EMIT signalEnterSwitch();
 }
