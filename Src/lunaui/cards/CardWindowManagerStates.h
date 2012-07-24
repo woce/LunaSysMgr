@@ -258,4 +258,23 @@ private:
 	ReorderGrid* m_grid;
 };
 
+// -----------------------------------------------------------------------------------
+
+class SwitchState : public CardWindowManagerState
+{
+	Q_OBJECT
+
+public:
+	SwitchState(CardWindowManager* wm) 
+				: CardWindowManagerState(wm) { setObjectName("Switch"); }
+
+	virtual void mouseMoveEvent(QGraphicsSceneMouseEvent* event);
+	virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent* event);
+
+	virtual void flickGestureEvent(QGestureEvent* event);
+
+protected:
+	virtual void onEntry(QEvent* event);
+};
+
 #endif /* CARDWINDOWMANAGERSTATES_H */

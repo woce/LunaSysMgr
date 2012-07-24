@@ -90,6 +90,7 @@ CardWindowManager::CardWindowManager(int maxWidth, int maxHeight)
 	, m_loadingState(0)
 	, m_focusState(0)
 	, m_reorderState(0)
+	, m_switchState(0)
 	, m_curState(0)
 	, m_addingModalWindow(false)
 	, m_initModalMaximizing(false)
@@ -143,7 +144,6 @@ CardWindowManager::CardWindowManager(int maxWidth, int maxHeight)
 	grabGesture(Qt::TapGesture);
 	grabGesture(Qt::TapAndHoldGesture);
 	grabGesture((Qt::GestureType) SysMgrGestureFlick);
-
 }
 
 CardWindowManager::~CardWindowManager()
@@ -170,6 +170,7 @@ void CardWindowManager::init()
 	qRegisterMetaType<CardWindow*>("CardWindow*");
 
 	m_stateMachine = new QStateMachine(this);
+	SystemUiController* sysui = SystemUiController::instance();
 
 	// setup our states
 	m_minimizeState = new MinimizeState(this);
@@ -178,6 +179,7 @@ void CardWindowManager::init()
 	m_loadingState = new LoadingState(this);
 	m_focusState = new FocusState(this);
 	m_reorderState = new ReorderState(this);
+	m_switchState = new SwitchState(this);
 
 	m_stateMachine->addState(m_minimizeState);
 	m_stateMachine->addState(m_maximizeState);
@@ -185,6 +187,7 @@ void CardWindowManager::init()
 	m_stateMachine->addState(m_loadingState);
 	m_stateMachine->addState(m_focusState);
 	m_stateMachine->addState(m_reorderState);
+	m_stateMachine->addState(m_switchState);
 
 	// connect allowed state transitions
 	m_minimizeState->addTransition(this,
@@ -201,6 +204,8 @@ void CardWindowManager::init()
 	m_maximizeState->addTransition(this,
 		SIGNAL(signalPreparingWindow(CardWindow*)), m_preparingState);
 	m_maximizeState->addTransition(new MaximizeToFocusTransition(this, m_focusState));
+	m_maximizeState->addTransition(sysui,
+		SIGNAL(signalEnterSwitch()), m_switchState);
 
 	m_focusState->addTransition(this,
 		SIGNAL(signalMaximizeActiveWindow()), m_maximizeState);
@@ -229,6 +234,9 @@ void CardWindowManager::init()
 
 	m_reorderState->addTransition(this,
 		SIGNAL(signalExitReorder(bool)), m_minimizeState);
+
+	m_switchState->addTransition(this,
+		SIGNAL(signalMaximizeActiveWindow()), m_maximizeState);
 
 	// start off minimized
 	m_stateMachine->setInitialState(m_minimizeState);
@@ -1232,9 +1240,9 @@ void CardWindowManager::mousePressEvent(QGraphicsSceneMouseEvent* event)
 	// We may get a second pen down. Just ignore it.
 	if (m_penDown)
 		return;
-
+		
 	resetMouseTrackState();
-
+	
 	if (m_groups.empty() || !m_activeGroup)
 		return;
 
@@ -1431,11 +1439,41 @@ void CardWindowManager::handleFlickGestureMinimized(QGestureEvent* event)
 	}
 }
 
+void CardWindowManager::handleFlickGestureSwitch(QGestureEvent* event)
+{
+	QGesture* g = event->gesture((Qt::GestureType) SysMgrGestureFlick);
+	if (!g)
+		return;
+
+	FlickGesture* flick = static_cast<FlickGesture*>(g);
+	
+	// advance to the next/previous group if we are Outer Locked or were still unbiased horizontally
+	if (flick->velocity().x() > 0)
+	{
+		switchToPrevApp();
+		maximizeActiveWindow();
+	}
+	else
+	{
+		switchToNextApp();
+		maximizeActiveWindow();
+	}
+}
+
 void CardWindowManager::handleMousePressMinimized(QGraphicsSceneMouseEvent* event)
 {
 	// try to capture the card the user first touched
     if (m_activeGroup && m_activeGroup->setActiveCard(event->scenePos()))
         m_draggedWin = m_activeGroup->activeCard();
+}
+
+void CardWindowManager::handleMousePressSwitch(QGraphicsSceneMouseEvent* event)
+{
+	// try to capture the card the user first touched
+    if (m_activeGroup && m_activeGroup->setActiveCard(event->scenePos()))
+    {
+        m_draggedWin = m_activeGroup->activeCard();
+    }
 }
 
 void CardWindowManager::handleMouseMoveMinimized(QGraphicsSceneMouseEvent* event)
@@ -1792,6 +1830,23 @@ void CardWindowManager::arrangeWindowsAfterReorderChange(int duration, QEasingCu
 	startAnimations();
 }
 
+void CardWindowManager::handleMouseMoveSwitch(QGraphicsSceneMouseEvent* event)
+{
+	if (m_groups.isEmpty() || !m_activeGroup)
+		return;
+
+	QPoint diff = (event->pos() - event->lastPos()).toPoint();
+	
+	if (m_movement == MovementUnlocked) {
+		m_movement = MovementHLocked;
+        m_activeGroupPivot = m_activeGroup->x();
+	}
+	else {
+		m_activeGroupPivot += diff.x();
+		slideAllGroupsTo(m_activeGroupPivot);
+	}
+}
+
 void CardWindowManager::handleMouseReleaseMinimized(QGraphicsSceneMouseEvent* event)
 {
 	if (m_groups.empty() || m_seenFlickOrTap)
@@ -1838,6 +1893,14 @@ void CardWindowManager::handleMouseReleaseReorder(QGraphicsSceneMouseEvent* even
 	activeWin->setAttachedToGroup(true);
 
 	slideAllGroups();
+}
+
+void CardWindowManager::handleMouseReleaseSwitch(QGraphicsSceneMouseEvent* event)
+{
+	Q_UNUSED(event)
+	
+	setActiveGroup(groupClosestToCenterHorizontally());
+	maximizeActiveWindow();
 }
 
 void CardWindowManager::handleTapGestureMinimized(QTapGesture* event)
@@ -2463,7 +2526,22 @@ void CardWindowManager::slotPositiveSpaceChanged(const QRect& r)
 		SystemUiController::instance()->setMinimumPositiveSpaceHeight(kMinimumHeight);
 
 		m_targetPositiveSpace = r;
+		
+		// Set card scales, don't take search pill into account
+		kActiveScale = ((qreal) r.height() * kActiveWindowScale) / (qreal) m_normalScreenBounds.height();
+		kActiveScale = qMax(kMinimumWindowScale, kActiveScale);
 
+		kNonActiveScale = ((qreal) r.height() * kNonActiveWindowScale) / (qreal) m_normalScreenBounds.height();
+		kNonActiveScale = qMax(kMinimumWindowScale, kNonActiveScale);
+
+		// allow groups to shift up to a maximum so the tops of cards don't go off the screen
+		kWindowOriginMax = (boundingRect().y() + (r.y() + (int) (r.height() * kWindowOriginRatio))) -
+						   Settings::LunaSettings()->positiveSpaceTopPadding -
+						   Settings::LunaSettings()->positiveSpaceBottomPadding;
+
+		kWindowOrigin = boundingRect().y() + (r.y() + (int) (r.height() * kWindowOriginRatio));
+		
+/*
 		// TODO: this is a temporary solution to fake the existence of the search pill
 		// 	which happens to be 48 pixels tall
 		kActiveScale = ((qreal) (r.height() - 48) * kActiveWindowScale) / (qreal) m_normalScreenBounds.height();
@@ -2478,6 +2556,7 @@ void CardWindowManager::slotPositiveSpaceChanged(const QRect& r)
 						   Settings::LunaSettings()->positiveSpaceBottomPadding;
 
 		kWindowOrigin = boundingRect().y() + ((r.y() + 48) + (int) ((r.height() - 48) * kWindowOriginRatio));
+*/
 	}
 
 	QRect rect = r;

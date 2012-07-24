@@ -41,6 +41,7 @@ class PreparingState;
 class LoadingState;
 class FocusState;
 class ReorderState;
+class SwitchState;
 
 QT_BEGIN_NAMESPACE
 class QTapGesture;
@@ -130,6 +131,7 @@ Q_SIGNALS:
 	void signalMinimizeActiveWindow();
 	void signalEnterReorder(QPoint pt, int slice);
 	void signalExitReorder(bool canceled = true);
+	void signalEnterSwitch();
     void signalFirstCardRun();
 
 private:
@@ -138,14 +140,18 @@ private:
 	void initiateRemovalOfActiveModalWindow();
 
 	void handleMousePressMinimized(QGraphicsSceneMouseEvent* event);
+	void handleMousePressSwitch(QGraphicsSceneMouseEvent* event);
 
 	void handleMouseMoveMinimized(QGraphicsSceneMouseEvent* event);
 	void handleMouseMoveReorder(QGraphicsSceneMouseEvent* event);
+	void handleMouseMoveSwitch(QGraphicsSceneMouseEvent* event);
 
 	void handleMouseReleaseMinimized(QGraphicsSceneMouseEvent* event);
 	void handleMouseReleaseReorder(QGraphicsSceneMouseEvent* event);
+	void handleMouseReleaseSwitch(QGraphicsSceneMouseEvent* event);
 
 	void handleFlickGestureMinimized(QGestureEvent* event);
+	void handleFlickGestureSwitch(QGestureEvent* event);
 
 	void handleTapGestureMinimized(QTapGesture* event);
 
@@ -322,6 +328,7 @@ private:
 	LoadingState* m_loadingState;
 	FocusState* m_focusState;
 	ReorderState* m_reorderState;
+	SwitchState* m_switchState;
 
 	CardWindowManagerState* m_curState;
 
@@ -345,6 +352,7 @@ private:
 	friend class LoadingState;
 	friend class FocusState;
 	friend class ReorderState;
+	friend class SwitchState;
 };
 
 #endif /* CARDWINDOWMANAGER_H */

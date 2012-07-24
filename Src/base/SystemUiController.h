@@ -312,6 +312,8 @@ Q_SIGNALS:
 	void signalCardWindowMaximized();
 	void signalCardWindowMinimized();
 	void signalChangeCardWindow(bool next);
+	void signalEnterSwitch();
+	void signalExitSwitch();
 
 	void signalHideMenu();
 

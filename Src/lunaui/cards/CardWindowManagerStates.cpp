@@ -34,6 +34,7 @@
 #include <QGestureEvent>
 #include <QTapGesture>
 #include <QTapAndHoldGesture>
+#include <QDebug>
 
 CardWindowManagerState::CardWindowManagerState(CardWindowManager* wm)
 	: m_wm(wm)
@@ -738,4 +739,29 @@ void ReorderState::onEntry(QEvent* event)
 	}
 
 	SystemUiController::instance()->enterOrExitCardReorder(true);
+}
+
+// --------------------------------------------------------------------------------------------------
+
+void SwitchState::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
+{
+	m_wm->handleMouseMoveSwitch(event);
+}
+
+void SwitchState::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
+{
+	m_wm->handleMouseReleaseSwitch(event);
+}
+
+void SwitchState::flickGestureEvent(QGestureEvent* event)
+{
+	//Switch to prev/next group as required
+	m_wm->handleFlickGestureSwitch(event);
+}
+
+void SwitchState::onEntry(QEvent* event)
+{
+	CardWindowManagerState::onEntry(event);
+	//Create a new, non-scaling function and replace this
+	m_wm->layoutAllGroups();
 }
