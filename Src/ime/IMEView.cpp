@@ -230,34 +230,25 @@ void IMEView::screenEdgeFlickEvent(ScreenEdgeFlickGesture* g)
 	if (!m_acceptingInput || !m_imeDataInterface || !g)
 		return;
 
-  int dir = g->edge();
-  bool direction = false;
     OrientationEvent::Orientation orientation = WindowServer::instance()->getUiOrientation();
 	switch (orientation) {
     case OrientationEvent::Orientation_Up: {
-    if (dir == ScreenEdgeFlickGesture::EdgeTop) return;
-    if (dir == ScreenEdgeFlickGesture::EdgeBottom) return;
-    if (dir == ScreenEdgeFlickGesture::EdgeLeft) direction = true;
-		break;
-	}
-    case OrientationEvent::Orientation_Down: {	
-    if (dir == ScreenEdgeFlickGesture::EdgeTop) return;
-    if (dir == ScreenEdgeFlickGesture::EdgeBottom) return;
-    if (dir == ScreenEdgeFlickGesture::EdgeRight) direction = true;
+		if (g->edge() != ScreenEdgeFlickGesture::EdgeBottom)
 			return;
 		break;
 	}
-    case OrientationEvent::Orientation_Left: {	
-    if (dir == ScreenEdgeFlickGesture::EdgeLeft) return;
-    if (dir == ScreenEdgeFlickGesture::EdgeRight) return;
-    if (dir == ScreenEdgeFlickGesture::EdgeBottom) direction = true;
+    case OrientationEvent::Orientation_Down: {
+		if (g->edge() != ScreenEdgeFlickGesture::EdgeTop)
+			return;
+		break;
+	}
+    case OrientationEvent::Orientation_Left: {
+		if (g->edge() != ScreenEdgeFlickGesture::EdgeLeft)
 			return;
 		break;
 	}
     case OrientationEvent::Orientation_Right: {
-    if (dir == ScreenEdgeFlickGesture::EdgeLeft) return;
-    if (dir == ScreenEdgeFlickGesture::EdgeRight) return;
-    if (dir == ScreenEdgeFlickGesture::EdgeTop) direction = true;
+		if (g->edge() != ScreenEdgeFlickGesture::EdgeRight)
 			return;
 		break;
 	}
@@ -267,7 +258,7 @@ void IMEView::screenEdgeFlickEvent(ScreenEdgeFlickGesture* g)
 	}
 	}
 	
-  m_imeDataInterface->screenEdgeFlickEventDir(direction);
+	m_imeDataInterface->screenEdgeFlickEvent(); 
 }
 
 bool IMEView::acceptPoint(const QPointF& pt)

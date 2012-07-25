@@ -25,6 +25,7 @@
 #include "Common.h"
 
 #include "WindowManagerBase.h"
+#include "Preferences.h"
 
 #include <QStateMachine>
 #include <QGraphicsSceneMouseEvent>
@@ -32,14 +33,12 @@
 #include <QParallelAnimationGroup>
 #include <QMap>
 #include <QEasingCurve>
-#include <QSignalMapper>
-#include <stdint.h>
 #include <QTouchEvent>
+#include <stdint.h>
 
 class CardWindowManagerState;
 class MinimizeState;
 class MaximizeState;
-class GroupState;
 class PreparingState;
 class LoadingState;
 class FocusState;
@@ -94,10 +93,11 @@ protected:
 	virtual void mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event);
 	virtual void mouseMoveEvent(QGraphicsSceneMouseEvent* event);
 	virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent* event);
-  virtual bool touchEvent(QTouchEvent* event);
-  void tapGestureEvent(QTapGesture* event);
+	void tapGestureEvent(QTapGesture* event);
 	void tapAndHoldGestureEvent(QTapAndHoldGesture* event);
 	void flickGestureEvent(QGestureEvent* event);
+  virtual bool touchEvent(QTouchEvent* event);
+  /* touchEvent is used for multi-touch event like 2 finger grouping/separating of cards */
 
 	virtual bool sceneEvent(QEvent* event);
 
@@ -117,7 +117,6 @@ private Q_SLOTS:
 	void slotMinimizeActiveCardWindow();
 
 	void slotChangeCardWindow(bool next);
-  void slotSideSwipe(bool direction);
 
 	void slotFocusMaximizedCardWindow(bool focus);
 
@@ -126,8 +125,8 @@ private Q_SLOTS:
     void slotDismissActiveModalWindow();
     void slotDismissModalTimerStopped();
 
-    void slotFinishFlyback();
-    void slotCloseGroupAdjustAfterAnimationFinished(QObject* winObject);
+  void slotFinishFlyback();
+  /* Finishes the animation for infinite card cycling option */
 
 Q_SIGNALS:
 
@@ -136,7 +135,6 @@ Q_SIGNALS:
 	void signalPreparingWindow(CardWindow* win);
 	void signalMaximizeActiveWindow();
 	void signalMinimizeActiveWindow();
-  void signalGroupWindow();
 	void signalEnterReorder(QPoint pt, int slice);
 	void signalExitReorder(bool canceled = true);
     void signalFirstCardRun();
@@ -154,21 +152,15 @@ private:
 	void handleMouseReleaseMinimized(QGraphicsSceneMouseEvent* event);
 	void handleMouseReleaseReorder(QGraphicsSceneMouseEvent* event);
 
-  void handleMousePressGroup(QGraphicsSceneMouseEvent* event);
-  void handleMouseMoveGroup(QGraphicsSceneMouseEvent* event);
-  void handleMouseReleaseGroup(QGraphicsSceneMouseEvent* event);
-
 	void handleFlickGestureMinimized(QGestureEvent* event);
 
 	void handleTapGestureMinimized(QTapGesture* event);
-  void handleTapGestureGroupView(QTapGesture* event);
-  void handleFlickGestureGroup(QGestureEvent* event);
 
 	void handleTapAndHoldGestureMinimized(QTapAndHoldGesture* event);
 
     void handleKeyNavigationMinimized(QKeyEvent* keyEvent);
 
-  void setCurrentState(CardWindowManagerState* newState) { m_prevState = m_curState; m_curState = newState; }
+	void setCurrentState(CardWindowManagerState* newState) { m_curState = newState; }
 
 	void maximizeActiveWindow(bool animate=true);
 	void minimizeActiveWindow(bool animate=true);
@@ -184,9 +176,8 @@ private:
 	void addWindowTimedOutNormal(CardWindow* win);
 
 	void removeCardFromGroupMaximized(CardWindow* win);
-  void removeCardFromGroup(CardWindow* win, bool adjustLayout=true,bool dir = false);
+	void removeCardFromGroup(CardWindow* win, bool adjustLayout=true);
 
-  void closeWindowGroup(CardWindow* win, bool dir, bool angryCard=false);
 	void closeWindow(CardWindow* win, bool angryCard=false);
 
 	CardGroup* groupClosestToCenterHorizontally() const;
@@ -208,16 +199,10 @@ private:
 	void switchToNextAppMaximized();
 	void switchToPrevAppMaximized();
 
-
-  // Display grouped cards to the side of a main card.
-  void showGroupCards(bool direction);
-  void showGroupCardsImmediate();
-  bool whichSideOfScreen(QPointF p);
-
 	// animate all groups to center around the active group.
 	// optionally include the active card in the active group.
 	// NOTE: If you exclude the active card, the animations will
-	// not be started automatically, you will have to call m_anims.start()	
+	// not be started automatically, you will have to call m_anims.start()
   void slideAllGroups(bool includeActiveCard = true, int flyback = 0);
 	void slideAllGroupsTo(int xOffset);
 
@@ -297,22 +282,6 @@ private:
 	bool m_modalDimissed;
 	bool m_dismissedFirstCard;
 
-  bool m_groupMove;
-  int m_groupShift;
-  int m_groupInitialMove;
-  bool m_groupMoveDir;
-  bool m_groupDir;
-
-  bool m_disableMouseEvents;
-  int m_maxTouches;
-
-  // This could/should probably be a class, instead of three separate QLists
-  QList<QPointF> m_initialTouchPoints;
-  QList<int> m_initialTouchPointsId;
-  QList<int> m_groupAtTouch;
-  int m_twoTouchDX;
-  int m_originalActiveGroupBeforeTouch;
-  bool m_forcePositiveGesture;
 
 	enum ModalWindowState {
 		NoModalWindow = 0,
@@ -356,14 +325,12 @@ private:
 	QStateMachine* m_stateMachine;
 	MinimizeState* m_minimizeState;
 	MaximizeState* m_maximizeState;
-  GroupState* m_groupState;
 	PreparingState* m_preparingState;
 	LoadingState* m_loadingState;
 	FocusState* m_focusState;
 	ReorderState* m_reorderState;
 
 	CardWindowManagerState* m_curState;
-  CardWindowManagerState* m_prevState;
 
 	// keep track of which windows have animations running
 	QMap<CardWindow*,QPropertyAnimation*> m_cardAnimMap;
@@ -374,6 +341,20 @@ private:
 	QParallelAnimationGroup m_anims;
 	QMap<CardWindow*,QPropertyAnimation*> m_deletedAnimMap;
 
+
+  /* Functionality for Pinch/Stretch Card Combining Function*/
+  // This could/should probably be a class, instead of three separate QLists
+  QList<QPointF> m_initialTouchPoints;
+  QList<int> m_initialTouchPointsId;
+  QList<int> m_groupAtTouch;
+  int m_twoTouchDX;
+  int m_originalActiveGroupBeforeTouch;
+  bool m_forcePositiveGesture;
+  bool m_disableMouseEvents;
+  int m_maxTouches;
+
+
+
     bool m_playedAngryCardStretchSound;
 
 	bool m_animationsActive;
@@ -381,7 +362,6 @@ private:
 	friend class CardWindowManagerState;
 	friend class MinimizeState;
 	friend class MaximizeState;
-  friend class GroupState;
 	friend class PreparingState;
 	friend class LoadingState;
 	friend class FocusState;

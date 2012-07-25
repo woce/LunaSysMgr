@@ -63,7 +63,6 @@ public:
 	// returns whether the move was successful.
 	// NOTE: does not modify the GraphicsScene stacking order, you must 
 	// explicitly call raiseCards().
-  bool moveActiveCardTo(int location);
 	bool moveActiveCard(int direction);
 
 	// raises/lowers the current active card to the next/previous spot 
@@ -154,12 +153,12 @@ public:
 	void setY(const qreal& y);
 	bool shouldMaximizeOrScroll(QPointF scenePt);
 	bool testHit(QPointF scenePt);
-  int  testCardHit(QPointF scenePt);
+  int  testCardHit(QPointF scenePt); // Extended version of testHit
+
 	void moveToActiveCard();
 
   QList<CardWindow*> cards() const { return m_cards; }
-  void removeCardWithoutDeleting(int cardNumber) {m_cards.removeAt(cardNumber);}
-
+  void removeCardWithoutDeleting(int cardNumber) {m_cards.removeAt(cardNumber);} // Removes Card from card list, not deleting memory.
 private:
 
 	QVector<CardWindow::Position> calculateOpenedPositions(qreal xOffset = 0.0);

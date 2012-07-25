@@ -20,7 +20,6 @@
 
 
 #include <QTimer>
-#include <QDebug>
 
 #include "AppDirectRenderingArbitrator.h"
 #include "HostBase.h"
@@ -49,7 +48,7 @@ void AppDirectRenderingArbitrator::setLayerEnabled(void* client, bool enabled)
 }
 
 void AppDirectRenderingArbitrator::layerEnabled(void* client, bool enabled)
-{  
+{
 	g_message("AppDirectRenderingArbitrator::layerEnabled %s",
 			  enabled ? "true" : "false");
 	

@@ -38,7 +38,7 @@
 class IMEPixmap
 {
 public:
-  IMEPixmap(const char * name = "") : m_name(name), m_alpha(1.0) { s_PalmPixmaps.push_back(this); }
+	IMEPixmap(const char * name = "") : m_name(name) { s_PalmPixmaps.push_back(this); }
 
 	void			setName(const char * name)	{ m_name = name; }
 
@@ -49,7 +49,6 @@ public:
 	int				height()			{ return pixmap().height(); }
 	QSize			size()				{ return pixmap().size();  }
 	QRect			rect()				{ return pixmap().rect(); }
-  void setAlphaChannel(float alpha);
 
 	static void		setDefaultLocation(const char * defaultLocation)		{ s_defaultLocation = defaultLocation; }
 	static int		count()				{ return s_PalmPixmaps.size(); }
@@ -58,7 +57,6 @@ public:
 private:
 	QPixmap			m_pixmap;
 	const char *	m_name;
-  float m_alpha;
 
 	static const char * s_defaultLocation;
 

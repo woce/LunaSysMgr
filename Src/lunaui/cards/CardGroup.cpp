@@ -110,30 +110,6 @@ void CardGroup::addToBack(CardWindow* c)
 		c->setPos(m_pos);
 }
 
-
-bool CardGroup::moveActiveCardTo(int location)
-{
-  if (location < 0 || m_cards.empty() || !m_activeCard)
-    return false;
-  if (location >= m_cards.size())
-    return false;
-
-  int activeIndex = m_cards.indexOf(m_activeCard);
-
-  //CardWindow* temp = m_cards[activeIndex];
-  //CardWindow* temp = m_cards[location];
-  //m_cards.removeAt(activeIndex);
-  //m_cards.append(temp);
-  m_cards.move(activeIndex,location);
-  //m_cards[location] = m_activeCard;
-  //m_cards[activeIndex] = temp;
-
-  m_currentPosition = location;
-  clampCurrentPosition();
-
-  return true;
-}
-
 bool CardGroup::moveActiveCard(int direction)
 {
 	if (direction == 0 || m_cards.empty() || !m_activeCard)
@@ -494,7 +470,6 @@ bool CardGroup::testHit(QPointF scenePt) {
 	for (int i=m_cards.size()-1; i>=0; i--) {
 
 		mappedPt = m_cards[i]->mapFromScene(scenePt);
-
 		if (m_cards[i]->contains(mappedPt)) {
 			return true;
 		}

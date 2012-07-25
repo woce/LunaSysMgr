@@ -102,7 +102,7 @@ class TabletKeyboard : public VirtualKeyboard
 
 	struct Touch
 	{
-    Touch() : m_lastTouchTime(0), m_changedOnce(false), m_keyCoordinate(-1, -1), m_visible(true), m_consumed(false), m_inCandidateBar(false) {}
+		Touch() : m_lastTouchTime(0), m_keyCoordinate(-1, -1), m_visible(true), m_consumed(false), m_inCandidateBar(false) {}
 
 		uint64_t	m_lastTouchTime;
 		QPointF		m_lastPosition;		// coordinate in pixels in keymap area
@@ -111,7 +111,6 @@ class TabletKeyboard : public VirtualKeyboard
 		bool		m_visible;
 		bool		m_consumed;
 		bool		m_inCandidateBar;
-    bool    m_changedOnce;
 	};
 
 	template <class T> T selectFromKeyType(UKey key, T letter, T functionKeys, T otherKeys)
@@ -158,7 +157,6 @@ public:
 	virtual void paint(QPainter& painter);
 	virtual void tapEvent(const QPoint& tapPt);
 	virtual void screenEdgeFlickEvent();
-  virtual void screenEdgeFlickEventDir(bool dir);
 
 protected:
 	void	updateTouch(int id, QPointF position);
@@ -209,11 +207,8 @@ private:
 	static TabletKeyboard *	s_instance;			// only valid while a keyboard exists.
 
 	std::map<int, Touch>	m_touches;			// where the user touches the screen, only while touching in key-coordinate (0, 0) = Q, (0, 1) = W...
-  bool				m_shiftDown;
+	bool				m_shiftDown;
 	bool				m_symbolDown;
-  int         m_shiftLR;
-  int         m_targetshiftLR;
-
 	uint64_t			m_lastShiftTime;
 	uint64_t			m_lastUnlockTime;
 
@@ -224,7 +219,6 @@ private:
 
 	TabletKeymap		m_keymap;				// current keymap.
 	QPixmap	*			m_keyboardBackgound;	// current keyboard, cached version using the assets below without text rendering nor shift keys.
-
 	int					m_keyboardLimitsVersion;// version of m_keymap limits used to build m_keyboard & m_keyboardBackground
 	bool				m_keyboardDirty;		// does m_keyboard need to be rebuilt before drawing onscreen?
 	int					m_presetHeight[cKey_Resize_Last - cKey_Resize_First + 1];	// height in pixels for each size. Index 0 is the smallest, last index the largest
@@ -272,8 +266,7 @@ private:
 	IMEPixmap			m_emoticon_heart_small;
 
 	// keyboard background assets.
-  QPixmap       m_backgroundStretched;
-	IMEPixmap			m_background;	
+	IMEPixmap			m_background;
 	IMEPixmap			m_drag_handle;
 	IMEPixmap			m_drag_highlight;
 	IMEPixmap			m_white_key;

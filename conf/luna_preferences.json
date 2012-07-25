@@ -1,0 +1,21 @@
+[
+    {
+          "group": "preferences",
+          "restart": "none",
+          "prefserv": "cardStackingEnabled",
+          "label": "Multitouch Card Stacking",
+          "key": "cardstackgrouping",
+          "type": "ToggleButton",
+          "value": false,
+    },
+    {
+          "group": "preferences",
+          "restart": "none",
+          "prefserv": "infiniteCardCyclingEnabled",
+          "label": "Infinite Card Cycling",
+          "key": "infinitecardscycle",
+          "type": "ToggleButton",
+          "value": false,
+    }]
+  }
+]
