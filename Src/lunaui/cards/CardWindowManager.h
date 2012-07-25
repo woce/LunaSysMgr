@@ -25,6 +25,7 @@
 #include "Common.h"
 
 #include "WindowManagerBase.h"
+#include "Preferences.h"
 
 #include <QStateMachine>
 #include <QGraphicsSceneMouseEvent>
@@ -32,6 +33,7 @@
 #include <QParallelAnimationGroup>
 #include <QMap>
 #include <QEasingCurve>
+#include <QTouchEvent>
 #include <stdint.h>
 
 class CardWindowManagerState;
@@ -94,6 +96,8 @@ protected:
 	void tapGestureEvent(QTapGesture* event);
 	void tapAndHoldGestureEvent(QTapAndHoldGesture* event);
 	void flickGestureEvent(QGestureEvent* event);
+  virtual bool touchEvent(QTouchEvent* event);
+  /* touchEvent is used for multi-touch event like 2 finger grouping/separating of cards */
 
 	virtual bool sceneEvent(QEvent* event);
 
@@ -120,6 +124,9 @@ private Q_SLOTS:
     void slotOpacityAnimationFinished();
     void slotDismissActiveModalWindow();
     void slotDismissModalTimerStopped();
+
+  void slotFinishFlyback();
+  /* Finishes the animation for infinite card cycling option */
 
 Q_SIGNALS:
 
@@ -196,7 +203,7 @@ private:
 	// optionally include the active card in the active group.
 	// NOTE: If you exclude the active card, the animations will
 	// not be started automatically, you will have to call m_anims.start()
-	void slideAllGroups(bool includeActiveCard = true);
+  void slideAllGroups(bool includeActiveCard = true, int flyback = 0);
 	void slideAllGroupsTo(int xOffset);
 
 	// Does the same as slideAllGroups, but sets the positions immediately,
@@ -255,7 +262,7 @@ private:
 	QSet<CardWindow*> m_pendingActionWinSet;
     QSet<CardWindow*> m_pendingTouchToShareWinSet;
 
-	QVector<CardGroup*> m_groups;
+  QList<CardGroup*> m_groups;
 	CardGroup* m_activeGroup;
 
 	QRect m_normalScreenBounds;
@@ -333,6 +340,20 @@ private:
 	// It is the union of the animations mapped above
 	QParallelAnimationGroup m_anims;
 	QMap<CardWindow*,QPropertyAnimation*> m_deletedAnimMap;
+
+
+  /* Functionality for Pinch/Stretch Card Combining Function*/
+  // This could/should probably be a class, instead of three separate QLists
+  QList<QPointF> m_initialTouchPoints;
+  QList<int> m_initialTouchPointsId;
+  QList<int> m_groupAtTouch;
+  int m_twoTouchDX;
+  int m_originalActiveGroupBeforeTouch;
+  bool m_forcePositiveGesture;
+  bool m_disableMouseEvents;
+  int m_maxTouches;
+
+
 
     bool m_playedAngryCardStretchSound;
 

@@ -153,9 +153,12 @@ public:
 	void setY(const qreal& y);
 	bool shouldMaximizeOrScroll(QPointF scenePt);
 	bool testHit(QPointF scenePt);
+  int  testCardHit(QPointF scenePt); // Extended version of testHit
+
 	void moveToActiveCard();
 
-	QVector<CardWindow*> cards() const { return m_cards; }
+  QList<CardWindow*> cards() const { return m_cards; }
+  void removeCardWithoutDeleting(int cardNumber) {m_cards.removeAt(cardNumber);} // Removes Card from card list, not deleting memory.
 private:
 
 	QVector<CardWindow::Position> calculateOpenedPositions(qreal xOffset = 0.0);
@@ -168,7 +171,7 @@ private:
 	qreal m_nonCurScale;
 	int m_leftWidth;
 	int m_rightWidth;
-	QVector<CardWindow*> m_cards;
+  QList<CardWindow*> m_cards;
 	CardWindow* m_activeCard;
 	int m_cardGroupRotFactor;
 	double m_cardGroupXDistanceFactor;

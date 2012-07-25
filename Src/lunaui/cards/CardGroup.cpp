@@ -150,7 +150,7 @@ bool CardGroup::moveActiveCard()
 
 		if (activeX < m_cards[i]->mapToParent(m_cards[i]->pos()).x()) {
 
-			m_cards.remove(activeIndex);
+      m_cards.removeAt(activeIndex);
 			m_cards.insert(i, m_activeCard);
 
 			if (i < m_currentPosition) {
@@ -166,7 +166,7 @@ bool CardGroup::moveActiveCard()
 
 		if (activeX > m_cards[i]->mapToParent(m_cards[i]->pos()).x()) {
 
-			m_cards.remove(activeIndex);
+      m_cards.removeAt(activeIndex);
 			m_cards.insert(i, m_activeCard);
 
 			if (i > (m_currentPosition + kMaxStationaryCards - 1)) {
@@ -201,7 +201,7 @@ void CardGroup::removeFromGroup(CardWindow* c)
 	c->setCardGroup(0);
 	int index = m_cards.indexOf(c);
 	int activeIndex = m_cards.indexOf(m_activeCard);
-	m_cards.remove(index);
+  m_cards.removeAt(index);
 
 	if (m_cards.empty())
 		m_activeCard = 0;
@@ -475,6 +475,24 @@ bool CardGroup::testHit(QPointF scenePt) {
 		}
 	}
 	return false;
+}
+
+int CardGroup::testCardHit(QPointF scenePt) {
+  // Returns the actual card...otherwise -1
+  if (m_cards.empty())
+    return -1;
+
+  // does this point fall on any of the cards in this group?
+  QPointF mappedPt;
+  for (int i=m_cards.size()-1; i>=0; i--) {
+
+    mappedPt = m_cards[i]->mapFromScene(scenePt);
+
+    if (m_cards[i]->contains(mappedPt)) {
+      return i;
+    }
+  }
+  return -1;
 }
 
 bool CardGroup::setActiveCard(QPointF scenePt)

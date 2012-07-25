@@ -22,6 +22,7 @@
 #include "Common.h"
 
 #include <sstream>
+#include <QDebug>
 
 #include "Preferences.h"
 #include "Settings.h"
@@ -81,7 +82,10 @@ Preferences::Preferences()
 	, m_enableVoiceDial(false)
     , m_rotationLock(OrientationEvent::Orientation_Invalid)
 	, m_muteOn(false)
-	, m_enableALS(true)
+  , m_enableALS(true)
+  , m_tabbedCardsEnabled(false)
+  , m_cardStackingEnabled(false)
+  , m_infiniteCardCyclingEnabled(false)
 {
 	init();
 	registerService();
@@ -571,6 +575,9 @@ bool Preferences::serverConnectCallback(LSHandle *sh, LSMessage *message, void *
 													   \"dualRSSI\", \
 													   \"lockTimeout\",\
 													   \"rotationLock\",\
+                             \"tabbedCardsEnabled\",\
+                             \"cardStackingEnabled\",\
+                             \"infiniteCardCyclingEnabled\",\
 													   \"muteSound\",\
 													   \"" PALM_VIRTUAL_KEYBOARD_PREFS "\",\
 													   \"" PALM_VIRTUAL_KEYBOARD_SETTINGS "\",\
@@ -840,6 +847,31 @@ bool Preferences::getPreferencesCallback(LSHandle *sh, LSMessage *message, void 
 #endif
 		}
 	}
+
+
+  label = json_object_object_get(json, "tabbedCardsEnabled");
+  if (label && !is_error(label)) {
+    if (prefObjPtr) {
+      prefObjPtr->m_tabbedCardsEnabled = json_object_get_int(label);
+    }
+  }
+
+  label = json_object_object_get(json, "cardStackingEnabled");
+  if (label && !is_error(label)) {
+    if (prefObjPtr) {
+      prefObjPtr->m_cardStackingEnabled = json_object_get_int(label);
+    }
+  }
+
+  label = json_object_object_get(json, "infiniteCardCyclingEnabled");
+  if (label && !is_error(label)) {
+    if (prefObjPtr) {
+      prefObjPtr->m_infiniteCardCyclingEnabled = json_object_get_int(label);
+    }
+  }
+
+
+
 
 	label = json_object_object_get(json, "lockTimeout");
 	if (label && !is_error(label) && json_object_is_type(label, json_type_int)) {

@@ -91,6 +91,11 @@ public:
 
 	bool setStringPreference(const char * keyName, const char * value);
 
+  bool getTabbedCardsPreference() const { return m_tabbedCardsEnabled; }
+  bool getCardStackingPreference() const { return m_cardStackingEnabled; }
+  bool getInfiniteCardCyclingPreference() const { return m_infiniteCardCyclingEnabled; }
+
+
 Q_SIGNALS:
 
 	// Signals
@@ -152,6 +157,11 @@ private:
 	mutable Mutex m_mutex;
 	LSHandle* m_lsHandle;
 	LSMessageToken m_serverStatusToken;	
+
+  // Tweaks additions
+  bool m_tabbedCardsEnabled;
+  bool m_cardStackingEnabled;
+  bool m_infiniteCardCyclingEnabled;
 };
 	
 #endif /* PREFERENCES_H */
