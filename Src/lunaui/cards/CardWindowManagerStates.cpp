@@ -763,5 +763,5 @@ void SwitchState::onEntry(QEvent* event)
 {
 	CardWindowManagerState::onEntry(event);
 	//Create a new, non-scaling function and replace this
-	m_wm->layoutAllGroups();
+	m_wm->slideAllGroups();
 }
