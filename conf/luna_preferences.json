@@ -3,7 +3,7 @@
           "group": "preferences",
           "restart": "none",
           "prefserv": "cardStackingEnabled",
-          "label": "Multitouch Card Stacking",
+          "label": "Multi-touch Card Stacking",
           "key": "cardstackgrouping",
           "type": "ToggleButton",
           "value": false,
