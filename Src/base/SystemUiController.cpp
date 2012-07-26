@@ -48,7 +48,7 @@
 #include "IMEController.h"
 #include "EmulatedCardWindow.h"
 #include "ScreenEdgeFlickGesture.h"
-#include "ScreenEdgeSlidegesture.h"
+#include "CardSwitchGesture.h"
 #include "SoundPlayerPool.h"
 #include "DashboardWindowManager.h"
 #include "StatusBarServicesConnector.h"
@@ -265,16 +265,16 @@ bool SystemUiController::handleGestureEvent (QGestureEvent* event)
 	if (!t && Preferences::instance()->sysUiEnableNextPrevGestures() == true) {
 		if (Settings::LunaSettings()->uiType != Settings::UI_MINIMAL && !m_emergencyMode) {
 			t = event->gesture((Qt::GestureType) SysMgrGestureScreenEdgeFlick);
-			if (t && Preferences::instance()->sysUiGestureDetection() == 0)
+			if (t)
 			{
 				handleScreenEdgeFlickGesture(t);
 				return true;
 			}
 
-			t = event->gesture((Qt::GestureType) GestureScreenEdgeSlide);
+			t = event->gesture((Qt::GestureType) GestureCardSwitch);
 			if (t && Preferences::instance()->sysUiGestureDetection() == 1)
 			{
-				handleScreenEdgeSlideGesture(t);
+				handleCardSwitchGesture(t);
 				return true;
 			}
 		}
@@ -2085,8 +2085,6 @@ void SystemUiController::handleScreenEdgeFlickGesture(QGesture* gesture)
 			return; // not long enough, so ignore it
 	}
 	
-	Q_EMIT signalEnterSwitch();
-	
 	if (m_inDockMode) {
 		enterOrExitDockModeUi(false);
 		return;
@@ -2124,75 +2122,18 @@ void SystemUiController::handleScreenEdgeFlickGesture(QGesture* gesture)
 	Q_EMIT signalToggleLauncher();		
 }
 
-void SystemUiController::handleScreenEdgeSlideGesture(QGesture* gesture)
+void SystemUiController::handleCardSwitchGesture(QGesture* gesture)
 {
-	ScreenEdgeSlideGesture* t = static_cast<ScreenEdgeSlideGesture*>(gesture);
-
-	if(t->getEdge() == Left)
-	{
-		handleSideSlide(true);
-	}
-	if(t->getEdge() == Right)
-	{
-		handleSideSlide(false);
-	}
-	if(t->getEdge() == Bottom)
-	{
-		handleUpSlide();
-	}
-}
-
-void SystemUiController::handleUpSlide() {
-	if (m_inDockMode) {
-		enterOrExitDockModeUi(false);
-		return;
-	}
-
 	if (m_deviceLocked)
 		return;
-
+    
 	if (m_dashboardOpened) {
 		Q_EMIT signalCloseDashboard(true);
 	}
-
+    
 	if (m_menuVisible) {
 		Q_EMIT signalHideMenu();
 	}
-
-	if (m_universalSearchShown) {
-		Q_EMIT signalHideUniversalSearch(false, false);
-		return;
-	}
-
-	if (m_launcherShown) {
-		Q_EMIT signalToggleLauncher();
-		return;
-	}
-
-	if ((m_activeCardWindow && m_maximizedCardWindow) || m_cardWindowAboutToMaximize) {
-		if (false == m_modalCardWindowActive)
-			Q_EMIT signalShowDock();
-
-		Q_EMIT signalMinimizeActiveCardWindow();
-		return;
-	}
-
-	Q_EMIT signalToggleLauncher();	
-}
-
-void SystemUiController::handleSideSlide(bool next) {
-	if (m_deviceLocked)
-		return;
-
-	if (m_dashboardOpened) {
-		Q_EMIT signalCloseDashboard(true);
-	}
-
-	if (m_menuVisible) {
-		Q_EMIT signalHideMenu();
-	}
-
-	//Q_EMIT signalChangeCardWindow(next);
-	
+    
 	Q_EMIT signalEnterSwitch();
 }
