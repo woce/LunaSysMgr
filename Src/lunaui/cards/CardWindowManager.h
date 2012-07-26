@@ -112,10 +112,12 @@ private Q_SLOTS:
 
 	void slotMaximizeActiveCardWindow();
 	void slotMinimizeActiveCardWindow();
-
+    
 	void slotChangeCardWindow(bool next);
 
 	void slotFocusMaximizedCardWindow(bool focus);
+    
+	void slotSwitchCardEvent(QGestureEvent* event);
 
     void slotTouchToShareAppUrlTransfered(const std::string& appId);
     void slotOpacityAnimationFinished();
@@ -131,6 +133,7 @@ Q_SIGNALS:
 	void signalMinimizeActiveWindow();
 	void signalEnterReorder(QPoint pt, int slice);
 	void signalExitReorder(bool canceled = true);
+	void signalSwitchCardEvent(QGestureEvent* event);
 	void signalEnterSwitch();
     void signalFirstCardRun();
 
@@ -140,15 +143,14 @@ private:
 	void initiateRemovalOfActiveModalWindow();
 
 	void handleMousePressMinimized(QGraphicsSceneMouseEvent* event);
-	void handleMousePressSwitch(QGraphicsSceneMouseEvent* event);
 
 	void handleMouseMoveMinimized(QGraphicsSceneMouseEvent* event);
 	void handleMouseMoveReorder(QGraphicsSceneMouseEvent* event);
-	void handleMouseMoveSwitch(QGraphicsSceneMouseEvent* event);
 
 	void handleMouseReleaseMinimized(QGraphicsSceneMouseEvent* event);
 	void handleMouseReleaseReorder(QGraphicsSceneMouseEvent* event);
-	void handleMouseReleaseSwitch(QGraphicsSceneMouseEvent* event);
+    
+    void handleSwitchCard(QGestureEvent* event);
 
 	void handleFlickGestureMinimized(QGestureEvent* event);
 	void handleFlickGestureSwitch(QGestureEvent* event);
