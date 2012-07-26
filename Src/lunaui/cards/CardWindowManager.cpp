@@ -2228,6 +2228,22 @@ void CardWindowManager::switchToPrevAppMaximized()
 	maximizeActiveWindow();
 }
 
+void CardWindowManager::scaleGroupsMinimize()
+{
+	for (int i=0; i<m_groups.size();i++) {
+		m_groups[i]->setCurScale(kActiveScale);
+		m_groups[i]->setNonCurScale(kNonActiveScale);
+	}
+}
+
+void CardWindowManager::scaleGroupsSwitch()
+{
+	for (int i=0; i<m_groups.size();i++) {
+		m_groups[i]->setCurScale(1.0);
+		m_groups[i]->setNonCurScale(1.0);
+	}
+}
+
 void CardWindowManager::slideAllGroups(bool includeActiveCard)
 {
 	if (m_groups.empty() || !m_activeGroup)

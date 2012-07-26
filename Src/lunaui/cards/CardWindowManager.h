@@ -197,6 +197,10 @@ private:
 	void switchToPrevApp();
 	void switchToNextAppMaximized();
 	void switchToPrevAppMaximized();
+	
+	// switch between scaling modes (normal & switch for now)
+	void scaleGroupsMinimize();
+	void scaleGroupsSwitch();
 
 	// animate all groups to center around the active group.
 	// optionally include the active card in the active group.
