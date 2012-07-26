@@ -744,26 +744,15 @@ void ReorderState::onEntry(QEvent* event)
 
 // --------------------------------------------------------------------------------------------------
 
-void SwitchState::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
+void SwitchState::switchCardEvent(QGestureEvent* event)
 {
-	m_wm->handleMouseMoveSwitch(event);
-}
-
-void SwitchState::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
-{
-	m_wm->handleMouseReleaseSwitch(event);
-}
-
-void SwitchState::flickGestureEvent(QGestureEvent* event)
-{
-	//Switch to prev/next group as required
-	m_wm->handleFlickGestureSwitch(event);
+	m_wm->handleSwitchCard(event);
 }
 
 void SwitchState::onExit(QEvent* event)
 {
 	CardWindowManagerState::onExit(event);
-	
+    
 	//Switch back to Minimize scaling
 	m_wm->scaleGroupsMinimize();
 }
@@ -771,7 +760,9 @@ void SwitchState::onExit(QEvent* event)
 void SwitchState::onEntry(QEvent* event)
 {
 	CardWindowManagerState::onEntry(event);
-	
+    
+	SystemUiController::instance()->setCardWindowMaximized(true);
+    
 	//Switch to Switch scaling
 	m_wm->scaleGroupsSwitch();
 	m_wm->slideAllGroups();

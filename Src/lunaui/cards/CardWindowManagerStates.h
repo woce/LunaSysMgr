@@ -24,6 +24,8 @@
 
 #include "Common.h"
 
+#include "CardSwitchGesture.h"
+
 #include <QState>
 #include <QGraphicsSceneMouseEvent>
 #include <QRect>
@@ -53,6 +55,7 @@ public:
 	virtual void flickGestureEvent(QGestureEvent* event) {}
 	virtual void tapGestureEvent(QTapGesture* event) {}
 	virtual void tapAndHoldGestureEvent(QTapAndHoldGesture* event) {}
+	virtual void switchCardEvent(QGestureEvent* event) {}
 
 	virtual void windowAdded(CardWindow* win);
 	virtual void windowRemoved(CardWindow* win);
@@ -268,10 +271,7 @@ public:
 	SwitchState(CardWindowManager* wm) 
 				: CardWindowManagerState(wm) { setObjectName("Switch"); }
 
-	virtual void mouseMoveEvent(QGraphicsSceneMouseEvent* event);
-	virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent* event);
-
-	virtual void flickGestureEvent(QGestureEvent* event);
+	virtual void switchCardEvent(QGestureEvent* event);
 
 protected:
 	virtual void onExit(QEvent* event);
