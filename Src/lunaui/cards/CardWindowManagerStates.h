@@ -274,6 +274,7 @@ public:
 	virtual void flickGestureEvent(QGestureEvent* event);
 
 protected:
+	virtual void onExit(QEvent* event);
 	virtual void onEntry(QEvent* event);
 };
 

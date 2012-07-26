@@ -454,6 +454,7 @@ void MaximizeState::processTouchToShareTransfer(const std::string& appId)
 void MaximizeState::onEntry(QEvent* event)
 {
 	CardWindowManagerState::onEntry(event);
+	
 	CardWindow* activeWin = m_wm->activeWindow();
 	Q_ASSERT(activeWin != 0);
 
@@ -759,9 +760,19 @@ void SwitchState::flickGestureEvent(QGestureEvent* event)
 	m_wm->handleFlickGestureSwitch(event);
 }
 
+void SwitchState::onExit(QEvent* event)
+{
+	CardWindowManagerState::onExit(event);
+	
+	//Switch back to Minimize scaling
+	m_wm->scaleGroupsMinimize();
+}
+
 void SwitchState::onEntry(QEvent* event)
 {
 	CardWindowManagerState::onEntry(event);
-	//Create a new, non-scaling function and replace this
+	
+	//Switch to Switch scaling
+	m_wm->scaleGroupsSwitch();
 	m_wm->slideAllGroups();
 }
