@@ -48,7 +48,7 @@
 #include "IMEController.h"
 #include "EmulatedCardWindow.h"
 #include "ScreenEdgeFlickGesture.h"
-#include "ScreenEdgeSlidegesture.h"
+#include "ScreenEdgeSlideGesture.h"
 #include "SoundPlayerPool.h"
 #include "DashboardWindowManager.h"
 #include "StatusBarServicesConnector.h"
