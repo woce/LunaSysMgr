@@ -1,28 +1,27 @@
-#ifndef SCREENEDGESLIDEGESTURERECOGNIZER_H
-#define SCREENEDGESLIDEGESTURERECOGNIZER_H
+#ifndef CARDSWITCHGESTURERECOGNIZER_H
+#define CARDSWITCHGESTURERECOGNIZER_H
 
 #include "Common.h"
 
-#include "FlickGestureRecognizer.h"
-
 #include <QEvent>
+#include <QGestureRecognizer>
 #include <QTouchEvent>
 #include <QTransform>
 #include <QDebug>
 
-#include "ScreenEdgeSlideGesture.h"
+#include "CardSwitchGesture.h"
 
 #include "HostBase.h"
 #include "Settings.h"
 #include "WindowServer.h"
 
-class ScreenEdgeSlideGestureRecognizer : public QGestureRecognizer
+class CardSwitchGestureRecognizer : public QGestureRecognizer
 {
 public:
-    ScreenEdgeSlideGestureRecognizer();
+    CardSwitchGestureRecognizer();
 
     QGesture *create(QObject *target);
     QGestureRecognizer::Result recognize(QGesture *state, QObject *watched, QEvent *event);
 };
 
-#endif // SCREENEDGESLIDEGESTURERECOGNIZER_H
+#endif // CARDSWITCHGESTURERECOGNIZER_H

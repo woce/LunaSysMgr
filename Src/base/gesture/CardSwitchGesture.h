@@ -19,8 +19,8 @@
 
 
 
-#ifndef SCREENEDGESLIDEGESTURE_H
-#define SCREENEDGESLIDEGESTURE_H
+#ifndef CARDSWITCHGESTURE_H
+#define CARDSWITCHGESTURE_H
 
 #include "Common.h"
 
@@ -30,7 +30,7 @@
 #include <SysMgrDefs.h>
 
 enum Gesture {
-	GestureScreenEdgeSlide  = 0x0100 + 5
+	GestureCardSwitch  = 0x0100 + 5
 };
 
 enum Edge {
@@ -39,23 +39,20 @@ enum Edge {
 	Bottom
 };
 
-class ScreenEdgeSlideGesture : public QGesture
+class CardSwitchGesture : public QGesture
 {
 public:
 
-	ScreenEdgeSlideGesture(QObject* parent = 0) : QGesture(parent, (Qt::GestureType) GestureScreenEdgeSlide) {}
+	CardSwitchGesture(QObject* parent = 0) : QGesture(parent, (Qt::GestureType) GestureCardSwitch) {}
 	int getEdge() { return edge; }
-	bool getFired() { return fired; }
 	void setEdge(int inEdge) { edge = inEdge; }
-	void setFired(bool inFired) { fired = inFired; }
 
 private:
 	int edge;
-	bool fired;
 
 private:
 
-	friend class ScreenEdgeSlideGestureRecognizer;
+	friend class CardSwitchGestureRecognizer;
 };
 
-#endif /* SCREENEDGESLIDEGESTURE_H */
+#endif /* CARDSWITCHGESTURE_H */
