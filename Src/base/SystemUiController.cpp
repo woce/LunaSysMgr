@@ -274,7 +274,7 @@ bool SystemUiController::handleGestureEvent (QGestureEvent* event)
 			t = event->gesture((Qt::GestureType) GestureCardSwitch);
 			if (t && Preferences::instance()->sysUiGestureDetection() == 1)
 			{
-				handleCardSwitchGesture(t);
+				handleCardSwitchGesture(event);
 				return true;
 			}
 		}
@@ -2122,7 +2122,7 @@ void SystemUiController::handleScreenEdgeFlickGesture(QGesture* gesture)
 	Q_EMIT signalToggleLauncher();		
 }
 
-void SystemUiController::handleCardSwitchGesture(QGesture* gesture)
+void SystemUiController::handleCardSwitchGesture(QGestureEvent* event)
 {
 	if (m_deviceLocked)
 		return;
@@ -2135,5 +2135,5 @@ void SystemUiController::handleCardSwitchGesture(QGesture* gesture)
 		Q_EMIT signalHideMenu();
 	}
     
-	Q_EMIT signalEnterSwitch();
+    Q_EMIT signalSwitchCardEvent(event);
 }

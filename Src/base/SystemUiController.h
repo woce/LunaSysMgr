@@ -312,8 +312,7 @@ Q_SIGNALS:
 	void signalCardWindowMaximized();
 	void signalCardWindowMinimized();
 	void signalChangeCardWindow(bool next);
-	void signalEnterSwitch();
-	void signalExitSwitch();
+    void signalSwitchCardEvent(QGestureEvent* event);
 
 	void signalHideMenu();
 
@@ -404,7 +403,7 @@ private:
 	bool allowSuspend();
 	void setSuspended(bool);
 	void handleScreenEdgeFlickGesture(QGesture* gesture);
-	void handleCardSwitchGesture(QGesture* gesture);
+	void handleCardSwitchGesture(QGestureEvent* event);
 
 	Window* m_parentOfModalWindow;
 	Window* m_activeCardWindow;
