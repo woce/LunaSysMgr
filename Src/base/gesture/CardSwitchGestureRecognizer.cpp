@@ -26,7 +26,7 @@ QGestureRecognizer::Result CardSwitchGestureRecognizer::recognize(QGesture *stat
 	const HostInfo& info = HostBase::instance()->getInfo();
 
 	QPoint startPos;
-	QPoint scenePos;
+	QPoint pos;
 	QPoint displayBounds;
 
     QGestureRecognizer::Result result;
@@ -38,56 +38,33 @@ QGestureRecognizer::Result CardSwitchGestureRecognizer::recognize(QGesture *stat
 		case QEvent::TouchEnd: {
 			if (ev->touchPoints().size() == 1) {
 				//Map the touchpoints to screen coordinates
+				displayBounds = QPoint(info.displayWidth/2, info.displayHeight/2);
 				startPos =
-					QPoint(ev->touchPoints().at(0).startScreenPos().x(),
-					ev->touchPoints().at(0).startScreenPos().y());
-				scenePos =
-					QPoint(ev->touchPoints().at(0).screenPos().x(),
-					ev->touchPoints().at(0).screenPos().y());
-				displayBounds = QPoint(info.displayWidth, info.displayHeight);
-					
-				startPos = HostBase::instance()->map(startPos);
-				scenePos = HostBase::instance()->map(scenePos);
+					QPoint(ev->touchPoints().at(0).startPos().x(),
+					ev->touchPoints().at(0).startPos().y()) - displayBounds;
+				pos =
+					QPoint(ev->touchPoints().at(0).pos().x(),
+					ev->touchPoints().at(0).pos().y()) - displayBounds;
+                
 				displayBounds = HostBase::instance()->map(displayBounds);
-				
-				QPoint offset;
-				
-				//I hate coordinate mapping.
-				switch (WindowServer::instance()->getUiOrientation())
-				{
-					case OrientationEvent::Orientation_Up:
-						break;
-					case OrientationEvent::Orientation_Down:
-						offset = QPoint(displayBounds.x(), displayBounds.y());
-						startPos -= offset;
-						scenePos -= offset;
-						displayBounds = -displayBounds;
-						break;
-					case OrientationEvent::Orientation_Right:
-						offset = QPoint(displayBounds.x(), 0);
-						startPos -= offset;
-						scenePos -= offset;
-						displayBounds.setX(-displayBounds.x());
-						break;
-					case OrientationEvent::Orientation_Left:
-						offset = QPoint(0, displayBounds.y());
-						startPos -= offset;
-						scenePos -= offset;
-						displayBounds.setY(-displayBounds.y());
-						break;
-					default:
-						break;
-				}
+				startPos = HostBase::instance()->map(startPos);
+				pos = HostBase::instance()->map(pos);
+                
+                //Make sure displayBounds is positive
+                displayBounds.setX(abs(displayBounds.x()));
+                displayBounds.setY(abs(displayBounds.y()));
+                
+                startPos += displayBounds;
+                pos += displayBounds;
+                displayBounds *= 2;
 				
 				if(startPos.x() > kGestureBorderSize &&
 				startPos.x() < displayBounds.x() - kGestureBorderSize)
 				{
-					result = QGestureRecognizer::Ignore;
-				}
+					result = QGestureRecognizer::Ignore;				}
 				else
 				{
-					QPoint delta = scenePos - startPos;
-                    QPoint diff;
+					QPoint delta = pos - startPos;
 						
 					if (event->type() == QEvent::TouchUpdate) {
 						if(startPos.x() <= kGestureBorderSize)
@@ -96,21 +73,23 @@ QGestureRecognizer::Result CardSwitchGestureRecognizer::recognize(QGesture *stat
                             if(delta.x() >= kGestureTriggerDistance && abs(delta.x()) >= abs(delta.y()))
                             {
                                 q->setLastPos(q->pos());
-                                q->setPos(ev->touchPoints()[0].pos());
+                                q->setPos(pos);
                                 result = QGestureRecognizer::TriggerGesture;
+
                             }
 						}
-						if(startPos.x() >= displayBounds.x() - kGestureBorderSize)
+						else if(startPos.x() >= displayBounds.x() - kGestureBorderSize)
 						{
                             result = QGestureRecognizer::MayBeGesture;
                             if(delta.x() <= -kGestureTriggerDistance && abs(delta.x()) >= abs(delta.y()))
                             {
                                 q->setLastPos(q->pos());
-                                q->setPos(ev->touchPoints()[0].pos());
+                                q->setPos(pos);
                                 result = QGestureRecognizer::TriggerGesture;
                             }
 						}
-                        diff = q->pos().toPoint() - q->lastPos().toPoint();
+                        
+                        QPoint diff = q->pos().toPoint() - q->lastPos().toPoint();
                         
                         if(diff.x() >= 25 && diff.x() <= 100)
                             q->setFlick(1);
