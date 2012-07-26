@@ -2883,7 +2883,12 @@ void CardWindowManager::slotFocusMaximizedCardWindow(bool focus)
 
 void CardWindowManager::slotSwitchCardEvent(QGestureEvent* event)
 {
-    Q_EMIT signalEnterSwitch();
+	QGesture* t = event->gesture((Qt::GestureType) GestureCardSwitch);
+    CardSwitchGesture* s = static_cast<CardSwitchGesture*>(t);
+
+    if(m_curState == m_maximizeState && s->state() == Qt::GestureUpdated)
+        Q_EMIT signalEnterSwitch();
+    
     if (m_curState)
         m_curState->switchCardEvent(event);
 }
