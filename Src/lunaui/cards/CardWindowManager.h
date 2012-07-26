@@ -203,6 +203,8 @@ private:
 	// switch between scaling modes (normal & switch for now)
 	void scaleGroupsMinimize();
 	void scaleGroupsSwitch();
+	void shiftGroupsMinimize();
+	void shiftGroupsSwitch();
 
 	// animate all groups to center around the active group.
 	// optionally include the active card in the active group.

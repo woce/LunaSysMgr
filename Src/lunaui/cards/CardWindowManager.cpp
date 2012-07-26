@@ -2258,6 +2258,20 @@ void CardWindowManager::scaleGroupsSwitch()
 	}
 }
 
+void CardWindowManager::shiftGroupsMinimize()
+{
+	for (int i=0; i<m_groups.size();i++) {
+        m_groups[i]->setY(kWindowOrigin);
+	}
+}
+
+void CardWindowManager::shiftGroupsSwitch()
+{
+	for (int i=0; i<m_groups.size();i++) {
+        m_groups[i]->setY(14);
+	}
+}
+
 void CardWindowManager::slideAllGroups(bool includeActiveCard)
 {
 	if (m_groups.empty() || !m_activeGroup)
@@ -2557,21 +2571,6 @@ void CardWindowManager::slotPositiveSpaceChanged(const QRect& r)
 
 		m_targetPositiveSpace = r;
 		
-		// Set card scales, don't take search pill into account
-		kActiveScale = ((qreal) r.height() * kActiveWindowScale) / (qreal) m_normalScreenBounds.height();
-		kActiveScale = qMax(kMinimumWindowScale, kActiveScale);
-
-		kNonActiveScale = ((qreal) r.height() * kNonActiveWindowScale) / (qreal) m_normalScreenBounds.height();
-		kNonActiveScale = qMax(kMinimumWindowScale, kNonActiveScale);
-
-		// allow groups to shift up to a maximum so the tops of cards don't go off the screen
-		kWindowOriginMax = (boundingRect().y() + (r.y() + (int) (r.height() * kWindowOriginRatio))) -
-						   Settings::LunaSettings()->positiveSpaceTopPadding -
-						   Settings::LunaSettings()->positiveSpaceBottomPadding;
-
-		kWindowOrigin = boundingRect().y() + (r.y() + (int) (r.height() * kWindowOriginRatio));
-		
-/*
 		// TODO: this is a temporary solution to fake the existence of the search pill
 		// 	which happens to be 48 pixels tall
 		kActiveScale = ((qreal) (r.height() - 48) * kActiveWindowScale) / (qreal) m_normalScreenBounds.height();
@@ -2586,7 +2585,6 @@ void CardWindowManager::slotPositiveSpaceChanged(const QRect& r)
 						   Settings::LunaSettings()->positiveSpaceBottomPadding;
 
 		kWindowOrigin = boundingRect().y() + ((r.y() + 48) + (int) ((r.height() - 48) * kWindowOriginRatio));
-*/
 	}
 
 	QRect rect = r;
