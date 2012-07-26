@@ -33,22 +33,22 @@ enum Gesture {
 	GestureCardSwitch  = 0x0100 + 5
 };
 
-enum Edge {
-	Left = 0,
-	Right,
-	Bottom
-};
-
 class CardSwitchGesture : public QGesture
 {
 public:
 
 	CardSwitchGesture(QObject* parent = 0) : QGesture(parent, (Qt::GestureType) GestureCardSwitch) {}
-	int getEdge() { return edge; }
-	void setEdge(int inEdge) { edge = inEdge; }
+    QPointF pos() { return m_pos; }
+    void setPos(QPointF pos) { m_pos = pos; }
+    QPointF lastPos() { return m_lastPos; }
+    void setLastPos(QPointF lastPos) { m_lastPos = lastPos; }
+    int flick() { return m_flick; }
+    void setFlick(int flick) { m_flick = flick; }
 
 private:
-	int edge;
+    QPointF m_pos;
+    QPointF m_lastPos;
+    int m_flick;
 
 private:
 
