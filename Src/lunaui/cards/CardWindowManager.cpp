@@ -1092,7 +1092,9 @@ void CardWindowManager::maximizeActiveWindow(bool animate)
 		m_activeGroup->raiseCards();
 
 		setActiveGroup(m_activeGroup);
-
+        
+        setGroupSwitchMode(true);
+        
 		if(animate)
 			slideAllGroups(false);
 		else
@@ -1875,7 +1877,6 @@ void CardWindowManager::handleSwitchCard(QGestureEvent* event)
         }
         case Qt::GestureFinished:
         {
-            setActiveGroup(groupClosestToCenterHorizontally());
             switch(gesture->flick())
             {
                 case 1:
@@ -1920,7 +1921,6 @@ void CardWindowManager::handleTapGestureMinimized(QTapGesture* event)
 		//  slide the card fan over to make it more visible.
 		if (m_activeGroup->shouldMaximizeOrScroll(event->position())) {
 			m_activeGroup->setActiveCard(event->position());
-			m_activeGroup->moveToActiveCard();
 			maximizeActiveWindow();
 		}
 		else {
@@ -1972,6 +1972,13 @@ void CardWindowManager::setActiveGroup(CardGroup* group)
 	m_activeGroup = group;
 
 	SystemUiController::instance()->setActiveCardWindow(m_activeGroup ? m_activeGroup->activeCard() : 0);
+}
+
+void CardWindowManager::setGroupSwitchMode(bool enable)
+{
+	for (int i=0; i<m_groups.size();i++) {
+        m_groups[i]->setSwitchMode(enable);
+    }
 }
 
 void CardWindowManager::switchToNextApp()
@@ -2845,7 +2852,9 @@ void CardWindowManager::slotSwitchCardEvent(QGestureEvent* event)
     CardSwitchGesture* s = static_cast<CardSwitchGesture*>(t);
 
     if(m_curState == m_maximizeState && s->state() == Qt::GestureUpdated)
+    {
         Q_EMIT signalEnterSwitch();
+    }
     
     if (m_curState)
         m_curState->switchCardEvent(event);

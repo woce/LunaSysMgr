@@ -220,6 +220,8 @@ private:
 	void slideToActiveCard();
 
 	void setActiveGroup(CardGroup* group);
+    
+    void setGroupSwitchMode(bool enable);
 
 	void disableCardRestoreToMaximized();
 	void restoreCardToMaximized();
