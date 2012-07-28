@@ -159,6 +159,9 @@ public:
 	
 	qreal nonCurScale() const { return m_nonCurScale; }
 	void setNonCurScale(const qreal& nonCurScale) { m_nonCurScale = nonCurScale; }
+    
+    bool switchMode() const { return m_switchMode; }
+    void setSwitchMode(bool switchMode) { m_switchMode = switchMode; }
 	
 	bool shouldMaximizeOrScroll(QPointF scenePt);
 	bool testHit(QPointF scenePt);
@@ -187,6 +190,7 @@ private:
 	// 1: 	3-4 cards with the second card being the center of the group
 	// N:	>4 cards where valid positions are between 1.0 and N - 4 + 1
 	qreal m_currentPosition;
+    bool m_switchMode;
 };
 
 Q_DECLARE_METATYPE(CardWindow::Position)

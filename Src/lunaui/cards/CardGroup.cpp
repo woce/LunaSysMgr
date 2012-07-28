@@ -43,6 +43,7 @@ CardGroup::CardGroup(qreal curScale, qreal nonCurScale)
 	, m_rightWidth(0)
 	, m_activeCard(0)
 	, m_currentPosition(0)
+	, m_switchMode(false)
 {
 	m_cardGroupRotFactor = Settings::LunaSettings()->cardGroupRotFactor;
 	m_cardGroupXDistanceFactor = Settings::LunaSettings()->cardGroupingXDistanceFactor;
@@ -701,25 +702,74 @@ QVector<CardWindow::Position> CardGroup::calculateOpenedPositions(qreal xOffset)
 	qreal rot = m_curScale * m_cardGroupRotFactor;
 	for (int i=0; i<m_cards.size(); i++) {
 
-		qreal x = ((i - m_currentPosition) / 3.0) * activeCardWidth * m_cardGroupXDistanceFactor;
-		if (x > rOff)
-			x = (x + (rOff * 4)) / 5;
-		else if (x < lOff)
-			x = (x + (lOff * 4)) / 5;
+		qreal x;
+        if(!m_switchMode)
+        {
+            x = ((i - m_currentPosition) / 3.0) * activeCardWidth * m_cardGroupXDistanceFactor;
+        
+            if (x > rOff)
+                x = (x + (rOff * 4)) / 5;
+            else if (x < lOff)
+                x = (x + (lOff * 4)) / 5;
+        }
+        else
+        {
+/* "Slide-over" behaviour for stacks, doesn't work correctly atm
+            if(m_cards.size() > 1)
+            {
+                if(i < m_cards.indexOf(m_activeCard))
+                {
+                    x = -xOffset;
+                }
+                if(i == m_cards.indexOf(m_activeCard))
+                {
+                    if(xOffset < 0)
+                        x = -xOffset;
+                    else
+                        x = 0;
+                }
+                if(i > m_cards.indexOf(m_activeCard))
+                {
+                    x = (i-m_cards.indexOf(m_activeCard)) * (activeCardWidth*2);
+
+            }
+            else
+                x = (i-m_cards.indexOf(m_activeCard)) * m_cards[0]->boundingRect().width();
+*/
+            
+            if(m_cards.size() > 1)
+                x = (i-m_cards.indexOf(m_activeCard)) * (m_cards[0]->boundingRect().width() + Settings::LunaSettings()->gapBetweenCardGroups);
+            else
+                x = (i-m_cards.indexOf(m_activeCard)) * m_cards[0]->boundingRect().width();
+        }
 
 		positions[i].trans.setX(x);
-		positions[i].trans.setZ(m_curScale);
-		positions[i].trans.setY(x > 0 ? x/15 : 0);
-		positions[i].zRot = x/rot;
+        if(!m_switchMode)
+        {
+            positions[i].trans.setY(x > 0 ? x/15 : 0);
+            positions[i].trans.setZ(m_curScale);
+            positions[i].zRot = x/rot;
+        }
+        else
+        {
+            //Horribly hacky method of determining offset
+            //Will probably break on non-TP resolutions
+            if(m_cards[0]->boundingRect().width() > m_cards[0]->boundingRect().height())
+                positions[i].trans.setY(46); //Landscape
+            else
+                positions[i].trans.setY(71); //Portrait
+            
+            positions[i].trans.setZ(1.0);
+        }
 
-		if (xOffset != 0) {
-
+		if (xOffset != 0 && !m_switchMode) {
 			qreal maxDistUngrouped = activeCardWidth;
 			qreal amtToCollapse = qMax((qreal)1.0, maxDistUngrouped - qAbs(xOffset)) / maxDistUngrouped;
-			positions[i].trans.setX((x*amtToCollapse/*+xOffset*/) + (1-amtToCollapse) * 10 * (i));
-			positions[i].trans.setY(positions[i].trans.y() * amtToCollapse);
-			positions[i].trans.setZ(m_nonCurScale + (m_curScale-m_nonCurScale) * amtToCollapse);
-			positions[i].zRot *= amtToCollapse;
+            
+            positions[i].trans.setX((x*amtToCollapse/*+xOffset*/) + (1-amtToCollapse) * 10 * (i));
+            positions[i].trans.setY(positions[i].trans.y() * amtToCollapse);
+            positions[i].trans.setZ(m_nonCurScale + (m_curScale-m_nonCurScale) * amtToCollapse);
+            positions[i].zRot *= amtToCollapse;
 		}
 	}
 
@@ -745,7 +795,14 @@ QVector<CardWindow::Position> CardGroup::calculateClosedPositions()
 	for (int i=m_cards.size()-1; i>=0; i--) {
 
 		positions[i].trans.setX(xOff);
-		positions[i].trans.setZ(m_nonCurScale);
+        if(!m_switchMode)
+        {
+            positions[i].trans.setZ(m_nonCurScale);
+        }
+        else
+        {
+            positions[i].trans.setZ(1.0);
+        }
 
 		if (i >= stopSpacingIndex) {
 			xOff -= 7; // NOTE: should we scale the spacing?
