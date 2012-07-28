@@ -43,7 +43,7 @@ CardGroup::CardGroup(qreal curScale, qreal nonCurScale)
 	, m_rightWidth(0)
 	, m_activeCard(0)
 	, m_currentPosition(0)
-	, m_switchMode(false)
+	, m_cardViewGesture(false)
 {
 	m_cardGroupRotFactor = Settings::LunaSettings()->cardGroupRotFactor;
 	m_cardGroupXDistanceFactor = Settings::LunaSettings()->cardGroupingXDistanceFactor;
@@ -703,66 +703,29 @@ QVector<CardWindow::Position> CardGroup::calculateOpenedPositions(qreal xOffset)
 	for (int i=0; i<m_cards.size(); i++) {
 
 		qreal x;
-        if(!m_switchMode)
-        {
-            x = ((i - m_currentPosition) / 3.0) * activeCardWidth * m_cardGroupXDistanceFactor;
-        
-            if (x > rOff)
-                x = (x + (rOff * 4)) / 5;
-            else if (x < lOff)
-                x = (x + (lOff * 4)) / 5;
-        }
-        else
-        {
-/* "Slide-over" behaviour for stacks, doesn't work correctly atm
-            if(m_cards.size() > 1)
-            {
-                if(i < m_cards.indexOf(m_activeCard))
-                {
-                    x = -xOffset;
-                }
-                if(i == m_cards.indexOf(m_activeCard))
-                {
-                    if(xOffset < 0)
-                        x = -xOffset;
-                    else
-                        x = 0;
-                }
-                if(i > m_cards.indexOf(m_activeCard))
-                {
-                    x = (i-m_cards.indexOf(m_activeCard)) * (activeCardWidth*2);
-
-            }
-            else
-                x = (i-m_cards.indexOf(m_activeCard)) * m_cards[0]->boundingRect().width();
-*/
-            
-            if(m_cards.size() > 1)
-                x = (i-m_cards.indexOf(m_activeCard)) * (m_cards[0]->boundingRect().width() + Settings::LunaSettings()->gapBetweenCardGroups);
-            else
-                x = (i-m_cards.indexOf(m_activeCard)) * m_cards[0]->boundingRect().width();
-        }
+		x = ((i - m_currentPosition) / 3.0) * activeCardWidth * m_cardGroupXDistanceFactor;
+	
+		if (x > rOff)
+			x = (x + (rOff * 4)) / 5;
+		else if (x < lOff)
+			x = (x + (lOff * 4)) / 5;
 
 		positions[i].trans.setX(x);
-        if(!m_switchMode)
-        {
-            positions[i].trans.setY(x > 0 ? x/15 : 0);
-            positions[i].trans.setZ(m_curScale);
-            positions[i].zRot = x/rot;
-        }
-        else
-        {
-            //Horribly hacky method of determining offset
-            //Will probably break on non-TP resolutions
-            if(m_cards[0]->boundingRect().width() > m_cards[0]->boundingRect().height())
-                positions[i].trans.setY(46); //Landscape
-            else
-                positions[i].trans.setY(71); //Portrait
-            
-            positions[i].trans.setZ(1.0);
+		positions[i].trans.setY(x > 0 ? x/15 : 0);
+		positions[i].trans.setZ(m_curScale);
+		positions[i].zRot = x/rot;
+			
+		if(m_cardViewGesture)
+		{
+			//Horribly hacky method of determining offset
+			//Will probably break on non-TP resolutions
+			if(m_cards[0]->boundingRect().width() > m_cards[0]->boundingRect().height())
+				positions[i].trans.setY(46 * ((m_curScale - 0.5143243)*2)); //Landscape
+			else
+				positions[i].trans.setY(71 * ((m_curScale - 0.5143243)*2)); //Portrait
         }
 
-		if (xOffset != 0 && !m_switchMode) {
+		if (xOffset != 0 && !m_cardViewGesture) {
 			qreal maxDistUngrouped = activeCardWidth;
 			qreal amtToCollapse = qMax((qreal)1.0, maxDistUngrouped - qAbs(xOffset)) / maxDistUngrouped;
             
@@ -795,7 +758,7 @@ QVector<CardWindow::Position> CardGroup::calculateClosedPositions()
 	for (int i=m_cards.size()-1; i>=0; i--) {
 
 		positions[i].trans.setX(xOff);
-        if(!m_switchMode)
+        if(!m_cardViewGesture)
         {
             positions[i].trans.setZ(m_nonCurScale);
         }
