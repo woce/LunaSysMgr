@@ -41,7 +41,7 @@ class PreparingState;
 class LoadingState;
 class FocusState;
 class ReorderState;
-class SwitchState;
+class CardViewGestureState;
 
 QT_BEGIN_NAMESPACE
 class QTapGesture;
@@ -117,7 +117,7 @@ private Q_SLOTS:
 
 	void slotFocusMaximizedCardWindow(bool focus);
     
-	void slotSwitchCardEvent(QGestureEvent* event);
+	void slotCardViewGestureEvent(QGestureEvent* event);
 
     void slotTouchToShareAppUrlTransfered(const std::string& appId);
     void slotOpacityAnimationFinished();
@@ -133,8 +133,8 @@ Q_SIGNALS:
 	void signalMinimizeActiveWindow();
 	void signalEnterReorder(QPoint pt, int slice);
 	void signalExitReorder(bool canceled = true);
-	void signalSwitchCardEvent(QGestureEvent* event);
-	void signalEnterSwitch();
+	void signalCardViewGestureEvent(QGestureEvent* event);
+	void signalEnterCardViewGestureState();
     void signalFirstCardRun();
 
 private:
@@ -150,7 +150,7 @@ private:
 	void handleMouseReleaseMinimized(QGraphicsSceneMouseEvent* event);
 	void handleMouseReleaseReorder(QGraphicsSceneMouseEvent* event);
     
-    void handleSwitchCard(QGestureEvent* event);
+    void handleCardViewGesture(QGestureEvent* event);
 
 	void handleFlickGestureMinimized(QGestureEvent* event);
 
@@ -221,7 +221,7 @@ private:
 
 	void setActiveGroup(CardGroup* group);
     
-    void setGroupSwitchMode(bool enable);
+    void setGroupsCardViewGesture(bool enable);
 
 	void disableCardRestoreToMaximized();
 	void restoreCardToMaximized();
@@ -331,7 +331,7 @@ private:
 	LoadingState* m_loadingState;
 	FocusState* m_focusState;
 	ReorderState* m_reorderState;
-	SwitchState* m_switchState;
+	CardViewGestureState* m_cardViewGestureState;
 
 	CardWindowManagerState* m_curState;
 
@@ -355,7 +355,7 @@ private:
 	friend class LoadingState;
 	friend class FocusState;
 	friend class ReorderState;
-	friend class SwitchState;
+	friend class CardViewGestureState;
 };
 
 #endif /* CARDWINDOWMANAGER_H */
