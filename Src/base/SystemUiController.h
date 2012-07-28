@@ -413,6 +413,7 @@ private:
 
 	bool m_cardWindowAboutToMaximize;
 	bool m_cardWindowMaximized;
+    bool m_switchCards;
 	bool m_dashboardOpened;
 	bool m_dashboardSoftDismissable;
 	bool m_dashboardHasContent;

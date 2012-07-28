@@ -85,6 +85,7 @@ SystemUiController::SystemUiController()
     m_modalWindowDismissErr = DismissUnknown;
 	m_cardWindowAboutToMaximize = false;
 	m_cardWindowMaximized = false;
+    m_switchCards = false;
 	m_dashboardOpened = false;
 	m_dashboardSoftDismissable = true;
 	m_dashboardHasContent = false;
@@ -566,6 +567,10 @@ bool SystemUiController::handleKeyEvent(QKeyEvent *event)
 
 				return true;
 			}
+            
+            if (m_switchCards) {
+                Q_EMIT signalMaximizeActiveCardWindow();
+            }
 
             // the auto repeat flag set on the Home Key Release, signifies a Double Tap
             if (!event->isAutoRepeat()) {
@@ -2124,6 +2129,14 @@ void SystemUiController::handleScreenEdgeFlickGesture(QGesture* gesture)
 
 void SystemUiController::handleCardSwitchGesture(QGestureEvent* event)
 {
+	QGesture* t = event->gesture((Qt::GestureType) GestureCardSwitch);
+    CardSwitchGesture* gesture = static_cast<CardSwitchGesture*>(t);
+    
+    if(gesture->state() == Qt::GestureStarted || gesture->state() == Qt::GestureUpdated)
+        m_switchCards = true;
+    else
+        m_switchCards = false;
+    
 	if (m_deviceLocked)
 		return;
     
