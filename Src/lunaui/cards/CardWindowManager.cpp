@@ -1443,27 +1443,6 @@ void CardWindowManager::handleFlickGestureMinimized(QGestureEvent* event)
 	}
 }
 
-void CardWindowManager::handleFlickGestureSwitch(QGestureEvent* event)
-{
-	QGesture* g = event->gesture((Qt::GestureType) SysMgrGestureFlick);
-	if (!g)
-		return;
-
-	FlickGesture* flick = static_cast<FlickGesture*>(g);
-	
-	// advance to the next/previous group if we are Outer Locked or were still unbiased horizontally
-	if (flick->velocity().x() > 0)
-	{
-		switchToPrevApp();
-		maximizeActiveWindow();
-	}
-	else
-	{
-		switchToNextApp();
-		maximizeActiveWindow();
-	}
-}
-
 void CardWindowManager::handleMousePressMinimized(QGraphicsSceneMouseEvent* event)
 {
 	// try to capture the card the user first touched
@@ -2247,36 +2226,6 @@ void CardWindowManager::switchToPrevAppMaximized()
 
 	// maximize the new active window
 	maximizeActiveWindow();
-}
-
-void CardWindowManager::scaleGroupsMinimize()
-{
-	for (int i=0; i<m_groups.size();i++) {
-		m_groups[i]->setCurScale(kActiveScale);
-		m_groups[i]->setNonCurScale(kNonActiveScale);
-	}
-}
-
-void CardWindowManager::scaleGroupsSwitch()
-{
-	for (int i=0; i<m_groups.size();i++) {
-		m_groups[i]->setCurScale(1.0);
-		m_groups[i]->setNonCurScale(1.0);
-	}
-}
-
-void CardWindowManager::shiftGroupsMinimize()
-{
-	for (int i=0; i<m_groups.size();i++) {
-        m_groups[i]->setY(kWindowOrigin);
-	}
-}
-
-void CardWindowManager::shiftGroupsSwitch()
-{
-	for (int i=0; i<m_groups.size();i++) {
-        m_groups[i]->setY(14);
-	}
 }
 
 void CardWindowManager::slideAllGroups(bool includeActiveCard)

@@ -153,7 +153,6 @@ private:
     void handleSwitchCard(QGestureEvent* event);
 
 	void handleFlickGestureMinimized(QGestureEvent* event);
-	void handleFlickGestureSwitch(QGestureEvent* event);
 
 	void handleTapGestureMinimized(QTapGesture* event);
 
@@ -199,12 +198,6 @@ private:
 	void switchToPrevApp();
 	void switchToNextAppMaximized();
 	void switchToPrevAppMaximized();
-	
-	// switch between scaling modes (normal & switch for now)
-	void scaleGroupsMinimize();
-	void scaleGroupsSwitch();
-	void shiftGroupsMinimize();
-	void shiftGroupsSwitch();
 
 	// animate all groups to center around the active group.
 	// optionally include the active card in the active group.
