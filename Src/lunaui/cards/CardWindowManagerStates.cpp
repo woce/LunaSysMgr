@@ -173,8 +173,9 @@ void MinimizeState::onEntry(QEvent* event)
 	SystemUiController::instance()->setCardWindowMaximized(false);
 	SystemUiController::instance()->setMaximizedCardWindow(0);
     
-    //This should be done some way else, currently causes jank when minimizing
-	m_wm->shiftGroupsMinimize();
+    //Stop Group Switch Mode
+    m_wm->setGroupSwitchMode(false);
+    m_wm->slideAllGroups();
 }
 
 // --------------------------------------------------------------------------------------------------
@@ -359,9 +360,6 @@ void MaximizeState::finishMaximizingActiveWindow()
 				Time::curTimeMs());
 		}
 	}
-    
-    //Switch to scale position
-	m_wm->shiftGroupsSwitch();
 }
 
 void MaximizeState::focusMaximizedCardWindow(bool focus)
@@ -498,8 +496,6 @@ void MaximizeState::onExit(QEvent* event)
 			SystemUiController::instance()->setDirectRenderingForWindow(SystemUiController::CARD_WINDOW_MANAGER, activeWin, false);
 			activeWin->setAttachedToGroup(true);
 		}
-        
-        m_wm->scaleGroupsMinimize();
 
 		// notify the system that we are no longer maximized
 		SystemUiController::instance()->setCardWindowMaximized(false);
@@ -760,17 +756,12 @@ void SwitchState::switchCardEvent(QGestureEvent* event)
 void SwitchState::onExit(QEvent* event)
 {
 	CardWindowManagerState::onExit(event);
-    
-	//Switch back to Minimize scaling
-	m_wm->scaleGroupsMinimize();
 }
 
 void SwitchState::onEntry(QEvent* event)
 {
 	CardWindowManagerState::onEntry(event);
     
+    //Make sure the quicklaunch bar doesn't appear during switch
 	SystemUiController::instance()->setCardWindowMaximized(true);
-    
-    //Switch to Switch scaling
-	m_wm->scaleGroupsSwitch();
 }
