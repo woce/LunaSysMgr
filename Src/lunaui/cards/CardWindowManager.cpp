@@ -1902,6 +1902,13 @@ void CardWindowManager::handleSwitchCard(QGestureEvent* event)
                 case 1:
                     switchToPrevApp();
                     break;
+                case 0:
+                    qCritical() << gesture->edge() << gesture->pos();
+                    if(gesture->edge() == false && gesture->pos().x() > SystemUiController::instance()->currentUiWidth()/2) //Left Edge
+                        switchToPrevApp();
+                    if(gesture->edge() == true && gesture->pos().x() < SystemUiController::instance()->currentUiWidth()/2) //Right Edge
+                        switchToNextApp();
+                    break;
                 case -1:
                     switchToNextApp();
                     break;
