@@ -19,8 +19,8 @@
 
 
 
-#ifndef CARDSWITCHGESTURE_H
-#define CARDSWITCHGESTURE_H
+#ifndef CARDVIEWGESTURE_H
+#define CARDVIEWGESTURE_H
 
 #include "Common.h"
 
@@ -30,14 +30,14 @@
 #include <SysMgrDefs.h>
 
 enum Gesture {
-	GestureCardSwitch  = 0x0100 + 5
+	GestureCardView  = 0x0100 + 6
 };
 
-class CardSwitchGesture : public QGesture
+class CardViewGesture : public QGesture
 {
 public:
 
-	CardSwitchGesture(QObject* parent = 0) : QGesture(parent, (Qt::GestureType) GestureCardSwitch) {}
+	CardViewGesture(QObject* parent = 0) : QGesture(parent, (Qt::GestureType) GestureCardView) {}
     QPointF pos() const { return m_pos; }
     void setPos(QPointF pos) { m_pos = pos; }
     QPointF lastPos() const { return m_lastPos; }
@@ -55,7 +55,7 @@ private:
 
 private:
 
-	friend class CardSwitchGestureRecognizer;
+	friend class CardViewGestureRecognizer;
 };
 
-#endif /* CARDSWITCHGESTURE_H */
+#endif /* CARDVIEWGESTURE_H */

@@ -1,27 +1,27 @@
 #include "Common.h"
 
 #include "WindowServer.h"
-#include "CardSwitchGestureRecognizer.h"
+#include "CardViewGestureRecognizer.h"
 
 #include <QEvent>
 #include <QTouchEvent>
 #include <QTransform>
 #include <QDebug>
 
-CardSwitchGestureRecognizer::CardSwitchGestureRecognizer()
+CardViewGestureRecognizer::CardViewGestureRecognizer()
 {
 }
 
-QGesture *CardSwitchGestureRecognizer::create(QObject *target)
+QGesture *CardViewGestureRecognizer::create(QObject *target)
 {
-    return new CardSwitchGesture;
+    return new CardViewGesture;
 }
 
-QGestureRecognizer::Result CardSwitchGestureRecognizer::recognize(QGesture *state,
+QGestureRecognizer::Result CardViewGestureRecognizer::recognize(QGesture *state,
                                                             QObject *,
                                                             QEvent *event)
 {
-    CardSwitchGesture *q = static_cast<CardSwitchGesture *>(state);
+    CardViewGesture *q = static_cast<CardViewGesture *>(state);
     const QTouchEvent *ev = static_cast<const QTouchEvent *>(event);
 	const HostInfo& info = HostBase::instance()->getInfo();
 
@@ -58,31 +58,19 @@ QGestureRecognizer::Result CardSwitchGestureRecognizer::recognize(QGesture *stat
                 pos += displayBounds;
                 displayBounds *= 2;
 				
-				if(startPos.x() > kGestureBorderSize &&
-				startPos.x() < displayBounds.x() - kGestureBorderSize)
+				if(startPos.y() < displayBounds.y() - kGestureBorderSize)
 				{
-					result = QGestureRecognizer::Ignore;				}
+					result = QGestureRecognizer::Ignore;
+				}
 				else
 				{
 					QPoint delta = pos - startPos;
 						
 					if (event->type() == QEvent::TouchUpdate) {
-						if(startPos.x() <= kGestureBorderSize)
+						if(startPos.y() >= displayBounds.y() - kGestureBorderSize)
 						{
                             result = QGestureRecognizer::MayBeGesture;
-                            if(delta.x() >= kGestureTriggerDistance)
-                            {
-                                q->setLastPos(q->pos());
-                                q->setPos(pos);
-                                q->setEdge(false);
-                                result = QGestureRecognizer::TriggerGesture;
-
-                            }
-						}
-						else if(startPos.x() >= displayBounds.x() - kGestureBorderSize)
-						{
-                            result = QGestureRecognizer::MayBeGesture;
-                            if(delta.x() <= -kGestureTriggerDistance)
+                            if(delta.y() <= -kGestureTriggerDistance)
                             {
                                 q->setLastPos(q->pos());
                                 q->setPos(pos);
@@ -93,11 +81,11 @@ QGestureRecognizer::Result CardSwitchGestureRecognizer::recognize(QGesture *stat
                         
                         QPoint diff = q->pos().toPoint() - q->lastPos().toPoint();
                         
-                        if(diff.x() >= 25 && diff.x() <= 100)
-                            q->setFlick(1);
-                        else if(diff.x() < 5 && diff.x() > -5)
+                        if(diff.y() > -5 || diff.y() < 5)
                             q->setFlick(0);
-                        else if(diff.x() <= -25 && diff.x() >= -100)
+                        else if(diff.y() >= 25 && diff.y() <= 100)
+                            q->setFlick(1);
+                        else if(diff.y() <= -25 && diff.y() >= -100)
                             q->setFlick(-1);
                         
 					} else if (event->type() == QEvent::TouchEnd) {
