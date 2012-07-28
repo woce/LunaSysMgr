@@ -1898,6 +1898,10 @@ void CardWindowManager::handleSwitchCard(QGestureEvent* event)
             m_movement = MovementUnlocked;
             break;
         }
+        case Qt::GestureCanceled:
+            maximizeActiveWindow();
+            m_movement = MovementUnlocked;
+            break;
         default:
             break;
     }
