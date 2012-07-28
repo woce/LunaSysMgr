@@ -70,10 +70,11 @@ QGestureRecognizer::Result CardSwitchGestureRecognizer::recognize(QGesture *stat
 						if(startPos.x() <= kGestureBorderSize)
 						{
                             result = QGestureRecognizer::MayBeGesture;
-                            if(delta.x() >= kGestureTriggerDistance && abs(delta.x()) >= abs(delta.y()))
+                            if(delta.x() >= kGestureTriggerDistance)
                             {
                                 q->setLastPos(q->pos());
                                 q->setPos(pos);
+                                q->setEdge(false);
                                 result = QGestureRecognizer::TriggerGesture;
 
                             }
@@ -81,10 +82,11 @@ QGestureRecognizer::Result CardSwitchGestureRecognizer::recognize(QGesture *stat
 						else if(startPos.x() >= displayBounds.x() - kGestureBorderSize)
 						{
                             result = QGestureRecognizer::MayBeGesture;
-                            if(delta.x() <= -kGestureTriggerDistance && abs(delta.x()) >= abs(delta.y()))
+                            if(delta.x() <= -kGestureTriggerDistance)
                             {
                                 q->setLastPos(q->pos());
                                 q->setPos(pos);
+                                q->setEdge(true);
                                 result = QGestureRecognizer::TriggerGesture;
                             }
 						}
