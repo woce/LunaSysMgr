@@ -1033,7 +1033,7 @@ void OverlayWindowManager::setupSearchPill()
 				QString(GraphicsSettings::DiUiGraphicsSettings()->graphicsAssetBaseDirectory + SEARCHPILL_ICON_FILEPATH)
 		);
 
-		quint32 width = qMax(LayoutSettings::settings()->searchPillWidth,(quint32)(pIconPmo ? pIconPmo->width() : 0));
+		quint32 width = LayoutSettings::settings()->searchPillWidthRel * qMin(boundingRect().height(), boundingRect().width());
 		quint32 height = pNormalBgPmo->height();
 		QRectF pillGeom = DimensionsGlobal::realRectAroundRealPoint(QSize(width - (width %2),height - (height %2)));
 		m_searchPill = new SearchPill(pNormalBgPmo, pIconPmo, pillGeom,this);
