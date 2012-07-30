@@ -332,9 +332,10 @@ bool QuickLaunchBar::resize(const QSize& s)
 
 	//TODO: for now, access button is hardcoded to the right edge, so it's always (1)
 
-	m_itemAreaXrange.first = (qint32)(geometry().left()) + LayoutSettings::settings()->quickLaunchItemAreaOffsetPx.x();
-	m_itemAreaXrange.second = (qint32)(geometry().right())
-								-(qint32)(IconGeometrySettings::settings()->absoluteGeomSizePx.width());
+	qint32 buttonOffset = (m_qp_launcherAccessButton->pos().x() - geometry().right()) + LA_BUTTON_NORMAL_LOC.width();
+	
+	m_itemAreaXrange.first = (qint32)(geometry().left());
+	m_itemAreaXrange.second = (qint32)(geometry().right()) + buttonOffset;
 
 	//the settings spec is relative to the top but m_itemsY will be used as a coordinate in ICS, so remap it so
 	// that it's center-origin based (i.e. it's in ICS)
@@ -648,7 +649,6 @@ QSize QuickLaunchBar::QuickLaunchSizeFromScreenSize(int screenWidth,int screenHe
 //virtual
 void QuickLaunchBar::rearrangeIcons(bool animate)
 {
-	qint32 itemSpace = 0;
 	qint32 nItems = 0;
 	//calc the total size taken up by the items in the list
 	for (QList<QPointer<IconBase> >::iterator it = m_iconItems.begin();
@@ -660,7 +660,6 @@ void QuickLaunchBar::rearrangeIcons(bool animate)
 			continue;
 		}
 		++nItems;
-		itemSpace += (qint32)pIcon->geometry().width();
 	}
 
 	if(!nItems)
@@ -677,16 +676,8 @@ void QuickLaunchBar::rearrangeIcons(bool animate)
 		m_qp_reorderAnimationGroup = new QParallelAnimationGroup(this);
 	}
 
-	qint32 interSpace = qMax((int)0,(int)(((m_itemAreaXrange.second - m_itemAreaXrange.first)-itemSpace)/(nItems)));
-
 	m_layoutAnchorsXcoords.clear();
-	if (itemSpace == 0)
-	{
-		//nothing to do
-		return;
-	}
-
-	qint32 xoffs = 0;
+	
 	int idx=0;
 	QPointF iconPos;
 	iconPos.setY(m_itemsY);
@@ -699,10 +690,19 @@ void QuickLaunchBar::rearrangeIcons(bool animate)
 		{
 			continue;
 		}
-		qint32 iconHalfW = (qint32)(pIcon->geometry().width()/2.0);
+		
+		qint32 barFullW = (m_itemAreaXrange.second-m_itemAreaXrange.first) - pIcon->boundingRect().width();
+		qint32 barHalfW = barFullW/2;
+		qint32 buttonOffset = (m_qp_launcherAccessButton->pos().x() + m_itemAreaXrange.first) - LA_BUTTON_NORMAL_LOC.width();
+		qint32 iconX = 0;
+		
+		iconX += buttonOffset/2; //Shift the entire bar by buttonOffset
+		iconX -= barHalfW; //Start on the left
+		iconX += (barHalfW/m_iconItems.length()); //Offset from left
+		iconX += (barFullW/m_iconItems.length()) * idx; //How far to the right should we go?
 
 		if(pIcon != m_qp_iconInMotion) {// no need to move the icon that the user is dragging around
-			iconPos.setX(m_itemAreaXrange.first+xoffs+iconHalfW);
+			iconPos.setX(iconX);
 
 			if(pIcon->pos() != iconPos) {
 				if(!animate) {
@@ -718,8 +718,9 @@ void QuickLaunchBar::rearrangeIcons(bool animate)
 			}
 		}
 
-		m_layoutAnchorsXcoords << m_itemAreaXrange.first+xoffs+iconHalfW;
-		xoffs+=interSpace+pIcon->geometry().width();
+		m_layoutAnchorsXcoords << iconPos.x();
+		
+		idx++;
 	}
 
 	if(animate && !m_qp_reorderAnimationGroup.isNull() && m_qp_reorderAnimationGroup->animationCount()) {
