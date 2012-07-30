@@ -320,7 +320,7 @@ bool QuickLaunchBar::resize(const QSize& s)
 		// everything ordered symmetrically in the QL bar.
 		m_qp_launcherAccessButton->setPos(
 				m_geom.topRight()
-				+QPoint(-IconGeometrySettings::settings()->absoluteGeomSizePx.width()/2, LayoutSettings::settings()->quickLaunchBarLauncherAccessButtonOffsetPx.y() + m_qp_launcherAccessButton->geometry().height()/2));
+				+QPoint(-m_qp_launcherAccessButton->geometry().width()*0.75, LayoutSettings::settings()->quickLaunchBarLauncherAccessButtonOffsetPx.y() + m_qp_launcherAccessButton->geometry().height()/2));
 
 		m_qp_launcherAccessButton->setVisible(true);
 	}
@@ -330,12 +330,10 @@ bool QuickLaunchBar::resize(const QSize& s)
 	// 2. Point(button.right,geom.top)     (if the access button is on the left edge)
 	//  + settings.quickLaunchItemAreaOffsetPx
 
-	//TODO: for now, access button is hardcoded to the right edge, so it's always (1)
-
-	qint32 buttonOffset = (m_qp_launcherAccessButton->pos().x() - geometry().right()) + LA_BUTTON_NORMAL_LOC.width();
-	
+	//TODO: for now, access button is hardcoded to the right edge, so it's always (1)	
 	m_itemAreaXrange.first = (qint32)(geometry().left());
-	m_itemAreaXrange.second = (qint32)(geometry().right()) + buttonOffset;
+	m_itemAreaXrange.second = (qint32)(geometry().right() -
+		((m_geom.right() - m_qp_launcherAccessButton->pos().x()) + (m_qp_launcherAccessButton->boundingRect().width()-1) / 2));
 
 	//the settings spec is relative to the top but m_itemsY will be used as a coordinate in ICS, so remap it so
 	// that it's center-origin based (i.e. it's in ICS)
@@ -691,13 +689,9 @@ void QuickLaunchBar::rearrangeIcons(bool animate)
 			continue;
 		}
 		
-		qint32 barFullW = (m_itemAreaXrange.second-m_itemAreaXrange.first) - pIcon->boundingRect().width();
+		qint32 barFullW = (m_itemAreaXrange.second-m_itemAreaXrange.first);
 		qint32 barHalfW = barFullW/2;
-		qint32 buttonOffset = (m_qp_launcherAccessButton->pos().x() + m_itemAreaXrange.first) - LA_BUTTON_NORMAL_LOC.width();
-		qint32 iconX = 0;
-		
-		iconX += buttonOffset/2; //Shift the entire bar by buttonOffset
-		iconX -= barHalfW; //Start on the left
+		qint32 iconX = m_itemAreaXrange.first; //Start on the left
 		iconX += (barHalfW/m_iconItems.length()); //Offset from left
 		iconX += (barFullW/m_iconItems.length()) * idx; //How far to the right should we go?
 
