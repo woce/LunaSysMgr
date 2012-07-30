@@ -167,7 +167,7 @@ IconLayoutSettings::IconLayoutSettings()
 , reorderablelayout_emptyPageTextFontColor(Qt::white)
 
 , reorderablelayout_emptyPageTextOffsetFromCenter(0,-100)
-, reorderablelayout_emptyPageIconOffsetFromCenter(0,0)
+, reorderablelayout_emptyPageIconOffsetFromCenter(0,50)
 {
 	s_instance = this;
 
