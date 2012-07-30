@@ -91,15 +91,17 @@ void ReorderablePage::commonCtor()
 	QString emptyText = EmptyPageText();
 	if (!emptyText.isEmpty())
 	{
-//		m_qp_emptyPageText = new TextBox(0,m_geom.adjusted(m_geom.width()/3.0,m_geom.height()/4.0,
-//				-m_geom.width()/3.0,-m_geom.height()/4.0),
-//				EmptyPageText());
+		m_qp_emptyPageText = new TextBox(0,
+			m_geom.adjusted(m_geom.width()/15.0,m_geom.height()/15.0,-m_geom.width()/15.0,-m_geom.height()/15.0),
+			EmptyPageText());
+/*
 		QRectF textBoxGeom = DimensionsGlobal::realRectAroundRealPoint(IconLayoutSettings::settings()->reorderablelayout_emptyPageTextBoxSize);
 		m_qp_emptyPageText = new TextBox(0,textBoxGeom,
 				EmptyPageText());
+*/
 		m_qp_emptyPageText->setParentItem(this);
-//		m_qp_emptyPageText->setPos(0.0,m_geom.top()-m_qp_emptyPageText->geometry().top()+m_geom.height()/15);
-		m_qp_emptyPageText->setPos(m_geom.center()+IconLayoutSettings::settings()->reorderablelayout_emptyPageTextOffsetFromCenter);
+		m_qp_emptyPageText->setPos(0.0,m_geom.top()-m_qp_emptyPageText->geometry().top()+m_geom.height()/3.2);
+//		m_qp_emptyPageText->setPos(m_geom.center()+IconLayoutSettings::settings()->reorderablelayout_emptyPageTextOffsetFromCenter);
 		m_qp_emptyPageText->setVisible(true);
 	}
 
@@ -112,7 +114,7 @@ void ReorderablePage::commonCtor()
 
 		m_qp_emptyPageIcon = new PictureBox(pEmptyPicPmo);
 		m_qp_emptyPageIcon->setParentItem(this);
-		m_qp_emptyPageIcon->setPos(m_geom.center()+IconLayoutSettings::settings()->reorderablelayout_emptyPageIconOffsetFromCenter);
+		m_qp_emptyPageIcon->setPos(m_geom.center()+QPointF(0.0,m_geom.height()/8));
 		m_qp_emptyPageIcon->setVisible(true);
 	}
 }
