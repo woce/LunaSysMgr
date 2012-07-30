@@ -82,7 +82,7 @@ LayoutSettings::LayoutSettings()
 , quickLaunchBarUseAbsoluteSize(true)
 , quickLaunchBarSizePctScreenRelative(QSizeF(1.0,0.15))
 , quickLaunchBarHeightAbsolute(100)
-, quickLaunchBarLauncherAccessButtonOffsetPx(0,20) // for now, only the Y of this offset is being used
+, quickLaunchBarLauncherAccessButtonOffsetPx(0,22)
 , quickLaunchItemAreaOffsetPx(0,65)
 , quickLaunchMaxItems(5)
 
