@@ -265,14 +265,14 @@ bool SystemUiController::handleGestureEvent (QGestureEvent* event)
 	if (!t && Preferences::instance()->sysUiEnableNextPrevGestures() == true) {
 		if (Settings::LunaSettings()->uiType != Settings::UI_MINIMAL && !m_emergencyMode) {
 			t = event->gesture((Qt::GestureType) SysMgrGestureScreenEdgeFlick);
-			if (t && Preferences::instance()->sysUiGestureDetection() == 0)
+			if (t && Preferences::instance()->sysUiSlideGestures() == 0)
 			{
 				handleScreenEdgeFlickGesture(t);
 				return true;
 			}
 
 			t = event->gesture((Qt::GestureType) GestureScreenEdgeSlide);
-			if (t && Preferences::instance()->sysUiGestureDetection() == 1)
+			if (t && Preferences::instance()->sysUiSlideGestures() == 1)
 			{
 				handleScreenEdgeSlideGesture(t);
 				return true;
@@ -2179,6 +2179,9 @@ void SystemUiController::handleUpSlide() {
 }
 
 void SystemUiController::handleSideSlide(bool next) {
+	if (Preferences::instance()->sysUiEnableAppSwitchGestures() == false)
+		return;
+
 	if (m_deviceLocked)
 		return;
 
