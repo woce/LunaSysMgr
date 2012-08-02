@@ -60,7 +60,8 @@ public:
 
 	bool sysUiNoHomeButtonMode() const { return m_sysUiNoHomeButtonMode; }
 	bool sysUiEnableNextPrevGestures() const { return m_sysUiEnableNextPrevGestures; }
-	bool sysUiGestureDetection() const { return m_sysUiGestureDetection; }
+	bool sysUiSlideGestures() const { return m_sysUiSlideGestures; }
+	bool sysUiEnableAppSwitchGestures() const { return m_sysUiEnableAppSwitchGestures; }
 
 	bool imeEnabled() const { return m_imeEnabled; }
 	bool pinyinEnabled() const { return m_pinyinEnabled; }
@@ -131,7 +132,8 @@ private:
 
 	bool m_sysUiNoHomeButtonMode;
 	bool m_sysUiEnableNextPrevGestures;
-	bool m_sysUiGestureDetection;
+	bool m_sysUiSlideGestures;
+	bool m_sysUiEnableAppSwitchGestures;
 
 	bool m_imeEnabled;
 	bool m_pinyinEnabled;

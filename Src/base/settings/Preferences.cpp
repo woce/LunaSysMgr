@@ -65,7 +65,8 @@ Preferences::Preferences()
 	, m_playFeedbackSounds(true)
 	, m_sysUiNoHomeButtonMode(true)
 	, m_sysUiEnableNextPrevGestures(false)
-	, m_sysUiGestureDetection(0)
+	, m_sysUiSlideGestures(false)
+	, m_sysUiEnableAppSwitchGestures(false)
 	, m_lockTimeout(0)
 	, m_lsHandle(0)
 	, m_imeEnabled(false)
@@ -566,7 +567,8 @@ bool Preferences::serverConnectCallback(LSHandle *sh, LSMessage *message, void *
 													   \"imeType\", \
 													   \"sysUiNoHomeButtonMode\", \
 													   \"sysUiEnableNextPrevGestures\", \
-													   \"sysUiGestureDetection\", \
+													   \"sysUiSlideGestures\", \
+													   \"sysUiEnableAppSwitchGestures\", \
 													   \"airplaneMode\", \
 													   \"hideWANAlert\", \
 													   \"roamingIndicator\", \
@@ -842,12 +844,19 @@ bool Preferences::getPreferencesCallback(LSHandle *sh, LSMessage *message, void 
 #endif
 		}
 	}
-
-	label = json_object_object_get(json, "sysUiGestureDetection");
+	
+	label = json_object_object_get(json, "sysUiSlideGestures");
 	if (label && !is_error(label)) {
-
+		
 		if (prefObjPtr)
-			prefObjPtr->m_sysUiGestureDetection = json_object_get_int(label);
+			prefObjPtr->m_sysUiSlideGestures = json_object_get_int(label);
+	}
+	
+	label = json_object_object_get(json, "sysUiEnableAppSwitchGestures");
+	if (label && !is_error(label)) {
+		
+		if (prefObjPtr)
+			prefObjPtr->m_sysUiEnableAppSwitchGestures = json_object_get_int(label);
 	}
 
 	label = json_object_object_get(json, "lockTimeout");
