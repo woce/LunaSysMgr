@@ -2140,6 +2140,9 @@ bool SystemUiController::handleScreenEdgeFlickGesture(QGesture* gesture)
 
 void SystemUiController::handleSideFlick(bool next)
 {
+	if(!Preferences::instance()->sysUiEnableAppSwitchGestures) {
+		return;
+	}
 	if (m_dashboardOpened) {
 		g_warning ("%s: %d", __PRETTY_FUNCTION__, __LINE__);
 		Q_EMIT signalCloseDashboard(true);
