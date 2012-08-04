@@ -180,6 +180,7 @@ void CardWindowManager::init()
 
 	// setup our states
 	m_minimizeState = new MinimizeState(this);
+  m_groupState = new GroupState(this);
 	m_maximizeState = new MaximizeState(this);
 	m_preparingState = new PreparingState(this);
 	m_loadingState = new LoadingState(this);
@@ -202,12 +203,28 @@ void CardWindowManager::init()
 		SIGNAL(signalFocusWindow(CardWindow*)), m_focusState);
 	m_minimizeState->addTransition(this,
 		SIGNAL(signalEnterReorder(QPoint, int)), m_reorderState);
+  m_minimizeState->addTransition(this,
+    SIGNAL(signalGroupWindow()), m_groupState);
+
+  m_groupState->addTransition(this,
+    SIGNAL(signalMaximizeActiveWindow()), m_maximizeState);
+  m_groupState->addTransition(this,
+    SIGNAL(signalPreparingWindow(CardWindow*)), m_preparingState);
+  m_groupState->addTransition(this,
+    SIGNAL(signalFocusWindow(CardWindow*)), m_focusState);
+  //m_groupState->addTransition(this,
+    //SIGNAL(signalEnterReorder(QPoint, int)), m_reorderState);
+  m_groupState->addTransition(this,
+    SIGNAL(signalMinimizeActiveWindow()), m_minimizeState);
 
 	m_maximizeState->addTransition(this,
 		SIGNAL(signalMinimizeActiveWindow()), m_minimizeState);
 	m_maximizeState->addTransition(this,
 		SIGNAL(signalPreparingWindow(CardWindow*)), m_preparingState);
 	m_maximizeState->addTransition(new MaximizeToFocusTransition(this, m_focusState));
+  m_maximizeState->addTransition(this,
+    SIGNAL(signalGroupWindow()), m_groupState);
+
 
 	m_focusState->addTransition(this,
 		SIGNAL(signalMaximizeActiveWindow()), m_maximizeState);
@@ -217,6 +234,9 @@ void CardWindowManager::init()
 		SIGNAL(signalFocusWindow(CardWindow*)), m_focusState);
 	m_focusState->addTransition(this,
 		SIGNAL(signalPreparingWindow(CardWindow*)), m_preparingState);
+  m_focusState->addTransition(this,
+    SIGNAL(signalGroupWindow()), m_groupState);
+
 
 	m_preparingState->addTransition(this,
 		SIGNAL(signalMinimizeActiveWindow()), m_minimizeState);
@@ -226,6 +246,9 @@ void CardWindowManager::init()
 		SIGNAL(signalPreparingWindow(CardWindow*)), m_preparingState);
 	m_preparingState->addTransition(this,
 		SIGNAL(signalLoadingActiveWindow()), m_loadingState);
+  m_preparingState->addTransition(this,
+    SIGNAL(signalGroupWindow()), m_groupState);
+
 
 	m_loadingState->addTransition(this,
 		SIGNAL(signalMinimizeActiveWindow()), m_minimizeState);
@@ -233,6 +256,9 @@ void CardWindowManager::init()
 		SIGNAL(signalMaximizeActiveWindow()), m_maximizeState);
 	m_loadingState->addTransition(this,
 		SIGNAL(signalPreparingWindow(CardWindow*)), m_preparingState);
+  m_loadingState->addTransition(this,
+    SIGNAL(signalGroupWindow()), m_groupState);
+
 
 	m_reorderState->addTransition(this,
 		SIGNAL(signalExitReorder(bool)), m_minimizeState);

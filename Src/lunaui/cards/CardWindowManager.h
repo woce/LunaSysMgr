@@ -136,6 +136,7 @@ Q_SIGNALS:
 	void signalEnterReorder(QPoint pt, int slice);
 	void signalExitReorder(bool canceled = true);
     void signalFirstCardRun();
+    void signalGroupWindow();
 
 private:
 
