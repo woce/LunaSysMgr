@@ -25,6 +25,7 @@
 #include "Common.h"
 
 #include "WindowManagerBase.h"
+#include "Preferences.h"
 
 #include <QStateMachine>
 #include <QGraphicsSceneMouseEvent>
