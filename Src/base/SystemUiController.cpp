@@ -2140,7 +2140,7 @@ bool SystemUiController::handleScreenEdgeFlickGesture(QGesture* gesture)
 
 void SystemUiController::handleSideFlick(bool next)
 {
-	if(!Preferences::instance()->sysUiEnableAppSwitchGestures) {
+	if(!Preferences::instance()->sysUiEnableAppSwitchGestures()) {
 		return;
 	}
 	if (m_dashboardOpened) {
