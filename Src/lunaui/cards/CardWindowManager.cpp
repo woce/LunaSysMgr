@@ -1445,6 +1445,25 @@ void CardWindowManager::handleMousePressMinimized(QGraphicsSceneMouseEvent* even
         m_draggedWin = m_activeGroup->activeCard();
 }
 
+void CardWindowManager::handleMousePressGroup(QGraphicsSceneMouseEvent* event)
+{
+  // try to capture the card the user first touched.  Basically anywhere BUT the active Card
+    //QRect box = m_activeGroup->activeCard()->boundingRect().toRect();
+
+    QPointF mappedPt;
+    mappedPt = m_activeGroup->activeCard()->mapFromScene(event->scenePos());
+    QPointF refPoint = mapFromScene(event->scenePos());
+
+    if (!m_activeGroup->activeCard()->contains(mappedPt))  {
+      m_groupInitialMove = refPoint.y();//event->scenePos().y();
+
+      //m_groupMoveDir = true;
+      //if (event->scenePos().x() < m_normalScreenBounds.width()/2) m_groupMoveDir = false;
+      m_groupMoveDir = whichSideOfScreen(event->scenePos());
+      m_groupMove = true;
+    }
+}
+
 void CardWindowManager::handleMouseMoveMinimized(QGraphicsSceneMouseEvent* event)
 {
 	if (m_groups.isEmpty() || !m_activeGroup)
@@ -1531,6 +1550,35 @@ void CardWindowManager::handleMouseMoveMinimized(QGraphicsSceneMouseEvent* event
 		pos.trans.setY(delta.y());
 		m_draggedWin->setPosition(pos);
 	}
+}
+
+void CardWindowManager::handleMouseMoveGroup(QGraphicsSceneMouseEvent* event)
+{
+  if (m_groupMove)  {
+    QPointF point = mapFromScene(event->scenePos());
+
+
+    int dx = m_groupInitialMove - point.y();
+    if (dx != 0) {
+      m_groupShift -=dx;
+
+      int maxheight = 0;//m_normalScreenBounds.height() * ((0.5)/(double)kNumGroupCards-0.5);
+      int minheight = -m_normalScreenBounds.height() * ((m_activeGroup->cards().size() - 2)/(double)kNumGroupCards);
+
+      m_groupShift = m_groupShift < minheight ? minheight : m_groupShift;
+      m_groupShift = m_groupShift > maxheight ? maxheight : m_groupShift;
+
+      m_groupInitialMove = point.y();//event->scenePos().y();
+
+      showGroupCardsImmediate();
+    }
+  }
+}
+
+
+void CardWindowManager::handleMouseReleaseGroup(QGraphicsSceneMouseEvent* event)
+{
+  m_groupMove = false;
 }
 
 void CardWindowManager::handleMouseMoveReorder(QGraphicsSceneMouseEvent* event)
@@ -1887,6 +1935,80 @@ void CardWindowManager::handleTapGestureMinimized(QTapGesture* event)
 		}
 	}
 }
+
+void CardWindowManager::handleTapGestureGroupView(QTapGesture* event)
+{
+  if (!m_activeGroup)
+    return;
+  int activeIndex = m_activeGroup->cards().indexOf(m_activeGroup->activeCard());
+  CardWindow* activeCardOriginal = m_activeGroup->activeCard();
+  if (m_activeGroup->setActiveCard(event->position()))  {
+    int newCardLoc = m_activeGroup->cards().indexOf(m_activeGroup->activeCard());
+    CardWindow *card = m_activeGroup->activeCard();
+    if (activeIndex ==  newCardLoc) {
+      m_activeGroup->moveToActiveCard();
+      setActiveGroup(m_activeGroup);
+      clearAnimations();
+      maximizeActiveWindow();
+    } else {
+      m_activeGroup->setActiveCard(activeCardOriginal);
+      m_activeGroup->moveActiveCardTo(newCardLoc);
+      m_activeGroup->setActiveCard(card);
+      bool direction = whichSideOfScreen(event->position());
+      showGroupCards(direction);
+      SystemUiController::instance()->setActiveCardWindow(m_activeGroup ? m_activeGroup->activeCard() : 0);
+    }
+  }
+}
+
+void CardWindowManager::handleFlickGestureGroup(QGestureEvent* event)
+{
+  QGesture* g = event->gesture((Qt::GestureType) SysMgrGestureFlick);
+  if (!g)
+    return;
+
+  FlickGesture* flick = static_cast<FlickGesture*>(g);
+  QPointF start = mapFromScene(event->mapToGraphicsScene(flick->hotSpot()));
+  QPointF end = mapFromScene(event->mapToGraphicsScene(flick->endPos()));
+
+  QPointF mappedPt;
+  mappedPt = m_activeGroup->activeCard()->mapFromScene(flick->hotSpot());
+
+
+  int dy = fabs(start.y()-end.y());
+  int dx = fabs(start.x()-end.x());
+
+  int cardValue = -1;
+  for (int i = 0; i < m_activeGroup->cards().size(); i++)  {
+    mappedPt = m_activeGroup->cards().value(i)->mapFromScene(flick->hotSpot());
+    if (m_activeGroup->cards().value(i)->contains(mappedPt))  {
+      cardValue = i;
+      break;
+    }
+  }
+
+  if (cardValue == -1) return;
+  if (cardValue == (m_activeGroup->cards().size()-1)) return; // only works on tabbed cards, not active.
+  CardWindow *card = m_activeGroup->cards().value(cardValue);
+
+  if (dx > (2*dy)) {
+    //bool screenLoc = false;
+    //if (flick->hotSpot().x() > m_normalScreenBounds.width()/2) screenLoc = true;
+    bool screenLoc = whichSideOfScreen(flick->hotSpot());
+
+    bool dir = false;
+    if ((end.x() - start.x()) > 0) dir = true;
+
+    if (dir && screenLoc) {
+      closeWindowGroup(card,dir,false);
+    }
+    if (!dir && !screenLoc) {
+      closeWindowGroup(card,dir,false);
+    }
+
+  }
+}
+
 
 bool CardWindowManager::whichSideOfScreen(QPointF p)
 {

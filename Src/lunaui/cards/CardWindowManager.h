@@ -156,6 +156,14 @@ private:
 
 	void handleTapAndHoldGestureMinimized(QTapAndHoldGesture* event);
 
+    // For tabbed cards input handling
+  void handleMousePressGroup(QGraphicsSceneMouseEvent* event);
+  void handleMouseMoveGroup(QGraphicsSceneMouseEvent* event);
+  void handleMouseReleaseGroup(QGraphicsSceneMouseEvent* event);
+  void handleTapGestureGroupView(QTapGesture* event);
+  void handleFlickGestureGroup(QGestureEvent* event);
+
+
     void handleKeyNavigationMinimized(QKeyEvent* keyEvent);
 
 	void setCurrentState(CardWindowManagerState* newState) { m_curState = newState; }
