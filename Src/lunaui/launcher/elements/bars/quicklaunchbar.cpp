@@ -320,7 +320,7 @@ bool QuickLaunchBar::resize(const QSize& s)
 		// everything ordered symmetrically in the QL bar.
 		m_qp_launcherAccessButton->setPos(
 				m_geom.topRight()
-				+QPoint(-m_qp_launcherAccessButton->geometry().width()*0.75, LayoutSettings::settings()->quickLaunchBarLauncherAccessButtonOffsetPx.y() + m_qp_launcherAccessButton->geometry().height()/2));
+				+QPoint(-m_qp_launcherAccessButton->geometry().width(), LayoutSettings::settings()->quickLaunchBarLauncherAccessButtonOffsetPx.y() + m_qp_launcherAccessButton->geometry().height()/2));
 
 		m_qp_launcherAccessButton->setVisible(true);
 	}
@@ -689,7 +689,8 @@ void QuickLaunchBar::rearrangeIcons(bool animate)
 			continue;
 		}
 		
-		qint32 barFullW = (m_itemAreaXrange.second-m_itemAreaXrange.first);
+		
+		qint32 barFullW = (m_itemAreaXrange.second-m_itemAreaXrange.first); //Calculate bar width
 		qint32 barHalfW = barFullW/2;
 		qint32 iconX = m_itemAreaXrange.first; //Start on the left
 		iconX += (barHalfW/m_iconItems.length()); //Offset from left
@@ -711,7 +712,9 @@ void QuickLaunchBar::rearrangeIcons(bool animate)
 				}
 			}
 		}
-
+		
+		//Pipe the current position into m_layoutAnchorsXcoords
+		//This determines the icon positions for tap checks
 		m_layoutAnchorsXcoords << iconPos.x();
 		
 		idx++;
