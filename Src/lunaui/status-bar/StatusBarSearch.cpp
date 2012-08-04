@@ -44,8 +44,6 @@ StatusBarSearch::StatusBarSearch()
 	height = 28;
 
 	m_bounds = QRectF(-width/2, -height/2, width, height);
-
-	// implicit assumption that the dimensions of the errorPixmap is the same as the others
 }
 
 StatusBarSearch::~StatusBarSearch()
@@ -63,8 +61,8 @@ void StatusBarSearch::paint(QPainter* painter, const QStyleOptionGraphicsItem* o
 	if(Preferences::instance()->sysUiEnableStatusBarSearch())
 	{
 		if (!m_pixmap.isNull()) {
-			painter->setRenderHint(QPainter::SmoothPixmapTransform);
-			painter->scale(0.9,0.9);
+			painter->setRenderHint(QPainter::SmoothPixmapTransform); //Resize the icon smoothly
+			painter->scale(0.9,0.9); //Scale the icon down to fit inside the StatusBar
 			painter->drawPixmap(m_bounds.x() + (m_bounds.width() - m_pixmap.width())/2.0,
 								m_bounds.y() + (m_bounds.height() - m_pixmap.height())/2.0,
 								m_pixmap);

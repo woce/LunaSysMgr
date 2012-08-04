@@ -93,7 +93,7 @@ StatusBar::StatusBar(StatusBarType type, int width, int height)
 
 		m_infoItems = new StatusBarInfo(m_type);
 
-		//Search Icon
+		//Search Icon & Separator
 		m_search = new StatusBarSearch();
 		m_separator = new StatusBarSeparator();
 	}
@@ -127,7 +127,8 @@ StatusBar::StatusBar(StatusBarType type, int width, int height)
 		
 			if(m_search)
 				m_searchGroup->addItem(m_search);
-				
+			
+			//Add Separator so the search item is full-width
 			if(m_separator)
 				m_searchGroup->addItem(m_separator);
 		}
@@ -184,6 +185,8 @@ StatusBar::StatusBar(StatusBarType type, int width, int height)
 					m_searchGroup->setParentItem(this);
 					connect(m_searchGroup, SIGNAL(signalActionTriggered(bool)), this, SLOT(slotSearchMenuAction()));
 					m_searchGroup->setActionable(true);
+					
+					//Add two separators in phone UI for ease of activation
 					if(m_search)
 					{
 						m_searchGroup->addItem(m_separator);
