@@ -90,6 +90,7 @@ public:
 	bool isAlsEnabled() const;
 
 	bool setStringPreference(const char * keyName, const char * value);
+  bool getTabbedCardsPreference() const { return m_tabbedCardsEnabled; }
 
 Q_SIGNALS:
 
@@ -152,6 +153,9 @@ private:
 	mutable Mutex m_mutex;
 	LSHandle* m_lsHandle;
 	LSMessageToken m_serverStatusToken;	
+
+  bool m_tabbedCardsEnabled;
+
 };
 	
 #endif /* PREFERENCES_H */
