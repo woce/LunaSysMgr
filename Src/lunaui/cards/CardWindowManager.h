@@ -32,11 +32,13 @@
 #include <QGestureEvent>
 #include <QParallelAnimationGroup>
 #include <QMap>
+#include <QSignalMapper>
 #include <QEasingCurve>
 #include <stdint.h>
 
 class CardWindowManagerState;
 class MinimizeState;
+class GroupState;
 class MaximizeState;
 class PreparingState;
 class LoadingState;
@@ -172,7 +174,7 @@ private:
 	void addWindowTimedOutNormal(CardWindow* win);
 
 	void removeCardFromGroupMaximized(CardWindow* win);
-	void removeCardFromGroup(CardWindow* win, bool adjustLayout=true);
+  void removeCardFromGroup(CardWindow* win, bool adjustLayout=true);
 
 	void closeWindow(CardWindow* win, bool angryCard=false);
 
@@ -327,6 +329,7 @@ private:
 
 	QStateMachine* m_stateMachine;
 	MinimizeState* m_minimizeState;
+  GroupState* m_groupState;
 	MaximizeState* m_maximizeState;
 	PreparingState* m_preparingState;
 	LoadingState* m_loadingState;
@@ -358,6 +361,7 @@ private:
 
 	friend class CardWindowManagerState;
 	friend class MinimizeState;
+  friend class GroupState;
 	friend class MaximizeState;
 	friend class PreparingState;
 	friend class LoadingState;

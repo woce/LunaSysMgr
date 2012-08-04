@@ -2746,7 +2746,7 @@ void CardWindowManager::closeWindowGroup(CardWindow* win, bool dir, bool angryCa
   if (numcards != 2) {
     // Do immediately
     if(Window::Type_ModalChildWindowCard != win->type()) {
-      removeCardFromGroup(win,true,dir);
+      removeCardFromGroup(win,true);
     }
   }
 
