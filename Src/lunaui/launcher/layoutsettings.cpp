@@ -88,7 +88,7 @@ LayoutSettings::LayoutSettings()
 
 , centerUiVerticalOffset(0)
 
-, searchPillWidth(588)
+, searchPillWidthPctScreenRelative(0.75)
 , searchPillInnerIconRightOffset(15)
 , searchPillTopOffsetFromStatusBar(9)
 , searchPillInnerTextAdjust(QPoint(0,-1))
@@ -258,7 +258,7 @@ void LayoutSettings::load(const char* settingsFile)
 
 	KEYS_SIZEF("Main", "launcherWidthPctScreenRelative","launcherHeighPctScreenRelative",launcherSizePctScreenRelative);
 	KEY_INTEGER("Main","centerUiVerticalOffset",centerUiVerticalOffset);
-	KEY_INTEGER("Main","searchPillWidth",searchPillWidth);
+	KEY_INTEGER("Main","searchPillWidthPctScreenRelative",searchPillWidthPctScreenRelative);
 	KEY_INTEGER("Main","searchPillInnerIconRightOffset",searchPillInnerIconRightOffset);
 	KEY_INTEGER("Main","searchPillTopOffsetFromStatusBar",searchPillTopOffsetFromStatusBar);
 	KEYS_POINT("Main","searchPillInnerTextHorizAdjust","searchPillInnerTextVertAdjust",searchPillInnerTextAdjust);
