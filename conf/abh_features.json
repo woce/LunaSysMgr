@@ -1,0 +1,16 @@
+[
+   {
+    "category": "luna",
+    "prefs": [        
+        {
+          "group": "features",
+          "restart": "none",
+          "prefserv": "infiniteCardCyclingEnabled",
+          "label": "Infinite Card Cycling",
+          "key": "infinitecardscycle_features",
+          "type": "ToggleButton",
+          "value": false,
+        }]
+  }
+]
+
