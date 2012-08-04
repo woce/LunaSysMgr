@@ -80,6 +80,7 @@ Preferences::Preferences()
 	, m_show3GForEvdo(false)
 	, m_enableVoiceDial(false)
     , m_rotationLock(OrientationEvent::Orientation_Invalid)
+    , m_infiniteCardCyclingEnabled(false)
 	, m_muteOn(false)
 	, m_enableALS(true)
 {
@@ -571,6 +572,7 @@ bool Preferences::serverConnectCallback(LSHandle *sh, LSMessage *message, void *
 													   \"dualRSSI\", \
 													   \"lockTimeout\",\
 													   \"rotationLock\",\
+                             \"infiniteCardCyclingEnabled\",\
 													   \"muteSound\",\
 													   \"" PALM_VIRTUAL_KEYBOARD_PREFS "\",\
 													   \"" PALM_VIRTUAL_KEYBOARD_SETTINGS "\",\
@@ -878,6 +880,13 @@ bool Preferences::getPreferencesCallback(LSHandle *sh, LSMessage *message, void 
 			}
 		}
 	}
+
+  label = json_object_object_get(json, "infiniteCardCyclingEnabled");
+  if (label && !is_error(label)) {
+    if (prefObjPtr) {
+      prefObjPtr->m_infiniteCardCyclingEnabled = json_object_get_int(label);
+    }
+  }
 
 	label = json_object_object_get(json, "airplaneMode");
 	if (label && !is_error(label) && json_object_is_type(label, json_type_boolean)) {
