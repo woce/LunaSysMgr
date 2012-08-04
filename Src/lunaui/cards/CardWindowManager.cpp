@@ -53,6 +53,9 @@ static int kGapBetweenGroups = 0;
 static qreal kActiveScale = 0.659;
 static qreal kNonActiveScale = 0.61;
 
+static qreal kGroupPreview = 0.25;
+static int kNumGroupCards = 4;
+
 static const qreal kWindowOriginRatio = 0.40;
 static int kWindowOrigin = 0;
 static int kWindowOriginMax = 0;
