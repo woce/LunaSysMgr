@@ -262,8 +262,10 @@ bool SystemUiController::handleGestureEvent (QGestureEvent* event)
 		}
 	}
 
+	//If no tap has been detected and gestures are enabled
 	if (!t && Preferences::instance()->sysUiEnableNextPrevGestures() == true) {
 		if (Settings::LunaSettings()->uiType != Settings::UI_MINIMAL && !m_emergencyMode) {
+			//Screen-edge Flick Gestures
 			t = event->gesture((Qt::GestureType) SysMgrGestureScreenEdgeFlick);
 			if (t && Preferences::instance()->sysUiSlideGestures() == 0)
 			{
@@ -271,6 +273,7 @@ bool SystemUiController::handleGestureEvent (QGestureEvent* event)
 				return true;
 			}
 
+			//Screen-edge Slide Gestures
 			t = event->gesture((Qt::GestureType) GestureScreenEdgeSlide);
 			if (t && Preferences::instance()->sysUiSlideGestures() == 1)
 			{
@@ -2141,6 +2144,8 @@ void SystemUiController::handleScreenEdgeSlideGesture(QGesture* gesture)
 }
 
 void SystemUiController::handleUpSlide() {
+	//Close everything, go to card view. If already there, toggle the launcher.
+	
 	if (m_inDockMode) {
 		enterOrExitDockModeUi(false);
 		return;
@@ -2179,6 +2184,7 @@ void SystemUiController::handleUpSlide() {
 }
 
 void SystemUiController::handleSideSlide(bool next) {
+	//Adhere to Enable App Switching Gestures
 	if (Preferences::instance()->sysUiEnableAppSwitchGestures() == false)
 		return;
 
@@ -2193,5 +2199,6 @@ void SystemUiController::handleSideSlide(bool next) {
 		Q_EMIT signalHideMenu();
 	}
 
+	//Switch to next/prev app based on next argument
 	Q_EMIT signalChangeCardWindow(next);
 }
