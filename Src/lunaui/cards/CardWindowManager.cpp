@@ -1881,6 +1881,28 @@ void CardWindowManager::handleTapGestureMinimized(QTapGesture* event)
 	}
 }
 
+bool CardWindowManager::whichSideOfScreen(QPointF p)
+{
+  bool direction = true;
+  OrientationEvent::Orientation orientation = WindowServer::instance()->getUiOrientation();
+  switch (orientation) {
+    case OrientationEvent::Orientation_Up:
+        if (p.x() < m_normalScreenBounds.width()/2) direction = false;
+        break;
+    case OrientationEvent::Orientation_Down:
+        if (p.x() > m_normalScreenBounds.width()/2) direction = false;
+        break;
+    case OrientationEvent::Orientation_Left:
+        if (p.y() < m_normalScreenBounds.height()/2) direction = false;
+        break;
+    case OrientationEvent::Orientation_Right:
+        if (p.y() > m_normalScreenBounds.height()/2) direction = false;
+        break;
+    default: break;
+  }
+  return direction;
+}
+
 CardGroup* CardWindowManager::groupClosestToCenterHorizontally() const
 {
 	if (m_groups.empty())
@@ -2163,6 +2185,153 @@ void CardWindowManager::switchToPrevAppMaximized()
 
 	// maximize the new active window
 	maximizeActiveWindow();
+}
+
+void CardWindowManager::showGroupCards(bool direction)
+{
+  if (m_groups.empty() || !m_activeGroup)
+    return;
+
+  clearAnimations();
+
+  int cardsSize = m_activeGroup->cards().size();
+
+  if (cardsSize == 1) {
+    // Case of single card (result from deletion)
+    m_activeGroup->moveToActiveCard();
+    maximizeActiveWindow();
+    return;
+  }
+
+  m_activeGroup->moveActiveCardTo(cardsSize-1);
+  m_activeGroup->raiseCards();
+  int activeIndex = m_activeGroup->cards().indexOf(m_activeGroup->activeCard());
+
+
+
+  QRect r;
+  if(activeWindow()->type() != Window::Type_ModalChildWindowCard)
+      r = normalOrScreenBounds(m_activeGroup->activeCard());
+  else if(NULL != m_parentOfModalCard)
+      r = normalOrScreenBounds(m_parentOfModalCard);
+
+  int shift = r.y()/2 + fabs(kWindowOrigin);
+
+
+  QList<QPropertyAnimation*> cardAnims;
+
+  int counter = 0;
+  for (int i = 0; i < cardsSize; i++)  {
+    CardWindow *card = m_activeGroup->cards().value(i);
+    int animationTargetEnd;
+    double height;
+    double depth;
+    int width;
+
+    if (i == activeIndex)  {
+      animationTargetEnd = -m_normalScreenBounds.width() * kGroupPreview;
+      depth = 1.0;
+      height = shift;
+      width = m_normalScreenBounds.width() * kActiveScale;
+    } else {
+      animationTargetEnd = m_normalScreenBounds.width()/2 - m_normalScreenBounds.width() * kGroupPreview / 2.0  ;
+      depth = 1.0 / kNumGroupCards*0.95;
+      height = m_normalScreenBounds.height() * (((double)counter+0.5)/(double)kNumGroupCards-0.5)+shift+m_groupShift;
+      counter++;
+    }
+    if (!direction)	animationTargetEnd  = -animationTargetEnd;
+
+    CardWindow::Position pos = card->position();
+    pos.trans.setX(animationTargetEnd);
+    pos.trans.setY(height);
+    pos.trans.setZ(depth);
+    card->setMaximized(false);
+
+    QVariant end; end.setValue(pos);
+    QPropertyAnimation* anim = new QPropertyAnimation(card, "position");
+    anim->setEasingCurve(AS_CURVE(cardSlideCurve));
+    anim->setDuration(AS(cardSlideDuration));
+    anim->setEndValue(end);
+
+    cardAnims << anim;
+  }
+
+  // Now set up other groups and push them off screen
+  int groupIndex = m_groups.indexOf(m_activeGroup);
+
+  for (int i = 0; i < m_groups.size(); i++)  {
+    int centerX = m_normalScreenBounds.width();
+    if (i < groupIndex) centerX = - centerX;
+
+    if (i != groupIndex)  {
+      QPropertyAnimation* anim = new QPropertyAnimation(m_groups[i], "x");
+      anim->setEasingCurve(AS_CURVE(cardSlideCurve));
+      anim->setDuration(AS(cardSlideDuration));
+      anim->setEndValue(centerX);
+      setAnimationForGroup(m_groups[i], anim);
+      //Q_FOREACH(QPropertyAnimation* anim, cardAnims) {
+      //setAnimationForWindow(static_cast<CardWindow*>(anim->targetObject()), anim);
+      //}
+    }
+  }
+
+  Q_FOREACH(QPropertyAnimation* anim, cardAnims) {
+
+    setAnimationForWindow(static_cast<CardWindow*>(anim->targetObject()), anim);
+  }
+
+  //Q_EMIT signalMinimizeActiveWindow();
+
+
+  startAnimations();
+}
+
+void CardWindowManager::showGroupCardsImmediate()
+{
+  bool direction = m_groupDir;
+  if (m_groups.empty() || !m_activeGroup)
+    return;
+
+  int cardsSize = m_activeGroup->cards().size();
+  int activeIndex = m_activeGroup->cards().indexOf(m_activeGroup->activeCard());
+
+  QRect r;
+  if(activeWindow()->type() != Window::Type_ModalChildWindowCard)
+      r = normalOrScreenBounds(m_activeGroup->activeCard());
+  else if(NULL != m_parentOfModalCard)
+      r = normalOrScreenBounds(m_parentOfModalCard);
+
+  int shift = r.y()/2 + fabs(kWindowOrigin);
+
+  int counter = 0;
+  for (int i = 0; i < cardsSize; i++)  {
+    CardWindow *card = m_activeGroup->cards().value(i);
+    int animationTargetEnd;
+    double height;
+    double depth;
+    int width;
+
+    if (i == activeIndex)  {
+      animationTargetEnd = -m_normalScreenBounds.width() * kGroupPreview;
+      depth = 1.0;
+      height = shift;
+      width = m_normalScreenBounds.width() * kActiveScale;
+    } else {
+      animationTargetEnd = m_normalScreenBounds.width()/2 - m_normalScreenBounds.width() * kGroupPreview / 2.0  ;
+      depth = 1.0 / kNumGroupCards*0.95;
+      height = m_normalScreenBounds.height() * (((double)counter+0.5)/(double)kNumGroupCards-0.5)+shift+m_groupShift;
+      counter++;
+    }
+    if (!direction)	animationTargetEnd  = -animationTargetEnd;
+
+
+    CardWindow::Position pos = card->position();
+    pos.trans.setX(animationTargetEnd);
+    pos.trans.setY(height);
+    pos.trans.setZ(depth);
+    card->setPosition(pos);
+    card->setMaximized(false);
+  }
 }
 
 void CardWindowManager::slideAllGroups(bool includeActiveCard)
@@ -2519,6 +2688,74 @@ QRect CardWindowManager::normalOrScreenBounds(CardWindow* win) const
 void CardWindowManager::cancelReorder(bool dueToPenCancel)
 {
 	handleMouseReleaseReorder(NULL);
+}
+
+void CardWindowManager::closeWindowGroup(CardWindow* win, bool dir, bool angryCard)
+{
+  if(!win)
+    return;
+
+  int numcards = m_activeGroup->cards().size();  // If 2, we delay the final animation.
+
+  QPropertyAnimation* anim = NULL;
+  if (angryCard)
+      win->setDisableKeepAlive();
+
+  win->close();
+
+  // remove the window from the current animation list
+  removeAnimationForWindow(win, true);
+
+  if(Window::Type_ModalChildWindowCard != win->type()) {
+    CardWindow::Position pos = win->position();
+    QRectF r = win->mapRectToParent(win->boundingRect());
+    qreal offSide = boundingRect().x() - (win->x() + (r.width()/2));
+    if (dir) offSide = -offSide;  //Maybe not?
+    pos.trans.setX(offSide);
+
+    anim = new QPropertyAnimation(win, "position");
+    QVariant end; end.setValue(pos);
+    anim->setEasingCurve(AS_CURVE(cardDeleteCurve));
+    anim->setDuration(AS(cardDeleteDuration));
+    anim->setEndValue(end);
+  }
+  else {
+    anim = new QPropertyAnimation();
+  }
+
+  if (numcards == 2)  {
+    // Want to delay reorder animation such that it is apparent the card is closed.
+    QSignalMapper *signalMapper = new QSignalMapper(this);
+    connect(anim,SIGNAL(finished()),signalMapper,SLOT(map()));
+    signalMapper->setMapping(anim,(QObject*)win);
+    connect(signalMapper, SIGNAL(mapped(QObject*)),
+               this, SLOT(slotCloseGroupAdjustAfterAnimationFinished(QObject*)));
+  }
+  QM_CONNECT(anim, SIGNAL(finished()), SLOT(slotDeletedAnimationFinished()));
+
+  m_deletedAnimMap.insert(win, anim);
+  anim->start();
+
+  if (numcards != 2) {
+    // Do immediately
+    if(Window::Type_ModalChildWindowCard != win->type()) {
+      removeCardFromGroup(win,true,dir);
+    }
+  }
+
+    if (angryCard && playAngryCardSounds())
+        SoundPlayerPool::instance()->playFeedback("birdappclose");
+    else if (!Settings::LunaSettings()->lunaSystemSoundAppClose.empty())
+        SoundPlayerPool::instance()->playFeedback(Settings::LunaSettings()->lunaSystemSoundAppClose);
+}
+
+void CardWindowManager::slotCloseGroupAdjustAfterAnimationFinished(QObject* winObject)
+{
+  CardWindow *win = (CardWindow*)winObject;
+  // Modal cards are not a part of any card group.
+  if(Window::Type_ModalChildWindowCard != win->type()) {
+    removeCardFromGroup(win);
+  }
 }
 
 void CardWindowManager::closeWindow(CardWindow* win, bool angryCard)

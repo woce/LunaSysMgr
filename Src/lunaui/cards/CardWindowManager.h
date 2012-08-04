@@ -122,6 +122,8 @@ private Q_SLOTS:
     void slotDismissActiveModalWindow();
     void slotDismissModalTimerStopped();
 
+ void slotCloseGroupAdjustAfterAnimationFinished(QObject* winObject); // Adjusts group view if just one card remains after side closing
+
 Q_SIGNALS:
 
 	void signalFocusWindow(CardWindow* win);
@@ -192,6 +194,13 @@ private:
 	void switchToPrevApp();
 	void switchToNextAppMaximized();
 	void switchToPrevAppMaximized();
+
+  /* Functions Required for Grouped Cards */
+  void showGroupCards(bool direction);
+  void showGroupCardsImmediate();
+  bool whichSideOfScreen(QPointF p);
+  void closeWindowGroup(CardWindow* win, bool dir, bool angryCard=false);
+
 
 	// animate all groups to center around the active group.
 	// optionally include the active card in the active group.
