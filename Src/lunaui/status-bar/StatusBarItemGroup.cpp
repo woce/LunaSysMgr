@@ -323,10 +323,13 @@ void StatusBarItemGroup::mousePressEvent(QGraphicsSceneMouseEvent* event)
 
 void StatusBarItemGroup::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
 {
+	//Obey sysUiStatusBarSlide
 	if(Preferences::instance()->sysUiStatusBarSlide())
 	{
+		//If the user moves their fingers 15px vertically, trigger
 		if(m_actionable && m_mouseDown && (int)event->pos().y() >= (int)event->buttonDownPos(Qt::LeftButton).y() + 15) {
 			actionTriggered();
+			//As the 'gesture' is now done, set m_mouseDown to false
 			m_mouseDown = false;
 		}
 	}
