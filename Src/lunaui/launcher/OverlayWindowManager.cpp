@@ -1035,8 +1035,10 @@ void OverlayWindowManager::setupSearchPill()
 		
 		quint32 width;
 		
+		//If we're in tabletUi, use the search pill width value from LayoutSettings
 		if(Settings::LunaSettings()->tabletUi)
-			width = LayoutSettings::settings()->searchPillWidthRel * qMin(boundingRect().height(), boundingRect().width());
+			width = LayoutSettings::settings()->searchPillWidthPctScreenRelative * qMin(boundingRect().height(), boundingRect().width());
+		//Otherwise, set it to 0.975% of the screen width, webOS phone style
 		else
 			width = 0.975 * qMin(boundingRect().height(), boundingRect().width());
 		
