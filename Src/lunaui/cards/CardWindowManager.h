@@ -25,6 +25,8 @@
 #include "Common.h"
 
 #include "WindowManagerBase.h"
+#include "Preferences.h"
+
 
 #include <QStateMachine>
 #include <QGraphicsSceneMouseEvent>
@@ -121,6 +123,8 @@ private Q_SLOTS:
     void slotDismissActiveModalWindow();
     void slotDismissModalTimerStopped();
 
+    void slotFinishFlyback();  // Finishes the animation for infinite card cycling option
+
 Q_SIGNALS:
 
 	void signalFocusWindow(CardWindow* win);
@@ -196,7 +200,7 @@ private:
 	// optionally include the active card in the active group.
 	// NOTE: If you exclude the active card, the animations will
 	// not be started automatically, you will have to call m_anims.start()
-	void slideAllGroups(bool includeActiveCard = true);
+  void slideAllGroups(bool includeActiveCard = true, int flyback = 0);
 	void slideAllGroupsTo(int xOffset);
 
 	// Does the same as slideAllGroups, but sets the positions immediately,

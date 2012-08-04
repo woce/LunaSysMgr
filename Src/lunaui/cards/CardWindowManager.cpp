@@ -1914,6 +1914,9 @@ void CardWindowManager::switchToNextApp()
 	if (!m_activeGroup || m_groups.empty())
 		return;
 
+    int flyback = 0;  // For infinite card cycling
+
+
 	if (!m_activeGroup->makeNextCardActive()) {
 		// couldn't move, switch to the next group
 		int index = m_groups.indexOf(m_activeGroup);
@@ -1921,7 +1924,13 @@ void CardWindowManager::switchToNextApp()
 
 			m_activeGroup = m_groups[index + 1];
             m_activeGroup->makeBackCardActive();
-		}
+    } else {
+      if (Preferences::instance()->getInfiniteCardCyclingPreference()) {
+        m_activeGroup = m_groups[0];
+        m_activeGroup->makeBackCardActive();
+        if (m_groups.size() > 1) flyback = 1;
+      }
+    }
 	}
 			
     setActiveGroup(m_activeGroup);
@@ -1936,6 +1945,9 @@ void CardWindowManager::switchToPrevApp()
 	if (!m_activeGroup || m_groups.empty())
 		return;
 
+    int flyback = 0;  // For infinite card cycling
+
+
 	if (!m_activeGroup->makePreviousCardActive()) {
 
 		// couldn't move, switch to the previous group
@@ -1944,7 +1956,13 @@ void CardWindowManager::switchToPrevApp()
 
 			m_activeGroup = m_groups[index - 1];
             m_activeGroup->makeFrontCardActive();
-		}
+    } else {
+      if (Preferences::instance()->getInfiniteCardCyclingPreference()) {
+        m_activeGroup = m_groups[m_groups.size()-1];
+        m_activeGroup->makeFrontCardActive();
+        if (m_groups.size() > 1) flyback = -1;
+      }
+    }
 	}
 			
     setActiveGroup(m_activeGroup);
@@ -1960,8 +1978,13 @@ void CardWindowManager::switchToNextGroup()
 		return;
 
 	if (m_activeGroup == m_groups.last()) {
-		slideAllGroups();
-		return;
+    if ((Preferences::instance()->getInfiniteCardCyclingPreference())&&(m_groups.size() > 1)) {
+      int activeGroupIndex = 0;
+      activeGroupIndex = qMin(activeGroupIndex, m_groups.size() - 1);
+      setActiveGroup(m_groups[activeGroupIndex]);
+      slideAllGroups(true,1);
+    } else slideAllGroups();
+    return;
 	}
 
 	int activeGroupIndex = m_groups.indexOf(m_activeGroup);
@@ -1980,10 +2003,15 @@ void CardWindowManager::switchToPrevGroup()
 	if (!m_activeGroup || m_groups.empty())
 		return;
 
-	if (m_activeGroup == m_groups.first()) {
-		slideAllGroups();
-		return;
-	}
+  if ((m_activeGroup == m_groups.first())&&(m_groups.size() > 1)) {
+    if (Preferences::instance()->getInfiniteCardCyclingPreference()) {
+      int activeGroupIndex = 0;
+      activeGroupIndex = qMax(activeGroupIndex, m_groups.size() - 1);
+      setActiveGroup(m_groups[activeGroupIndex]);
+      slideAllGroups(true,-1);
+    } else slideAllGroups();
+    return;
+  }
 
 	int activeGroupIndex = m_groups.indexOf(m_activeGroup);
 	activeGroupIndex--;
@@ -2165,27 +2193,61 @@ void CardWindowManager::switchToPrevAppMaximized()
 	maximizeActiveWindow();
 }
 
-void CardWindowManager::slideAllGroups(bool includeActiveCard)
+void CardWindowManager::slotFinishFlyback()
+{
+  int shift = m_activeGroup->pos().x();
+  int xpos = m_activeGroup->width() * 2;
+  if (shift > 0) xpos = -m_activeGroup->width() * 2;
+
+  for (int i = 0; i < m_groups.size(); i++)  m_groups[i]->setX(xpos);
+  m_groups[0]->setX(xpos*0.5);
+  slideAllGroups();
+}
+
+void CardWindowManager::slideAllGroups(bool includeActiveCard, int flyback)
 {
 	if (m_groups.empty() || !m_activeGroup)
 		return;
 
 	int activeGrpIndex = m_groups.indexOf(m_activeGroup);
+  int slideCurve = AS_CURVE(cardSlideCurve);
+  int wid = m_activeGroup->left()+m_activeGroup->right();
+  int right = m_activeGroup->right();
+  int left = m_activeGroup->left();
 
 	clearAnimations();
+
+  int centerX = -left - kGapBetweenGroups;
+  int animationTargetEnd = 0;
+
+  if (flyback != 0)  {
+    // Animate to two cards beyond the boundary card [to ensure all cards are off screen]
+    if (flyback > 0) {
+      slideCurve = 0;
+      animationTargetEnd = - (m_groups.size() + 1) * wid - kGapBetweenGroups;
+      centerX = animationTargetEnd + left + kGapBetweenGroups;
+    } else {
+      slideCurve = 0;
+      animationTargetEnd = (m_groups.size() + 1) * wid + kGapBetweenGroups;
+      centerX = animationTargetEnd - right - kGapBetweenGroups;
+    }
+  }
 
 	QPropertyAnimation* anim = new QPropertyAnimation(m_activeGroup, "x");
 	anim->setEasingCurve(AS_CURVE(cardSlideCurve));
 	anim->setDuration(AS(cardSlideDuration));
-	anim->setEndValue(0);
+  anim->setEndValue(animationTargetEnd);
 	setAnimationForGroup(m_activeGroup, anim);
+  if (flyback != 0) connect(anim,SIGNAL(finished()),this,SLOT(slotFinishFlyback()));
+
 	QList<QPropertyAnimation*> cardAnims = m_activeGroup->animateOpen(200, QEasingCurve::OutCubic, includeActiveCard);
 	Q_FOREACH(QPropertyAnimation* anim, cardAnims) {
 
 		setAnimationForWindow(static_cast<CardWindow*>(anim->targetObject()), anim);
 	}
 
-	int centerX = -m_activeGroup->left() - kGapBetweenGroups;
+  if (flyback == 0)  centerX = -m_activeGroup->left() - kGapBetweenGroups;
+
 	for (int i=activeGrpIndex-1; i>=0;i--) {
 
 		cardAnims = m_groups[i]->animateClose(AS(cardSlideDuration), AS_CURVE(cardSlideCurve));
@@ -2204,8 +2266,8 @@ void CardWindowManager::slideAllGroups(bool includeActiveCard)
 		centerX += -kGapBetweenGroups - m_groups[i]->left();
 	}
 
-	centerX = m_activeGroup->right() + kGapBetweenGroups;
-	for (int i=activeGrpIndex+1; i<m_groups.size(); i++) {
+  if (flyback == 0)  centerX = m_activeGroup->right() + kGapBetweenGroups;
+  for (int i=activeGrpIndex+1; i<m_groups.size(); i++) {
 
 		cardAnims = m_groups[i]->animateClose(AS(cardSlideDuration), AS_CURVE(cardSlideCurve));
 		centerX += m_groups[i]->left();
