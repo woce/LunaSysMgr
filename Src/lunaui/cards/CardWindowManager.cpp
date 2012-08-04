@@ -192,6 +192,7 @@ void CardWindowManager::init()
 	m_reorderState = new ReorderState(this);
 
 	m_stateMachine->addState(m_minimizeState);
+  m_stateMachine->addState(m_groupState);
 	m_stateMachine->addState(m_maximizeState);
 	m_stateMachine->addState(m_preparingState);
 	m_stateMachine->addState(m_loadingState);
@@ -677,10 +678,15 @@ void CardWindowManager::addWindowTimedOutNormal(CardWindow* win)
 
 	Q_ASSERT(m_activeGroup && m_activeGroup->activeCard() == win);
 
-	if(Window::Type_ModalChildWindowCard != win->type()) {
-		setActiveCardOffScreen(false);
-		slideAllGroups();
-	}
+  if(Window::Type_ModalChildWindowCard != win->type()) {
+    if (m_curState == m_groupState)  {
+      m_activeGroup->setActiveCard(win);
+      maximizeActiveWindow(!isLastWindowAddedModal());
+    } else {
+      setActiveCardOffScreen(false);
+      slideAllGroups();
+    }
+  }
 
 	if(Window::Type_ModalChildWindowCard == win->type() && -1 != m_dismissModalImmediately) {
 		m_dismissModalImmediately = -1;
@@ -1045,7 +1051,7 @@ void CardWindowManager::slotOpacityAnimationFinished()
 	performPostModalWindowRemovedActions(NULL, true);
 }
 
-void CardWindowManager::removeCardFromGroup(CardWindow* win, bool adjustLayout)
+void CardWindowManager::removeCardFromGroup(CardWindow* win, bool adjustLayout, bool dir)
 {
 	if(Window::Type_ModalChildWindowCard == win->type())
 		return;
@@ -1070,11 +1076,15 @@ void CardWindowManager::removeCardFromGroup(CardWindow* win, bool adjustLayout)
 	// If we are removing a modal dialog , we don't need these.
 	if(adjustLayout) {
 		// select a new active group
-		setActiveGroup(groupClosestToCenterHorizontally());
-
+    if (m_curState == m_groupState)  {
+        setActiveGroup(m_activeGroup);
+        showGroupCards(dir);
+      } else {
+        setActiveGroup(groupClosestToCenterHorizontally());
         // make sure everything is positioned properly
-    	slideAllGroups();
+        slideAllGroups();
     }
+  }
 }
 
 void CardWindowManager::removeCardFromGroupMaximized(CardWindow* win)
@@ -2925,7 +2935,7 @@ void CardWindowManager::closeWindowGroup(CardWindow* win, bool dir, bool angryCa
   if (numcards != 2) {
     // Do immediately
     if(Window::Type_ModalChildWindowCard != win->type()) {
-      removeCardFromGroup(win,true);
+      removeCardFromGroup(win,true,dir);
     }
   }
 

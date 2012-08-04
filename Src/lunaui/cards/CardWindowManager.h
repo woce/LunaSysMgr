@@ -185,7 +185,7 @@ private:
 	void addWindowTimedOutNormal(CardWindow* win);
 
 	void removeCardFromGroupMaximized(CardWindow* win);
-  void removeCardFromGroup(CardWindow* win, bool adjustLayout=true);
+  void removeCardFromGroup(CardWindow* win, bool adjustLayout=true, bool dir =true);
 
 	void closeWindow(CardWindow* win, bool angryCard=false);
 
