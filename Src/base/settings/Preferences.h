@@ -92,6 +92,8 @@ public:
 
 	bool setStringPreference(const char * keyName, const char * value);
 
+  bool getInfiniteCardCyclingPreference() const { return m_infiniteCardCyclingEnabled; }
+
 Q_SIGNALS:
 
 	// Signals
@@ -153,7 +155,10 @@ private:
 	
 	mutable Mutex m_mutex;
 	LSHandle* m_lsHandle;
-	LSMessageToken m_serverStatusToken;	
+  LSMessageToken m_serverStatusToken;
+
+  bool m_infiniteCardCyclingEnabled;
+
 };
 	
 #endif /* PREFERENCES_H */
