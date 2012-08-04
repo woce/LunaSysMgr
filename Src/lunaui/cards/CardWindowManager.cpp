@@ -585,9 +585,36 @@ void CardWindowManager::prepareAddWindowSibling(CardWindow* win)
 				(win->launchingProcessId() == activeWin->processId() ||
 				(win->launchingAppId() == activeWin->appId())))) {
 				// add to active group
-				m_activeGroup->addToFront(win);
-				setActiveGroup(m_activeGroup);
-				m_cardToRestoreToMaximized = activeWin;
+        if (Preferences::instance()->getTabbedCardsPreference())  {
+          // add to active group, but 2nd to last for tabbed display purposes
+          m_activeGroup->addToFront(win);
+          setActiveGroup(m_activeGroup);
+          setActiveCardOffScreen();
+          m_activeGroup->setActiveCard(activeWin);
+          m_activeGroup->raiseCards();
+          m_cardToRestoreToMaximized = activeWin;
+
+          queueFocusAction(activeWin, false);
+
+          // Decides if m_groupShift should be changed (card should not first render off screen
+          int loc = m_activeGroup->size() - 2;
+          if (loc >= kNumGroupCards)  {
+            m_groupShift = -m_normalScreenBounds.height() * (((double)loc - (double)kNumGroupCards + 3.0)/(double)kNumGroupCards-0.5);
+          } else m_groupShift = 0;
+
+          Q_EMIT signalGroupWindow();
+          m_groupDir = true;
+          //showGroupCards(true);
+        } else {
+          m_activeGroup->addToFront(win);
+          setActiveGroup(m_activeGroup);
+          m_cardToRestoreToMaximized = activeWin;
+
+          queueFocusAction(activeWin, false);
+          setActiveCardOffScreen();
+          slideAllGroups(false);
+          startAnimations();
+        }
 			}
 			else {
 				// spawn new group to the right of active group
@@ -596,13 +623,13 @@ void CardWindowManager::prepareAddWindowSibling(CardWindow* win)
 				newGroup->addToGroup(win);
 				m_groups.insert(m_groups.indexOf(m_activeGroup)+1, newGroup);
 				setActiveGroup(newGroup);
+
+        queueFocusAction(activeWin, false);
+        setActiveCardOffScreen();
+        slideAllGroups(false);
+        startAnimations();
+
 			}
-
-			queueFocusAction(activeWin, false);
-
-			setActiveCardOffScreen();
-			slideAllGroups(false);
-			startAnimations();
 		}
 		else {
 			queueFocusAction(activeWin, false);
