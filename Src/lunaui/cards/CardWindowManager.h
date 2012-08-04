@@ -116,6 +116,8 @@ private Q_SLOTS:
 	void slotMinimizeActiveCardWindow();
 
 	void slotChangeCardWindow(bool next);
+  void slotSideSwipe(bool direction);  // Enables group view, for now
+
 
 	void slotFocusMaximizedCardWindow(bool focus);
 

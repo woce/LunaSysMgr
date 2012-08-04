@@ -136,6 +136,10 @@ CardWindowManager::CardWindowManager(int maxWidth, int maxHeight)
 	connect(sysui, SIGNAL(signalFocusMaximizedCardWindow(bool)),
 			SLOT(slotFocusMaximizedCardWindow(bool)));
 
+  connect(sysui, SIGNAL(signalSideSwipe(bool)),
+      SLOT(slotSideSwipe(bool)));
+
+
     connect(SystemService::instance(), SIGNAL(signalTouchToShareAppUrlTransfered(const std::string&)),
             SLOT(slotTouchToShareAppUrlTransfered(const std::string&)));
 
@@ -3184,6 +3188,54 @@ void CardWindowManager::slotChangeCardWindow(bool next)
 	if (m_curState)
 		m_curState->changeCardWindow(next);
 }
+
+void CardWindowManager::slotSideSwipe(bool direction)
+{
+  if (m_curState == m_maximizeState)  {
+    if (m_activeGroup->cards().size() == 1)  {
+      if (Preferences::instance()->getTabbedCardsPreference())  {
+        slotMinimizeActiveCardWindow();
+      }
+      // MINIMIZE
+      /*
+      if (m_groups.size() == 1)  {
+        slotMinimizeActiveCardWindow();
+      } else {
+        if (m_curState) {
+          m_curState->changeCardWindow(!direction);
+        }
+      }*/
+    } else {
+
+      if (Preferences::instance()->getTabbedCardsPreference())  {
+        m_groupShift = 0; // Perhaps this can be smarter.
+        m_groupDir = direction;
+        Q_EMIT signalGroupWindow();
+        showGroupCards(direction);
+      }
+
+    }
+    return;
+  }
+  if (m_curState == m_minimizeState)  {
+      m_curState->changeCardWindow(!direction);
+      return;
+  }
+  if (m_curState == m_groupState) {
+     if (m_groupDir == direction) {
+        //Q_EMIT signalMaximizeActiveWindow();
+        if (direction == false) m_activeGroup->makeBackCardActive();
+        else m_activeGroup->makeFrontCardActive();
+
+        slotMinimizeActiveCardWindow();
+     } else {
+        m_groupDir = direction;
+        showGroupCards(direction);
+     }
+     return;
+  }
+}
+
 
 void CardWindowManager::slotFocusMaximizedCardWindow(bool focus)
 {

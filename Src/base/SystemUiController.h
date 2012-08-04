@@ -380,6 +380,9 @@ Q_SIGNALS:
 
 	void signalEmergencyModeWindowFocusChange(bool focus);
 
+  void signalSideSwipe(bool direction);
+
+
 private Q_SLOTS:
 
 	void slotEnterBrickMode(bool val);
