@@ -246,15 +246,11 @@ bool SystemUiController::handleMouseEvent(QMouseEvent *event)
 {
 	if(event->type() == QEvent::MouseButtonPress)
 	{
-		//Adhere to 'Enable Advanced Gestures'
+		//Adhere to 'Enable Advanced Gestures' setting
 		if (!Preferences::instance()->sysUiEnableNextPrevGestures()) return false;
-		
-		int INVALID_COORD = 0xFFFFFFFF;
-		int xDown = INVALID_COORD;
-		int yDown = INVALID_COORD;
 
-		xDown = event->pos().x();
-		yDown = event->pos().y();
+		int xDown = event->pos().x();
+		int yDown = event->pos().y();
 
 		//Transform touch coordinates to match the screen orientation
 		switch (WindowServer::instance()->getUiOrientation())
@@ -285,12 +281,13 @@ bool SystemUiController::handleMouseEvent(QMouseEvent *event)
 				return false;
 		}
 
-		//Eat mousedown events on the gesture border
+		//Eat mousedown events if they fall inside the gesture border
 		if (xDown <= kGestureBorderSize && yDown > m_statusBarPtr->boundingRect().height()) return true;
 		if (xDown >= (m_uiWidth-1) - kGestureBorderSize && yDown > m_statusBarPtr->boundingRect().height()) return true;
 		if (yDown >= (m_uiHeight-1) - kGestureBorderSize) return true;
 	}
 	
+	//Otherwise, let them through
 	return false;
 }
 
