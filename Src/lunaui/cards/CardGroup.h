@@ -168,8 +168,8 @@ private:
 	qreal m_nonCurScale;
 	int m_leftWidth;
 	int m_rightWidth;
-	QVector<CardWindow*> m_cards;
-	CardWindow* m_activeCard;
+  QList<CardWindow*> m_cards;
+  CardWindow* m_activeCard;
 	int m_cardGroupRotFactor;
 	double m_cardGroupXDistanceFactor;
 	// currentPosition is the position within an open card group.
