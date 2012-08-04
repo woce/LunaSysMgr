@@ -27,7 +27,7 @@ QGestureRecognizer::Result ScreenEdgeSlideGestureRecognizer::recognize(QGesture 
 	const HostInfo& info = HostBase::instance()->getInfo();
 
 	QPoint startPos;
-	QPoint scenePos;
+	QPoint screenPos;
 	QPoint displayBounds;
 
     QGestureRecognizer::Result result = QGestureRecognizer::CancelGesture;
@@ -38,23 +38,25 @@ QGestureRecognizer::Result ScreenEdgeSlideGestureRecognizer::recognize(QGesture 
 		return result = QGestureRecognizer::MayBeGesture;
     case QEvent::TouchUpdate:
     case QEvent::TouchEnd: {
+		//Only trigger for single touches
         if (ev->touchPoints().size() == 1) {
-			//Map the touchpoints to screen coordinates
+			//Get the start & current positions of our touch
 			startPos =
 				QPoint(ev->touchPoints().at(0).startScreenPos().x(),
 				ev->touchPoints().at(0).startScreenPos().y());
-			scenePos =
+			screenPos =
 				QPoint(ev->touchPoints().at(0).screenPos().x(),
 				ev->touchPoints().at(0).screenPos().y());
 			displayBounds = QPoint(info.displayWidth, info.displayHeight);
-				
+			
+			//Map to the current orientation
 			startPos = HostBase::instance()->map(startPos);
-			scenePos = HostBase::instance()->map(scenePos);
+			screenPos = HostBase::instance()->map(screenPos);
 			displayBounds = HostBase::instance()->map(displayBounds);
 			
+			//Fix up the output of map() into positive coordinates
+			//(I hate coordinate mapping)
 			QPoint offset;
-			
-			//I hate coordinate mapping.
 			switch (WindowServer::instance()->getUiOrientation())
 			{
 				case OrientationEvent::Orientation_Up:
@@ -62,25 +64,26 @@ QGestureRecognizer::Result ScreenEdgeSlideGestureRecognizer::recognize(QGesture 
 				case OrientationEvent::Orientation_Down:
 					offset = QPoint(displayBounds.x(), displayBounds.y());
 					startPos -= offset;
-					scenePos -= offset;
+					screenPos -= offset;
 					displayBounds = -displayBounds;
 					break;
 				case OrientationEvent::Orientation_Right:
 					offset = QPoint(displayBounds.x(), 0);
 					startPos -= offset;
-					scenePos -= offset;
+					screenPos -= offset;
 					displayBounds.setX(-displayBounds.x());
 					break;
 				case OrientationEvent::Orientation_Left:
 					offset = QPoint(0, displayBounds.y());
 					startPos -= offset;
-					scenePos -= offset;
+					screenPos -= offset;
 					displayBounds.setY(-displayBounds.y());
 					break;
 				default:
 					break;
 			}
 			
+			//If the start position is outsize the gesture border, ignore
 			if(startPos.x() > kGestureBorderSize &&
 			startPos.x() < displayBounds.x() - kGestureBorderSize &&
 			startPos.y() < displayBounds.y() - kGestureBorderSize)
@@ -89,27 +92,29 @@ QGestureRecognizer::Result ScreenEdgeSlideGestureRecognizer::recognize(QGesture 
 			}
 			else
 			{
-				QPoint delta = scenePos - startPos;
+				QPoint delta = screenPos - startPos;
 				
+				//Only fire the gesture once
 				if (q->getFired() == true)
 					return result = QGestureRecognizer::Ignore;
-					
+				
+				//Figure out what edge we're on and output some values
 				if (event->type() == QEvent::TouchUpdate) {
-					if(startPos.x() <= kGestureBorderSize && delta.x() >= kGestureTriggerDistance && abs(delta.x()) >= abs(delta.y()))
+					if(delta.x() >= kGestureTriggerDistance && abs(delta.x()) >= abs(delta.y()))
 					{
 						qCritical() << abs(delta.x()) << abs(delta.y());
 						q->setEdge(Left);
 						q->setFired(true);
 						result = QGestureRecognizer::FinishGesture;
 					}
-					if(startPos.x() >= displayBounds.x() - kGestureBorderSize && delta.x() <= -kGestureTriggerDistance && abs(delta.x()) >= abs(delta.y()))
+					if(delta.x() <= -kGestureTriggerDistance && abs(delta.x()) >= abs(delta.y()))
 					{
 						qCritical() << abs(delta.x()) << abs(delta.y());
 						q->setEdge(Right);
 						q->setFired(true);
 						result = QGestureRecognizer::FinishGesture;
 					}
-					if(startPos.y() >= displayBounds.y() - kGestureBorderSize && delta.y() <= -kGestureTriggerDistance && abs(delta.y()) >= abs(delta.x()))
+					if(delta.y() <= -kGestureTriggerDistance && abs(delta.y()) >= abs(delta.x()))
 					{
 						qCritical() << abs(delta.x()) << abs(delta.y());
 						q->setEdge(Bottom);
