@@ -344,6 +344,14 @@ private:
 	QParallelAnimationGroup m_anims;
 	QMap<CardWindow*,QPropertyAnimation*> m_deletedAnimMap;
 
+  /* Variables for Tabbed Cards Implementation */
+  bool m_groupMove;
+  int m_groupShift;
+  int m_groupInitialMove;
+  bool m_groupMoveDir;
+  bool m_groupDir;
+
+
     bool m_playedAngryCardStretchSound;
 
 	bool m_animationsActive;

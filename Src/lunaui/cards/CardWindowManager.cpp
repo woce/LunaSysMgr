@@ -104,6 +104,10 @@ CardWindowManager::CardWindowManager(int maxWidth, int maxHeight)
 	, m_modalWindowState(NoModalWindow)
     , m_playedAngryCardStretchSound(false)
 	, m_animationsActive(false)
+  , m_groupMove(false)              // For Group Tabs
+  , m_groupShift(0)                 // For Group Tabs
+  , m_groupDir(true)                // For Group Tabs
+
 				  
 {
 	setObjectName("CardWindowManager");
