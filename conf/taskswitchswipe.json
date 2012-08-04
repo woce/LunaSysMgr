@@ -6,7 +6,7 @@
 			{
 				"group": "task switch gestures",
 				"restart": "none",
-				"prefserv": "sysUienableAppSwitchGestures",
+				"prefserv": "sysUiEnableAppSwitchGestures",
 				"label": "Enable App Switch Gestures",
 				"help": "Enable/Disable swiping from left/right bezels to switch apps",
 				"key": "slideAppSwitchGestures",
