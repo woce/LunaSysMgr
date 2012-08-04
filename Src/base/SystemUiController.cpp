@@ -63,6 +63,7 @@ static const char* kSystemUiAppId = "com.palm.systemui";
 static const unsigned int s_statusBarLauncherColor = 0x4f545AFF;
 static const unsigned int s_statusBarJustTypeColor = 0x4f545AFF;
 
+static const int kGestureBorderSize = 15;
 static const int kFlickMinimumYLengthWithKeyboardUp = 60;
 
 SystemUiController* SystemUiController::instance()
@@ -243,6 +244,50 @@ bool SystemUiController::handleEvent(QEvent *event)
 
 bool SystemUiController::handleMouseEvent(QMouseEvent *event)
 {
+	if(event->type() == QEvent::MouseButtonPress)
+	{
+		//Adhere to 'Enable Advanced Gestures' setting
+		if (!Preferences::instance()->sysUiEnableNextPrevGestures()) return false;
+
+		int xDown = event->pos().x();
+		int yDown = event->pos().y();
+
+		//Transform touch coordinates to match the screen orientation
+		switch (WindowServer::instance()->getUiOrientation())
+		{
+			case OrientationEvent::Orientation_Up: //Speakers Down
+				//Do nothing
+				break;
+			case OrientationEvent::Orientation_Down: //Speakers Up
+				xDown = (m_uiWidth-1) - xDown;
+				yDown = (m_uiHeight-1) - yDown;
+				break;
+			case OrientationEvent::Orientation_Left: //Speakers Right
+			{
+				int temp = (m_uiHeight-1) - xDown;
+				xDown = yDown;
+				yDown = temp;
+				break;
+			}
+			case OrientationEvent::Orientation_Right: //Speakers Left
+			{
+				int temp = xDown;
+				xDown = (m_uiWidth-1) - yDown;
+				yDown = temp;
+				break;
+			}
+			default:
+				g_warning("Unknown UI orientation");
+				return false;
+		}
+
+		//Eat mousedown events if they fall inside the gesture border
+		if (xDown <= kGestureBorderSize && yDown > m_statusBarPtr->boundingRect().height()) return true;
+		if (xDown >= (m_uiWidth-1) - kGestureBorderSize && yDown > m_statusBarPtr->boundingRect().height()) return true;
+		if (yDown >= (m_uiHeight-1) - kGestureBorderSize) return true;
+	}
+	
+	//Otherwise, let them through
 	return false;
 }
 
