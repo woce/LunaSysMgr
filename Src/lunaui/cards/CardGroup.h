@@ -158,6 +158,7 @@ public:
 	void moveToActiveCard();
 
   QList<CardWindow*> cards() const { return m_cards; }
+  void removeCardWithoutDeleting(int cardNumber) {m_cards.removeAt(cardNumber);} // Removes Card from card list, not deleting memory.
 private:
 
 	QVector<CardWindow::Position> calculateOpenedPositions(qreal xOffset = 0.0);
