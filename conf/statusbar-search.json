@@ -7,8 +7,18 @@
       "prefserv": "sysUiEnableStatusBarSearch",
       "label": "enable status bar search",
       "key": "statusbarsearch",
-      "type": "ToggleButton",
-      "value": false,
+      "type": "ListSelector",
+      "value": 0,
+      "choices": [ {
+        "label": "Disabled",
+        "value": 0
+      }, {
+        "label": "Item Group",
+        "value": 1
+      }, {
+        "label": "Full-Width",
+        "value": 2
+      } ]
     } ]
   }
 ]
