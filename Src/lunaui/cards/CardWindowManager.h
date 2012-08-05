@@ -25,17 +25,21 @@
 #include "Common.h"
 
 #include "WindowManagerBase.h"
+#include "Preferences.h"
 
 #include <QStateMachine>
 #include <QGraphicsSceneMouseEvent>
 #include <QGestureEvent>
 #include <QParallelAnimationGroup>
 #include <QMap>
+#include <QTimer>
+#include <QSignalMapper>
 #include <QEasingCurve>
 #include <stdint.h>
 
 class CardWindowManagerState;
 class MinimizeState;
+class GroupState;
 class MaximizeState;
 class PreparingState;
 class LoadingState;
@@ -77,6 +81,7 @@ public:
 	void resize(int width, int height);
 	bool isModalDismissed() const {return m_modalDimissed; }
 	void setModalDismissed(bool val) { m_modalDimissed = val; }
+  void stopMoveGroupTimer() {m_groupMoveTimer->stop();}
 	virtual bool okToResize();
 
 	CardWindow* modalParent() const { return m_parentOfModalCard; }
@@ -113,6 +118,8 @@ private Q_SLOTS:
 	void slotMinimizeActiveCardWindow();
 
 	void slotChangeCardWindow(bool next);
+  void slotSideSwipe(bool direction);  // Enables group view, for now
+
 
 	void slotFocusMaximizedCardWindow(bool focus);
 
@@ -120,6 +127,9 @@ private Q_SLOTS:
     void slotOpacityAnimationFinished();
     void slotDismissActiveModalWindow();
     void slotDismissModalTimerStopped();
+
+ void slotCloseGroupAdjustAfterAnimationFinished(QObject* winObject); // Adjusts group view if just one card remains after side closing
+ void slotGroupTimerTimeout();  // Handles kinetic scrolling for tabbed cards
 
 Q_SIGNALS:
 
@@ -131,6 +141,7 @@ Q_SIGNALS:
 	void signalEnterReorder(QPoint pt, int slice);
 	void signalExitReorder(bool canceled = true);
     void signalFirstCardRun();
+    void signalGroupWindow();
 
 private:
 
@@ -151,9 +162,17 @@ private:
 
 	void handleTapAndHoldGestureMinimized(QTapAndHoldGesture* event);
 
+    // For tabbed cards input handling
+  void handleMousePressGroup(QGraphicsSceneMouseEvent* event);
+  void handleMouseMoveGroup(QGraphicsSceneMouseEvent* event);
+  void handleMouseReleaseGroup(QGraphicsSceneMouseEvent* event);
+  void handleTapGestureGroupView(QTapGesture* event);
+  void handleFlickGestureGroup(QGestureEvent* event);
+
+
     void handleKeyNavigationMinimized(QKeyEvent* keyEvent);
 
-	void setCurrentState(CardWindowManagerState* newState) { m_curState = newState; }
+  void setCurrentState(CardWindowManagerState* newState) { m_curState = newState; }
 
 	void maximizeActiveWindow(bool animate=true);
 	void minimizeActiveWindow(bool animate=true);
@@ -169,7 +188,7 @@ private:
 	void addWindowTimedOutNormal(CardWindow* win);
 
 	void removeCardFromGroupMaximized(CardWindow* win);
-	void removeCardFromGroup(CardWindow* win, bool adjustLayout=true);
+  void removeCardFromGroup(CardWindow* win, bool adjustLayout=true, bool dir = false);
 
 	void closeWindow(CardWindow* win, bool angryCard=false);
 
@@ -191,6 +210,13 @@ private:
 	void switchToPrevApp();
 	void switchToNextAppMaximized();
 	void switchToPrevAppMaximized();
+
+  /* Functions Required for Grouped Cards */
+  void showGroupCards(bool direction);
+  void showGroupCardsImmediate();
+  bool whichSideOfScreen(QPointF p);
+  void closeWindowGroup(CardWindow* win, bool dir, bool angryCard=false);
+
 
 	// animate all groups to center around the active group.
 	// optionally include the active card in the active group.
@@ -255,7 +281,7 @@ private:
 	QSet<CardWindow*> m_pendingActionWinSet;
     QSet<CardWindow*> m_pendingTouchToShareWinSet;
 
-	QVector<CardGroup*> m_groups;
+  QVector<CardGroup*> m_groups;
 	CardGroup* m_activeGroup;
 
 	QRect m_normalScreenBounds;
@@ -317,13 +343,14 @@ private:
 
 	QStateMachine* m_stateMachine;
 	MinimizeState* m_minimizeState;
+  GroupState* m_groupState;
 	MaximizeState* m_maximizeState;
 	PreparingState* m_preparingState;
 	LoadingState* m_loadingState;
 	FocusState* m_focusState;
 	ReorderState* m_reorderState;
 
-	CardWindowManagerState* m_curState;
+  CardWindowManagerState* m_curState;
 
 	// keep track of which windows have animations running
 	QMap<CardWindow*,QPropertyAnimation*> m_cardAnimMap;
@@ -334,12 +361,22 @@ private:
 	QParallelAnimationGroup m_anims;
 	QMap<CardWindow*,QPropertyAnimation*> m_deletedAnimMap;
 
+  /* Variables for Tabbed Cards Implementation */
+  bool m_groupMove;
+  int m_groupShift;
+  int m_groupInitialMove;
+  bool m_groupMoveDir;
+  bool m_groupDir;
+  float m_groupVelocity;
+  QTimer *m_groupMoveTimer;
+
     bool m_playedAngryCardStretchSound;
 
 	bool m_animationsActive;
 
 	friend class CardWindowManagerState;
 	friend class MinimizeState;
+  friend class GroupState;
 	friend class MaximizeState;
 	friend class PreparingState;
 	friend class LoadingState;
