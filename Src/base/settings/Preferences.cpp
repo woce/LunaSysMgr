@@ -65,6 +65,7 @@ Preferences::Preferences()
 	, m_playFeedbackSounds(true)
 	, m_sysUiNoHomeButtonMode(true)
 	, m_sysUiEnableNextPrevGestures(false)
+	, m_sysUiEnableAppSwitchGestures(false)
 	, m_lockTimeout(0)
 	, m_lsHandle(0)
 	, m_imeEnabled(false)
@@ -565,6 +566,7 @@ bool Preferences::serverConnectCallback(LSHandle *sh, LSMessage *message, void *
 													   \"imeType\", \
 													   \"sysUiNoHomeButtonMode\", \
 													   \"sysUiEnableNextPrevGestures\", \
+													   \"sysUiEnableAppSwitchGestures\", \
 													   \"airplaneMode\", \
 													   \"hideWANAlert\", \
 													   \"roamingIndicator\", \
@@ -847,6 +849,13 @@ bool Preferences::getPreferencesCallback(LSHandle *sh, LSMessage *message, void 
 		if (prefObjPtr) {
 			prefObjPtr->m_lockTimeout = json_object_get_int(label);
 			Q_EMIT prefObjPtr->signalSetLockTimeout(prefObjPtr->m_lockTimeout);
+		}
+	}
+
+	label = json_object_object_get(json, "sysUiEnableAppSwitchGestures");
+	if(label && !is_error(label)) {
+		if(prefObjPtr) {
+			prefObjPtr->m_sysUiEnableAppSwitchGestures = json_object_get_int(label);
 		}
 	}
 
