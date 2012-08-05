@@ -38,7 +38,7 @@ StatusBarSeparator::StatusBarSeparator()
 	
 	m_pixmap = QPixmap(imagePath.c_str());
 	
-	width  = 4096;
+	width  = 12;
 	height = 32;
 
 	m_bounds = QRectF(-width/2, -height/2, width, height);

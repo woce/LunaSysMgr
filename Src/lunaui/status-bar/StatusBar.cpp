@@ -125,12 +125,12 @@ StatusBar::StatusBar(StatusBarType type, int width, int height)
 			connect(m_searchGroup, SIGNAL(signalActivated(StatusBarItemGroup*)), this, SLOT(slotMenuGroupActivated(StatusBarItemGroup*)));
 			m_searchGroup->setParentItem(this);
 		
-			if(m_search)
-				m_searchGroup->addItem(m_search);
-			
-			//Add Separator so the search item is full-width
-			if(m_separator)
+			if(m_search && m_separator)
+			{
 				m_searchGroup->addItem(m_separator);
+				m_searchGroup->addItem(m_search);
+				m_searchGroup->addItem(m_separator);
+			}
 		}
 
 		m_titleGroup = new StatusBarItemGroup(height, (m_type == TypeNormal || m_type == TypeDockMode), (m_type == TypeNormal || m_type == TypeDockMode), StatusBarItemGroup::AlignLeft);
