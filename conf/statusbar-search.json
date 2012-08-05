@@ -5,8 +5,8 @@
       "group": "status bar",
       "restart": "none",
       "prefserv": "sysUiEnableStatusBarSearch",
-      "label": "enable status bar search",
-      "key": "statusbarsearch",
+      "label": "enable search icon",
+      "key": "statusBarSearch",
       "type": "ToggleButton",
       "value": false,
     } ]
