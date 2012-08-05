@@ -32,6 +32,7 @@
 #include <QGestureEvent>
 #include <QParallelAnimationGroup>
 #include <QMap>
+#include <QTimer>
 #include <QSignalMapper>
 #include <QEasingCurve>
 #include <stdint.h>
@@ -80,6 +81,7 @@ public:
 	void resize(int width, int height);
 	bool isModalDismissed() const {return m_modalDimissed; }
 	void setModalDismissed(bool val) { m_modalDimissed = val; }
+  void stopMoveGroupTimer() {m_groupMoveTimer->stop();}
 	virtual bool okToResize();
 
 	CardWindow* modalParent() const { return m_parentOfModalCard; }
@@ -127,6 +129,7 @@ private Q_SLOTS:
     void slotDismissModalTimerStopped();
 
  void slotCloseGroupAdjustAfterAnimationFinished(QObject* winObject); // Adjusts group view if just one card remains after side closing
+ void slotGroupTimerTimeout();  // Handles kinetic scrolling for tabbed cards
 
 Q_SIGNALS:
 
@@ -169,7 +172,7 @@ private:
 
     void handleKeyNavigationMinimized(QKeyEvent* keyEvent);
 
-	void setCurrentState(CardWindowManagerState* newState) { m_curState = newState; }
+  void setCurrentState(CardWindowManagerState* newState) { m_curState = newState; }
 
 	void maximizeActiveWindow(bool animate=true);
 	void minimizeActiveWindow(bool animate=true);
@@ -185,7 +188,7 @@ private:
 	void addWindowTimedOutNormal(CardWindow* win);
 
 	void removeCardFromGroupMaximized(CardWindow* win);
-  void removeCardFromGroup(CardWindow* win, bool adjustLayout=true, bool dir =true);
+  void removeCardFromGroup(CardWindow* win, bool adjustLayout=true, bool dir = false);
 
 	void closeWindow(CardWindow* win, bool angryCard=false);
 
@@ -278,7 +281,7 @@ private:
 	QSet<CardWindow*> m_pendingActionWinSet;
     QSet<CardWindow*> m_pendingTouchToShareWinSet;
 
-	QVector<CardGroup*> m_groups;
+  QVector<CardGroup*> m_groups;
 	CardGroup* m_activeGroup;
 
 	QRect m_normalScreenBounds;
@@ -347,7 +350,7 @@ private:
 	FocusState* m_focusState;
 	ReorderState* m_reorderState;
 
-	CardWindowManagerState* m_curState;
+  CardWindowManagerState* m_curState;
 
 	// keep track of which windows have animations running
 	QMap<CardWindow*,QPropertyAnimation*> m_cardAnimMap;
@@ -364,7 +367,8 @@ private:
   int m_groupInitialMove;
   bool m_groupMoveDir;
   bool m_groupDir;
-
+  float m_groupVelocity;
+  QTimer *m_groupMoveTimer;
 
     bool m_playedAngryCardStretchSound;
 

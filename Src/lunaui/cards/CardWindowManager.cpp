@@ -107,6 +107,7 @@ CardWindowManager::CardWindowManager(int maxWidth, int maxHeight)
   , m_groupMove(false)              // For Group Tabs
   , m_groupShift(0)                 // For Group Tabs
   , m_groupDir(true)                // For Group Tabs
+  , m_groupVelocity(0)              // For Group Tabs
 
 				  
 {
@@ -274,6 +275,10 @@ void CardWindowManager::init()
 	m_stateMachine->start();
 
     updateAngryCardThreshold();
+
+  m_groupMoveTimer = new QTimer();
+  connect(m_groupMoveTimer,SIGNAL(timeout()),this,SLOT(slotGroupTimerTimeout()));
+
 }
 
 bool CardWindowManager::handleNavigationEvent(QKeyEvent* keyEvent, bool& propogate)
@@ -1062,7 +1067,7 @@ void CardWindowManager::removeCardFromGroup(CardWindow* win, bool adjustLayout, 
 	group->removeFromGroup(win);
 	if (group->empty()) {
 		// clean up this group
-		m_groups.remove(m_groups.indexOf(group));
+    m_groups.remove(m_groups.indexOf(group));
 		removeAnimationForGroup(group);
 		delete group;
 	}
@@ -1517,10 +1522,10 @@ void CardWindowManager::handleMousePressGroup(QGraphicsSceneMouseEvent* event)
   // try to capture the card the user first touched.  Basically anywhere BUT the active Card
     //QRect box = m_activeGroup->activeCard()->boundingRect().toRect();
 
+    m_groupMoveTimer->stop();
     QPointF mappedPt;
     mappedPt = m_activeGroup->activeCard()->mapFromScene(event->scenePos());
     QPointF refPoint = mapFromScene(event->scenePos());
-
     if (!m_activeGroup->activeCard()->contains(mappedPt))  {
       m_groupInitialMove = refPoint.y();//event->scenePos().y();
 
@@ -1620,17 +1625,19 @@ void CardWindowManager::handleMouseMoveMinimized(QGraphicsSceneMouseEvent* event
 }
 
 void CardWindowManager::handleMouseMoveGroup(QGraphicsSceneMouseEvent* event)
-{
+{ 
   if (m_groupMove)  {
     QPointF point = mapFromScene(event->scenePos());
 
 
     int dx = m_groupInitialMove - point.y();
+    m_groupVelocity = dx / .001;
     if (dx != 0) {
       m_groupShift -=dx;
 
-      int maxheight = 0;//m_normalScreenBounds.height() * ((0.5)/(double)kNumGroupCards-0.5);
+      int maxheight = m_normalScreenBounds.height() * (((double)kNumGroupCards-1)/(double)kNumGroupCards);
       int minheight = -m_normalScreenBounds.height() * ((m_activeGroup->cards().size() - 2)/(double)kNumGroupCards);
+      //if (m_activeGroup->cards().size() < 5)  minheight = -m_normalScreenBounds.height() * ((4)/(double)kNumGroupCards);
 
       m_groupShift = m_groupShift < minheight ? minheight : m_groupShift;
       m_groupShift = m_groupShift > maxheight ? maxheight : m_groupShift;
@@ -1646,6 +1653,36 @@ void CardWindowManager::handleMouseMoveGroup(QGraphicsSceneMouseEvent* event)
 void CardWindowManager::handleMouseReleaseGroup(QGraphicsSceneMouseEvent* event)
 {
   m_groupMove = false;
+  if (fabs(m_groupVelocity) > 500)  m_groupMoveTimer->start(1);
+}
+
+void CardWindowManager::slotGroupTimerTimeout()
+{
+ int maxheight = m_normalScreenBounds.height() * (((double)kNumGroupCards-1)/(double)kNumGroupCards);//0;//m_normalScreenBounds.height() * ((0.5)/(double)kNumGroupCards-0.5);
+ int minheight = -m_normalScreenBounds.height() * ((m_activeGroup->cards().size() - 2)/(double)kNumGroupCards);
+ //if (m_activeGroup->cards().size() < 5)  minheight = -m_normalScreenBounds.height() * ((4)/(double)kNumGroupCards);
+
+  // Look at m_groupVelocity
+  m_groupShift -= (float)m_groupVelocity*0.001;
+
+  if (m_groupShift <= minheight) {
+    m_groupShift = minheight;
+    m_groupVelocity = -m_groupVelocity;
+  }
+
+  if (m_groupShift >= maxheight) {
+    m_groupShift = maxheight;
+    m_groupVelocity = -m_groupVelocity;
+  }
+
+  float newVelocity = fabs(m_groupVelocity)*0.9;// - 5000.0;
+
+  if (newVelocity < 500) m_groupMoveTimer->stop();
+
+  if (m_groupVelocity > 0) m_groupVelocity = newVelocity;
+  else m_groupVelocity = -newVelocity;
+
+  showGroupCardsImmediate();
 }
 
 void CardWindowManager::handleMouseMoveReorder(QGraphicsSceneMouseEvent* event)
@@ -1770,7 +1807,7 @@ void CardWindowManager::moveReorderSlotRight()
 		if (m_activeGroup->empty()) {
 			// this was a temporarily created group.
 			// delete the temp group.
-			m_groups.remove(activeIndex);
+      m_groups.remove(activeIndex);
 			delete m_activeGroup;
 
             newActiveGroup = m_groups[activeIndex];
@@ -1824,7 +1861,7 @@ void CardWindowManager::moveReorderSlotLeft()
 		if (m_activeGroup->empty()) {
 			// this was a temporarily created group.
 			// delete the temp group
-			m_groups.remove(activeIndex);
+      m_groups.remove(activeIndex);
 			delete m_activeGroup;
 
 			// the previous group is the new active group
@@ -2067,9 +2104,13 @@ void CardWindowManager::handleFlickGestureGroup(QGestureEvent* event)
     if ((end.x() - start.x()) > 0) dir = true;
 
     if (dir && screenLoc) {
+      m_groupVelocity = 0;
+      m_groupMoveTimer->stop();
       closeWindowGroup(card,dir,false);
     }
     if (!dir && !screenLoc) {
+      m_groupVelocity = 0;
+      m_groupMoveTimer->stop();
       closeWindowGroup(card,dir,false);
     }
 
@@ -2890,6 +2931,7 @@ void CardWindowManager::closeWindowGroup(CardWindow* win, bool dir, bool angryCa
 {
   if(!win)
     return;
+  m_groupMoveTimer->stop();
 
   int numcards = m_activeGroup->cards().size();  // If 2, we delay the final animation.
 
@@ -2921,7 +2963,7 @@ void CardWindowManager::closeWindowGroup(CardWindow* win, bool dir, bool angryCa
 
   if (numcards == 2)  {
     // Want to delay reorder animation such that it is apparent the card is closed.
-    QSignalMapper *signalMapper = new QSignalMapper(this);
+    QSignalMapper *signalMapper = new QSignalMapper();
     connect(anim,SIGNAL(finished()),signalMapper,SLOT(map()));
     signalMapper->setMapping(anim,(QObject*)win);
     connect(signalMapper, SIGNAL(mapped(QObject*)),
@@ -2947,6 +2989,8 @@ void CardWindowManager::closeWindowGroup(CardWindow* win, bool dir, bool angryCa
 
 void CardWindowManager::slotCloseGroupAdjustAfterAnimationFinished(QObject* winObject)
 {
+    m_groupMoveTimer->stop();
+
   CardWindow *win = (CardWindow*)winObject;
   // Modal cards are not a part of any card group.
   if(Window::Type_ModalChildWindowCard != win->type()) {

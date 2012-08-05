@@ -268,6 +268,8 @@ void GroupState::onExit(QEvent *event)
 
     activeWin->stopLoadingOverlay();
   }
+    m_wm->stopMoveGroupTimer();
+
 }
 
 
