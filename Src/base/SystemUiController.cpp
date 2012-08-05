@@ -63,9 +63,6 @@ static const char* kSystemUiAppId = "com.palm.systemui";
 static const unsigned int s_statusBarLauncherColor = 0x4f545AFF;
 static const unsigned int s_statusBarJustTypeColor = 0x4f545AFF;
 
-static const int kGestureBorderSize = 15;
-static const int kFlickMinimumYLengthWithKeyboardUp = 60;
-
 SystemUiController* SystemUiController::instance()
 {
     if (G_UNLIKELY(!s_instance))
