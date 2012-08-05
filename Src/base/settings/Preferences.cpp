@@ -65,7 +65,7 @@ Preferences::Preferences()
 	, m_playFeedbackSounds(true)
 	, m_sysUiNoHomeButtonMode(true)
 	, m_sysUiEnableNextPrevGestures(false)
-	, m_sysUiEnableStatusBarSearch(0)
+	, m_sysUiEnableStatusBarSearch(false)
 	, m_lockTimeout(0)
 	, m_lsHandle(0)
 	, m_imeEnabled(false)
@@ -847,7 +847,7 @@ bool Preferences::getPreferencesCallback(LSHandle *sh, LSMessage *message, void 
 	if (label && !is_error(label)) {
 
 		if (prefObjPtr)
-			prefObjPtr->m_sysUiEnableStatusBarSearch = json_object_get_int(label);
+			prefObjPtr->m_sysUiEnableStatusBarSearch = json_object_get_boolean(label);
 	}
 
 	label = json_object_object_get(json, "lockTimeout");
