@@ -29,6 +29,12 @@ QGestureRecognizer::Result ScreenEdgeSlideGestureRecognizer::recognize(QGesture 
 	QPoint startPos;
 	QPoint screenPos;
 	QPoint displayBounds;
+	int triggerDistance;
+	
+	if(IMEController::instance()->isIMEOpened())
+		triggerDistance = kFlickMinimumYLengthWithKeyboardUp;
+	else
+		triggerDistance = kGestureTriggerDistance;
 
     QGestureRecognizer::Result result = QGestureRecognizer::CancelGesture;
     
@@ -100,23 +106,20 @@ QGestureRecognizer::Result ScreenEdgeSlideGestureRecognizer::recognize(QGesture 
 				
 				//Figure out what edge we're on and output some values
 				if (event->type() == QEvent::TouchUpdate) {
-					if(delta.x() >= kGestureTriggerDistance && abs(delta.x()) >= abs(delta.y()))
+					if(delta.x() >= triggerDistance && abs(delta.x()) >= abs(delta.y()))
 					{
-						qCritical() << abs(delta.x()) << abs(delta.y());
 						q->setEdge(Left);
 						q->setFired(true);
 						result = QGestureRecognizer::FinishGesture;
 					}
-					if(delta.x() <= -kGestureTriggerDistance && abs(delta.x()) >= abs(delta.y()))
+					if(delta.x() <= -triggerDistance && abs(delta.x()) >= abs(delta.y()))
 					{
-						qCritical() << abs(delta.x()) << abs(delta.y());
 						q->setEdge(Right);
 						q->setFired(true);
 						result = QGestureRecognizer::FinishGesture;
 					}
-					if(delta.y() <= -kGestureTriggerDistance && abs(delta.y()) >= abs(delta.x()))
+					if(delta.y() <= -triggerDistance && abs(delta.y()) >= abs(delta.x()))
 					{
-						qCritical() << abs(delta.x()) << abs(delta.y());
 						q->setEdge(Bottom);
 						q->setFired(true);
 						result = QGestureRecognizer::FinishGesture;

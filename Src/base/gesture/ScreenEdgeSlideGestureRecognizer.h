@@ -13,6 +13,7 @@
 #include "ScreenEdgeSlideGesture.h"
 
 #include "HostBase.h"
+#include "IMEController.h"
 #include "Settings.h"
 #include "WindowServer.h"
 
