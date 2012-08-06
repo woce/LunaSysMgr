@@ -272,7 +272,7 @@ bool SystemUiController::handleGestureEvent (QGestureEvent* event)
 				handleScreenEdgeFlickGesture(t);
 				return true;
 			}
-
+			
 			//Screen-edge Slide Gestures
 			t = event->gesture((Qt::GestureType) GestureScreenEdgeSlide);
 			if (t && Preferences::instance()->sysUiSlideGestures() == 1)
@@ -2128,7 +2128,11 @@ void SystemUiController::handleScreenEdgeFlickGesture(QGesture* gesture)
 void SystemUiController::handleScreenEdgeSlideGesture(QGesture* gesture)
 {
 	ScreenEdgeSlideGesture* t = static_cast<ScreenEdgeSlideGesture*>(gesture);
-
+	
+	//Prevent double-firing with the keyboard open
+	if(t->state() != 1)
+		return;
+	
 	if(t->getEdge() == Left)
 	{
 		handleSideSlide(true);
