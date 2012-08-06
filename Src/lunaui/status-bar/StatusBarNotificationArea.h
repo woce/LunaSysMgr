@@ -119,6 +119,7 @@ private:
 
 	QPixmap* m_arrowPix;
 	bool m_showArrow;
+	qreal m_arrowOffset;
 
 	BannerMessageHandler* m_bmHandler;
 	int m_bannerMsgCount;
