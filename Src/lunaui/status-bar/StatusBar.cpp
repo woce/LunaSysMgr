@@ -798,8 +798,8 @@ void StatusBar::slotSearchMenuAction()
 {
 	if(Preferences::instance()->sysUiEnableStatusBarSearch())
 	{
-		SystemUiController::instance()->showOrHideUniversalSearch(
-			!SystemUiController::instance()->isUniversalSearchShown(), false, false);
+		SystemUiController::instance()->showOrHideUniversalSearch(!SystemUiController::instance()->isUniversalSearchShown(), false, false);
+		SystemUiController::instance()->enterOrExitDockModeUi(false);
 	}
 }
 
