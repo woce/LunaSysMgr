@@ -102,7 +102,7 @@ inline bool UKeyIsTextShortcutKey(UKey ukey)	{ return ukey >= 0x01200300 && ukey
 inline bool UKeyIsKeyboardComboKey(UKey ukey)	{ return ukey >= cKey_KeyboardComboChoice_First && ukey <= cKey_KeyboardComboChoice_Last;}
 inline bool UKeyIsKeyboardSizeKey(UKey ukey)	{ return ukey >= cKey_Resize_First && ukey <= cKey_Resize_Last;}
 inline bool UKeyIsEmoticonKey(UKey ukey)		{ return ukey >= cKey_Emoticon_Frown && ukey <= cKey_Emoticon_Heart; }
-inline bool UKeyIsCharacter(UKey ukey)          { return (ukey >= Qt::Key_A && ukey <= Qt::Key_Z) || ukey == Qt::Key_Odiaeresis || ukey == Qt::Key_Adiaeresis || ukey == Qt::Key_Aring; }
+inline bool UKeyIsCharacter(UKey ukey)          { return (ukey >= Qt::Key_A && ukey <= Qt::Key_Z) || (ukey >= UKey(0x0410) && ukey <= UKey(0x42F)) || ukey == UKey(0x0401) || ukey == Qt::Key_Odiaeresis || ukey == Qt::Key_Adiaeresis || ukey == Qt::Key_Aring; }
 
 const QPoint cOutside(-1, -1);		// special value meaning representing "outside of keyboard", or "no key".
 
@@ -111,7 +111,7 @@ class TabletKeymap : public Mapper_IF
 public:
 	enum {
 		cKeymapRows = 5,
-		cKeymapColumns = 12,
+		cKeymapColumns = 14,
 	};
 
 	enum EShiftMode
