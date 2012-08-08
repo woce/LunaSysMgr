@@ -65,9 +65,6 @@ Preferences::Preferences()
 	, m_playFeedbackSounds(true)
 	, m_sysUiNoHomeButtonMode(true)
 	, m_sysUiEnableNextPrevGestures(false)
-	, m_sysUiStatusBarSlide(false)
-	, m_sysUiEnableStatusBarSearch(false)
-	, m_sysUiSlideGestures(false)
 	, m_sysUiEnableAppSwitchGestures(false)
 	, m_lockTimeout(0)
 	, m_lsHandle(0)
@@ -84,7 +81,6 @@ Preferences::Preferences()
 	, m_show3GForEvdo(false)
 	, m_enableVoiceDial(false)
     , m_rotationLock(OrientationEvent::Orientation_Invalid)
-    , m_infiniteCardCyclingEnabled(false)
 	, m_muteOn(false)
 	, m_enableALS(true)
 {
@@ -570,9 +566,6 @@ bool Preferences::serverConnectCallback(LSHandle *sh, LSMessage *message, void *
 													   \"imeType\", \
 													   \"sysUiNoHomeButtonMode\", \
 													   \"sysUiEnableNextPrevGestures\", \
-													   \"sysUiStatusBarSlide\", \
-													   \"sysUiEnableStatusBarSearch\", \
-													   \"sysUiSlideGestures\", \
 													   \"sysUiEnableAppSwitchGestures\", \
 													   \"airplaneMode\", \
 													   \"hideWANAlert\", \
@@ -580,7 +573,6 @@ bool Preferences::serverConnectCallback(LSHandle *sh, LSMessage *message, void *
 													   \"dualRSSI\", \
 													   \"lockTimeout\",\
 													   \"rotationLock\",\
-                             \"infiniteCardCyclingEnabled\",\
 													   \"muteSound\",\
 													   \"" PALM_VIRTUAL_KEYBOARD_PREFS "\",\
 													   \"" PALM_VIRTUAL_KEYBOARD_SETTINGS "\",\
@@ -850,34 +842,6 @@ bool Preferences::getPreferencesCallback(LSHandle *sh, LSMessage *message, void 
 #endif
 		}
 	}
-	
-	label = json_object_object_get(json, "sysUiSlideGestures");
-	if (label && !is_error(label)) {
-		
-		if (prefObjPtr)
-			prefObjPtr->m_sysUiSlideGestures = json_object_get_int(label);
-	}
-	
-	label = json_object_object_get(json, "sysUiEnableAppSwitchGestures");
-	if (label && !is_error(label)) {
-		
-		if (prefObjPtr)
-			prefObjPtr->m_sysUiEnableAppSwitchGestures = json_object_get_int(label);
-	}
-
-	label = json_object_object_get(json, "sysUiStatusBarSlide");
-	if (label && !is_error(label)) {
-
-		if (prefObjPtr)
-			prefObjPtr->m_sysUiStatusBarSlide = json_object_get_boolean(label);
-	}
-
-	label = json_object_object_get(json, "sysUiEnableStatusBarSearch");
-	if (label && !is_error(label)) {
-
-		if (prefObjPtr)
-			prefObjPtr->m_sysUiEnableStatusBarSearch = json_object_get_boolean(label);
-	}
 
 	label = json_object_object_get(json, "lockTimeout");
 	if (label && !is_error(label) && json_object_is_type(label, json_type_int)) {
@@ -885,6 +849,13 @@ bool Preferences::getPreferencesCallback(LSHandle *sh, LSMessage *message, void 
 		if (prefObjPtr) {
 			prefObjPtr->m_lockTimeout = json_object_get_int(label);
 			Q_EMIT prefObjPtr->signalSetLockTimeout(prefObjPtr->m_lockTimeout);
+		}
+	}
+
+	label = json_object_object_get(json, "sysUiEnableAppSwitchGestures");
+	if(label && !is_error(label)) {
+		if(prefObjPtr) {
+			prefObjPtr->m_sysUiEnableAppSwitchGestures = json_object_get_int(label);
 		}
 	}
 
@@ -916,13 +887,6 @@ bool Preferences::getPreferencesCallback(LSHandle *sh, LSMessage *message, void 
 			}
 		}
 	}
-
-  label = json_object_object_get(json, "infiniteCardCyclingEnabled");
-  if (label && !is_error(label)) {
-    if (prefObjPtr) {
-      prefObjPtr->m_infiniteCardCyclingEnabled = json_object_get_int(label);
-    }
-  }
 
 	label = json_object_object_get(json, "airplaneMode");
 	if (label && !is_error(label) && json_object_is_type(label, json_type_boolean)) {
