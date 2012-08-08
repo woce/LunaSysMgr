@@ -1,0 +1,28 @@
+[
+  {
+    "category": "luna",
+    "prefs":
+	[
+		{
+			"group": "slide gestures",
+			"restart": "none",
+			"prefserv": "sysUiSlideGestures",
+			"label": "Enable Slide Gestures",
+			"help": "Triggers gestures on finger move of 15px instead of on finger release.",
+			"key": "slideGestures",
+			"type": "ToggleButton",
+			"value": false
+		},
+		{
+			"group": "slide gestures",
+			"restart": "none",
+			"prefserv": "sysUiEnableAppSwitchGestures",
+			"label": "Enable App Switch Gestures",
+			"help": "Enable/Disable sliding in from the left/right bezels to switch apps.",
+			"key": "slideAppSwitchGestures",
+			"type": "ToggleButton",
+			"value": false
+		}
+	]
+  }
+]
