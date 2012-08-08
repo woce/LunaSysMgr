@@ -402,7 +402,7 @@ private:
 	void animValueChanged(const QVariant& value);
 	bool allowSuspend();
 	void setSuspended(bool);
-	void handleScreenEdgeFlickGesture(QGesture* gesture);
+	bool handleScreenEdgeFlickGesture(QGesture* gesture);
 	void handleSideFlick(bool next);
 	void handleUpFlick(ScreenEdgeFlickGesture *g);
 	void handleScreenEdgeSlideGesture(QGesture* gesture);
