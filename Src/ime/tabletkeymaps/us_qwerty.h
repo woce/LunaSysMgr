@@ -42,7 +42,9 @@ static TabletKeymap::constUKeyArray sUsQwerty0_extended = { Qt::Key_0, Qt::Key_P
 										{ w, Qt::Key_7,			Qt::Key_Ampersand,						sUsQwerty7_extended },\
 										{ w, Qt::Key_8,			Qt::Key_Asterisk,						sUsQwerty8_extended },\
 										{ w, Qt::Key_9,			Qt::Key_ParenLeft,						sUsQwerty9_extended },\
-										{ w, Qt::Key_0,			Qt::Key_ParenRight,						sUsQwerty0_extended }
+										{ w, Qt::Key_0,			Qt::Key_ParenRight,						sUsQwerty0_extended },\
+										{ w, Qt::Key_Left,		Qt::Key_Up,							    NULL },\
+										{ w, Qt::Key_Right,		Qt::Key_Down,							NULL }
 
 #define US_QWERTY_TOP_10(w)				{ w, Qt::Key_Q,			Qt::Key_QuoteLeft,						NULL },\
 										{ w, Qt::Key_W,			Qt::Key_AsciiTilde,						NULL },\
