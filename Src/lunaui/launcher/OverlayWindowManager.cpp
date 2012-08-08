@@ -1032,8 +1032,16 @@ void OverlayWindowManager::setupSearchPill()
 		PixmapObject * pIconPmo = PixmapObjectLoader::instance()->quickLoad(
 				QString(GraphicsSettings::DiUiGraphicsSettings()->graphicsAssetBaseDirectory + SEARCHPILL_ICON_FILEPATH)
 		);
-
-		quint32 width = qMax(LayoutSettings::settings()->searchPillWidth,(quint32)(pIconPmo ? pIconPmo->width() : 0));
+		
+		quint32 width;
+		
+		//If we're in tabletUi, use the search pill width value from LayoutSettings
+		if(Settings::LunaSettings()->tabletUi)
+			width = LayoutSettings::settings()->searchPillWidthPctScreenRelative * qMin(boundingRect().height(), boundingRect().width());
+		//Otherwise, set it to 0.975% of the screen width, webOS phone style
+		else
+			width = 0.975 * qMin(boundingRect().height(), boundingRect().width());
+		
 		quint32 height = pNormalBgPmo->height();
 		QRectF pillGeom = DimensionsGlobal::realRectAroundRealPoint(QSize(width - (width %2),height - (height %2)));
 		m_searchPill = new SearchPill(pNormalBgPmo, pIconPmo, pillGeom,this);

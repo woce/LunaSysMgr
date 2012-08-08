@@ -91,7 +91,7 @@ public:
 
 	qint32 centerUiVerticalOffset;
 
-	quint32 searchPillWidth;
+	qreal searchPillWidthPctScreenRelative;
 	quint32 searchPillInnerIconRightOffset;
 	quint32 searchPillTopOffsetFromStatusBar;
 	QPoint	searchPillInnerTextAdjust;
