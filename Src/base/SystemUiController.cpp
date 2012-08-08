@@ -48,6 +48,7 @@
 #include "IMEController.h"
 #include "EmulatedCardWindow.h"
 #include "ScreenEdgeFlickGesture.h"
+#include "ScreenEdgeSlideGesture.h"
 #include "SoundPlayerPool.h"
 #include "DashboardWindowManager.h"
 #include "StatusBarServicesConnector.h"
@@ -305,11 +306,24 @@ bool SystemUiController::handleGestureEvent (QGestureEvent* event)
 		}
 	}
 
-	if (!t) {
+	//If no tap has been detected and gestures are enabled
+	if (!t && Preferences::instance()->sysUiEnableNextPrevGestures() == true) {
 		if (Settings::LunaSettings()->uiType != Settings::UI_MINIMAL && !m_emergencyMode) {
+			//Screen-edge Flick Gestures
 			t = event->gesture((Qt::GestureType) SysMgrGestureScreenEdgeFlick);
-			if (t)
+			if (t && Preferences::instance()->sysUiSlideGestures() == 0)
+			{
 				handleScreenEdgeFlickGesture(t);
+				return true;
+			}
+			
+			//Screen-edge Slide Gestures
+			t = event->gesture((Qt::GestureType) GestureScreenEdgeSlide);
+			if (t && Preferences::instance()->sysUiSlideGestures() == 1)
+			{
+				handleScreenEdgeSlideGesture(t);
+				return true;
+			}
 		}
 	}
 	
@@ -2155,3 +2169,84 @@ void SystemUiController::handleScreenEdgeFlickGesture(QGesture* gesture)
 	Q_EMIT signalToggleLauncher();					
 }
 
+void SystemUiController::handleScreenEdgeSlideGesture(QGesture* gesture)
+{
+	ScreenEdgeSlideGesture* t = static_cast<ScreenEdgeSlideGesture*>(gesture);
+	
+	//Prevent double-firing with the keyboard open
+	if(t->state() != 1)
+		return;
+	
+	if(t->getEdge() == Left)
+	{
+		handleSideSlide(true);
+	}
+	if(t->getEdge() == Right)
+	{
+		handleSideSlide(false);
+	}
+	if(t->getEdge() == Bottom)
+	{
+		handleUpSlide();
+	}
+}
+
+void SystemUiController::handleUpSlide() {
+	//Close everything, go to card view. If already there, toggle the launcher.
+	
+	if (m_inDockMode) {
+		enterOrExitDockModeUi(false);
+		return;
+	}
+
+	if (m_deviceLocked)
+		return;
+
+	if (m_dashboardOpened) {
+		Q_EMIT signalCloseDashboard(true);
+	}
+
+	if (m_menuVisible) {
+		Q_EMIT signalHideMenu();
+	}
+
+	if (m_universalSearchShown) {
+		Q_EMIT signalHideUniversalSearch(false, false);
+		return;
+	}
+
+	if (m_launcherShown) {
+		Q_EMIT signalToggleLauncher();
+		return;
+	}
+
+	if ((m_activeCardWindow && m_maximizedCardWindow) || m_cardWindowAboutToMaximize) {
+		if (false == m_modalCardWindowActive)
+			Q_EMIT signalShowDock();
+
+		Q_EMIT signalMinimizeActiveCardWindow();
+		return;
+	}
+
+	Q_EMIT signalToggleLauncher();	
+}
+
+void SystemUiController::handleSideSlide(bool next) {
+	//Adhere to Enable App Switching Gestures
+	if (Preferences::instance()->sysUiEnableAppSwitchGestures() == false)
+		return;
+
+	if (m_deviceLocked)
+		return;
+
+	if (m_dashboardOpened) {
+		Q_EMIT signalCloseDashboard(true);
+	}
+
+	if (m_menuVisible) {
+		Q_EMIT signalHideMenu();
+	}
+
+	//Switch to next/prev app based on next argument
+	Q_EMIT signalChangeCardWindow(next);
+}
