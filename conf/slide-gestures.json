@@ -4,7 +4,7 @@
     "prefs":
 	[
 		{
-			"group": "slide gestures",
+			"group": "gestures",
 			"restart": "none",
 			"prefserv": "sysUiSlideGestures",
 			"label": "Enable Slide Gestures",
@@ -14,7 +14,7 @@
 			"value": false
 		},
 		{
-			"group": "slide gestures",
+			"group": "gestures",
 			"restart": "none",
 			"prefserv": "sysUiEnableAppSwitchGestures",
 			"label": "Enable App Switch Gestures",
