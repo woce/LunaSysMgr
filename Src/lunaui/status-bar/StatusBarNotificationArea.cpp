@@ -71,6 +71,7 @@ StatusBarNotificationArea::StatusBarNotificationArea()
 	, m_iconsOpacity(1.0)
 	, m_arrowPix(0)
 	, m_showArrow(true)
+	, m_arrowOffset(0)
 {
 }
 
@@ -160,6 +161,7 @@ void StatusBarNotificationArea::updateBoundingRect(bool forceRepaint)
 
 	if(m_showArrow && m_arrowPix && !m_arrowPix->isNull()) {
 		width += m_arrowPix->width() + 2 * ARROW_SPACING;
+		width *= m_arrowOffset;
 	}
 
 	for(int x = 0; x < m_icons.size(); x++) {
@@ -221,6 +223,8 @@ void StatusBarNotificationArea::paint(QPainter* painter, const QStyleOptionGraph
 		painter->drawPixmap(-m_arrowPix->width() - ARROW_SPACING, -m_arrowPix->height()/2, *m_arrowPix);
 		rightEdge = -(m_arrowPix->width() + 2 * ARROW_SPACING);
 		centerRight.setX(centerRight.x() + rightEdge);
+		m_arrowOffset = opacity;
+		updateBoundingRect();
 	}
 
 	for(int x = 0; x < m_icons.size(); x++) {
