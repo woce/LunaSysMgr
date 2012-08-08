@@ -48,7 +48,6 @@
 #include "IMEController.h"
 #include "EmulatedCardWindow.h"
 #include "ScreenEdgeFlickGesture.h"
-#include "ScreenEdgeSlideGesture.h"
 #include "SoundPlayerPool.h"
 #include "DashboardWindowManager.h"
 #include "StatusBarServicesConnector.h"
@@ -63,6 +62,8 @@ static const char* kSystemUiAppId = "com.palm.systemui";
 
 static const unsigned int s_statusBarLauncherColor = 0x4f545AFF;
 static const unsigned int s_statusBarJustTypeColor = 0x4f545AFF;
+
+static const int kFlickMinimumYLengthWithKeyboardUp = 60;
 
 SystemUiController* SystemUiController::instance()
 {
@@ -242,50 +243,6 @@ bool SystemUiController::handleEvent(QEvent *event)
 
 bool SystemUiController::handleMouseEvent(QMouseEvent *event)
 {
-	if(event->type() == QEvent::MouseButtonPress)
-	{
-		//Adhere to 'Enable Advanced Gestures' setting
-		if (!Preferences::instance()->sysUiEnableNextPrevGestures()) return false;
-
-		int xDown = event->pos().x();
-		int yDown = event->pos().y();
-
-		//Transform touch coordinates to match the screen orientation
-		switch (WindowServer::instance()->getUiOrientation())
-		{
-			case OrientationEvent::Orientation_Up: //Speakers Down
-				//Do nothing
-				break;
-			case OrientationEvent::Orientation_Down: //Speakers Up
-				xDown = (m_uiWidth-1) - xDown;
-				yDown = (m_uiHeight-1) - yDown;
-				break;
-			case OrientationEvent::Orientation_Left: //Speakers Right
-			{
-				int temp = (m_uiHeight-1) - xDown;
-				xDown = yDown;
-				yDown = temp;
-				break;
-			}
-			case OrientationEvent::Orientation_Right: //Speakers Left
-			{
-				int temp = xDown;
-				xDown = (m_uiWidth-1) - yDown;
-				yDown = temp;
-				break;
-			}
-			default:
-				g_warning("Unknown UI orientation");
-				return false;
-		}
-
-		//Eat mousedown events if they fall inside the gesture border
-		if (xDown <= kGestureBorderSize && yDown > m_statusBarPtr->boundingRect().height()) return true;
-		if (xDown >= (m_uiWidth-1) - kGestureBorderSize && yDown > m_statusBarPtr->boundingRect().height()) return true;
-		if (yDown >= (m_uiHeight-1) - kGestureBorderSize) return true;
-	}
-	
-	//Otherwise, let them through
 	return false;
 }
 
@@ -306,24 +263,11 @@ bool SystemUiController::handleGestureEvent (QGestureEvent* event)
 		}
 	}
 
-	//If no tap has been detected and gestures are enabled
-	if (!t && Preferences::instance()->sysUiEnableNextPrevGestures() == true) {
+	if (!t) {
 		if (Settings::LunaSettings()->uiType != Settings::UI_MINIMAL && !m_emergencyMode) {
-			//Screen-edge Flick Gestures
 			t = event->gesture((Qt::GestureType) SysMgrGestureScreenEdgeFlick);
-			if (t && Preferences::instance()->sysUiSlideGestures() == 0)
-			{
-				handleScreenEdgeFlickGesture(t);
-				return true;
-			}
-			
-			//Screen-edge Slide Gestures
-			t = event->gesture((Qt::GestureType) GestureScreenEdgeSlide);
-			if (t && Preferences::instance()->sysUiSlideGestures() == 1)
-			{
-				handleScreenEdgeSlideGesture(t);
-				return true;
-			}
+			if (t)
+				return handleScreenEdgeFlickGesture(t);
 		}
 	}
 	
@@ -2092,40 +2036,126 @@ std::string SystemUiController::getMenuTitleForMaximizedWindow(Window* win)
 	return name;
 }
 
-void SystemUiController::handleScreenEdgeFlickGesture(QGesture* gesture)
+bool SystemUiController::handleScreenEdgeFlickGesture(QGesture* gesture)
 {
 	ScreenEdgeFlickGesture* g = static_cast<ScreenEdgeFlickGesture*>(gesture);
 	if (g->state() != Qt::GestureFinished)
-		return;
+		return false;
+
+	/*
+	switch(g->edge()) {
+		case ScreenEdgeFlickGesture::EdgeBottom:
+			g_warning("Flick From Bottom");
+			break;
+		case ScreenEdgeFlickGesture::EdgeTop:
+			g_warning("Flick From Top");
+			break;
+		case ScreenEdgeFlickGesture::EdgeLeft:
+			g_warning("Flick From Left");
+			break;
+		case ScreenEdgeFlickGesture::EdgeRight:
+			g_warning("Flick From Right");
+			break;
+		case ScreenEdgeFlickGesture::EdgeUnknown:
+			g_warning("Flick From Unknown");
+			break;
+	}
+	g_warning("Flick Gesture length: y=%d", g->yDistance());
+	*/
 
     OrientationEvent::Orientation orientation = WindowServer::instance()->getUiOrientation();
-	switch (orientation) {
-    case OrientationEvent::Orientation_Up: {
-		if (g->edge() != ScreenEdgeFlickGesture::EdgeBottom)
-			return;
-		break;
-	}
-    case OrientationEvent::Orientation_Down: {
-		if (g->edge() != ScreenEdgeFlickGesture::EdgeTop)
-			return;
-		break;
-	}
-    case OrientationEvent::Orientation_Left: {
-		if (g->edge() != ScreenEdgeFlickGesture::EdgeLeft)
-			return;
-		break;
-	}
-    case OrientationEvent::Orientation_Right: {
-		if (g->edge() != ScreenEdgeFlickGesture::EdgeRight)
-			return;
-		break;
-	}
-	default: {
-		g_warning("Unknown UI orientation");
+	// Up = Button Down, Right = Button Right, Left = Button Left, Down = Button Up (also called Forward)
+	// gesture: Right = button side, Left = camera side, Bottom = button-right bottom, Top = button-right Top
+	switch(WindowServer::instance()->getUiOrientation()) {
+		case OrientationEvent::Orientation_Up:
+			//g_warning("Orientation: Up");
+			switch(g->edge()) {
+				case ScreenEdgeFlickGesture::EdgeBottom: // Bottom
+					handleUpFlick(g);
+					return true;
+				case ScreenEdgeFlickGesture::EdgeTop: // Top
+					break;
+				case ScreenEdgeFlickGesture::EdgeLeft: // Left - fall thru to Right
+				case ScreenEdgeFlickGesture::EdgeRight: // Right
+					handleSideFlick(g->edge() != ScreenEdgeFlickGesture::EdgeRight);
+					return true;
+				case ScreenEdgeFlickGesture::EdgeUnknown:
+					break;
+			}
+			break;
+		case OrientationEvent::Orientation_Down: 
+			//g_warning("Orientation: Down");
+			switch(g->edge()) {
+				case ScreenEdgeFlickGesture::EdgeBottom: // Top
+					break;
+				case ScreenEdgeFlickGesture::EdgeTop: // Bottom
+					handleUpFlick(g);
+					return true;
+				case ScreenEdgeFlickGesture::EdgeLeft: // Right - fall thru to Left
+				case ScreenEdgeFlickGesture::EdgeRight: // Left
+					handleSideFlick(g->edge() != ScreenEdgeFlickGesture::EdgeLeft);
+					return true;
+				case ScreenEdgeFlickGesture::EdgeUnknown:
+					break;
+			}
+			break;
+		case OrientationEvent::Orientation_Left: 
+			//g_warning("Orientation: Left");
+			switch(g->edge()) {
+				case ScreenEdgeFlickGesture::EdgeBottom: // Right - fall thru to Left
+				case ScreenEdgeFlickGesture::EdgeTop: // Left
+					handleSideFlick(g->edge() != ScreenEdgeFlickGesture::EdgeBottom);
+					return true;
+				case ScreenEdgeFlickGesture::EdgeLeft: // Bottom
+					handleUpFlick(g);
+					return true;
+				case ScreenEdgeFlickGesture::EdgeRight: // Top
+					break;
+				case ScreenEdgeFlickGesture::EdgeUnknown:
+					break;
+			}
+			break;
+		case OrientationEvent::Orientation_Right: 
+			//g_warning("Orientation: Right");
+			switch(g->edge()) {
+				case ScreenEdgeFlickGesture::EdgeBottom: // Left - fall thru to Right
+				case ScreenEdgeFlickGesture::EdgeTop: // Right
+					handleSideFlick(g->edge() != ScreenEdgeFlickGesture::EdgeTop);
+					return true;
+				case ScreenEdgeFlickGesture::EdgeLeft: // Top
+					break;
+				case ScreenEdgeFlickGesture::EdgeRight:
+					handleUpFlick(g);
+					return true;
+				case ScreenEdgeFlickGesture::EdgeUnknown:
+					break;
+			}
+			break;
+		default: 
+			g_warning("Unknown UI orientation");
+			return false;
+	}	
+	return false;
+}
+
+void SystemUiController::handleSideFlick(bool next)
+{
+	if(!Preferences::instance()->sysUiEnableAppSwitchGestures()) {
 		return;
 	}
+	if (m_dashboardOpened) {
+		g_warning ("%s: %d", __PRETTY_FUNCTION__, __LINE__);
+		Q_EMIT signalCloseDashboard(true);
 	}
-	
+	if (m_menuVisible) {
+		Q_EMIT signalHideMenu();
+	}
+	if (!m_launcherShown) {
+		Q_EMIT signalChangeCardWindow(next);
+	}
+}
+
+void SystemUiController::handleUpFlick(ScreenEdgeFlickGesture *g) {
 	// enforce a larger minimum Y distance for the flick gesture when the keyboard is up
 	if(IMEController::instance()->isIMEOpened()) {
 		if(g->yDistance() < kFlickMinimumYLengthWithKeyboardUp)
@@ -2167,86 +2197,4 @@ void SystemUiController::handleScreenEdgeFlickGesture(QGesture* gesture)
 	}
 
 	Q_EMIT signalToggleLauncher();					
-}
-
-void SystemUiController::handleScreenEdgeSlideGesture(QGesture* gesture)
-{
-	ScreenEdgeSlideGesture* t = static_cast<ScreenEdgeSlideGesture*>(gesture);
-	
-	//Prevent double-firing with the keyboard open
-	if(t->state() != 1)
-		return;
-	
-	if(t->getEdge() == Left)
-	{
-		handleSideSlide(true);
-	}
-	if(t->getEdge() == Right)
-	{
-		handleSideSlide(false);
-	}
-	if(t->getEdge() == Bottom)
-	{
-		handleUpSlide();
-	}
-}
-
-void SystemUiController::handleUpSlide() {
-	//Close everything, go to card view. If already there, toggle the launcher.
-	
-	if (m_inDockMode) {
-		enterOrExitDockModeUi(false);
-		return;
-	}
-
-	if (m_deviceLocked)
-		return;
-
-	if (m_dashboardOpened) {
-		Q_EMIT signalCloseDashboard(true);
-	}
-
-	if (m_menuVisible) {
-		Q_EMIT signalHideMenu();
-	}
-
-	if (m_universalSearchShown) {
-		Q_EMIT signalHideUniversalSearch(false, false);
-		return;
-	}
-
-	if (m_launcherShown) {
-		Q_EMIT signalToggleLauncher();
-		return;
-	}
-
-	if ((m_activeCardWindow && m_maximizedCardWindow) || m_cardWindowAboutToMaximize) {
-		if (false == m_modalCardWindowActive)
-			Q_EMIT signalShowDock();
-
-		Q_EMIT signalMinimizeActiveCardWindow();
-		return;
-	}
-
-	Q_EMIT signalToggleLauncher();	
-}
-
-void SystemUiController::handleSideSlide(bool next) {
-	//Adhere to Enable App Switching Gestures
-	if (Preferences::instance()->sysUiEnableAppSwitchGestures() == false)
-		return;
-
-	if (m_deviceLocked)
-		return;
-
-	if (m_dashboardOpened) {
-		Q_EMIT signalCloseDashboard(true);
-	}
-
-	if (m_menuVisible) {
-		Q_EMIT signalHideMenu();
-	}
-
-	//Switch to next/prev app based on next argument
-	Q_EMIT signalChangeCardWindow(next);
 }
