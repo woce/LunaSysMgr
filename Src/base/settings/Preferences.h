@@ -61,6 +61,7 @@ public:
 	bool sysUiNoHomeButtonMode() const { return m_sysUiNoHomeButtonMode; }
 	bool sysUiEnableNextPrevGestures() const { return m_sysUiEnableNextPrevGestures; }
 	bool sysUiStatusBarSlide() const { return m_sysUiStatusBarSlide; }
+	bool sysUiEnableStatusBarSearch() const { return m_sysUiEnableStatusBarSearch; }
 
 	bool imeEnabled() const { return m_imeEnabled; }
 	bool pinyinEnabled() const { return m_pinyinEnabled; }
@@ -132,6 +133,7 @@ private:
 	bool m_sysUiNoHomeButtonMode;
 	bool m_sysUiEnableNextPrevGestures;
 	bool m_sysUiStatusBarSlide;
+	bool m_sysUiEnableStatusBarSearch;
 
 	bool m_imeEnabled;
 	bool m_pinyinEnabled;

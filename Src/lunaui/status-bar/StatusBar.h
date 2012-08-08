@@ -16,9 +16,6 @@
 *
 * LICENSE@@@ */
 
-
-
-
 #ifndef STATUSBAR_H
 #define STATUSBAR_H
 
@@ -38,6 +35,8 @@
 
 class StatusBarClock;
 class StatusBarBattery;
+class StatusBarSearch;
+class StatusBarSeparator;
 class StatusBarTitle;
 class StatusBarServicesConnector;
 class StatusBarInfo;
@@ -166,6 +165,7 @@ private Q_SLOTS:
 	void slotChildBoundingRectChanged();
 	void slotNotificationArealVisibilityChanged(bool visible);
 	void slotBannerMessageActivated();
+	void slotSearchMenuAction();
 	void slotNotificationMenuAction(bool active);
 	void slotSystemMenuMenuAction(bool active);
 	void slotAppMenuMenuAction(bool active);
@@ -196,6 +196,8 @@ private:
 	StatusBar::IndexRSSI1x  m_rssi1xIndex;
 
 	StatusBarClock*            m_clock;
+	StatusBarSearch*           m_search;
+	StatusBarSeparator*        m_separator;
 	StatusBarBattery*          m_battery;
 	StatusBarTitle*            m_title;
 	StatusBarInfo*             m_infoItems;
@@ -204,6 +206,7 @@ private:
 	StatusBarItemGroup* m_systemUiGroup;
 	StatusBarItemGroup* m_titleGroup;
 	StatusBarItemGroup* m_notifGroup;
+	StatusBarItemGroup* m_searchGroup;
 
 	StatusBarServicesConnector* m_svcConnector;
 
