@@ -402,6 +402,9 @@ private:
 	bool allowSuspend();
 	void setSuspended(bool);
 	void handleScreenEdgeFlickGesture(QGesture* gesture);
+	void handleScreenEdgeSlideGesture(QGesture* gesture);
+	void handleUpSlide();
+	void handleSideSlide(bool next);
 
 	Window* m_parentOfModalWindow;
 	Window* m_activeCardWindow;
