@@ -37,6 +37,7 @@ namespace Tablet_Keyboard {
 #include "tabletkeymaps/us_dvorak.h"
 #include "tabletkeymaps/us_qwerty.h"
 #include "tabletkeymaps/ru_qwerty.h"
+#include "tabletkeymaps/ua_qwerty.h"
 #include "tabletkeymaps/se_dvorak.h"
 #include "tabletkeymaps/se_qwerty.h"
 #include "tabletkeymaps/fr_azerty.h"
