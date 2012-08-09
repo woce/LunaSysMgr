@@ -53,7 +53,7 @@ inline bool KeyCap_TwoHorizontal(const QPoint & keyCoord, UKey key)
 
 inline bool KeyCap_TwoVertical(const QPoint & keyCoord, UKey key)
 {
-	return !UKeyIsFunctionKey(key) && keyCoord.y() > 0 && (key < Qt::Key_A || key > Qt::Key_Z);
+	return !UKeyIsFunctionKey(key) && keyCoord.y() > 0 && !UKeyIsCharacter(key);
 }
 
 const int cFirstRepeatDelay = 350;
