@@ -222,7 +222,10 @@ protected:
 	//Documented in parent
 	virtual int  getKey() const { return 0; }
 	
+	//Documented in parent
 	virtual void focus() {}
+	
+	//Documented in parent
 	virtual void unfocus() {}
 	
 	//Documented in parent
@@ -240,10 +243,14 @@ protected:
 	virtual void uriChanged(const char* url);
 	virtual void titleChanged(const char* title);
 	virtual void statusMessage(const char* msg);
+	
+	//Documented in parent
 	virtual void dispatchFailedLoad(const char* domain, int errorCode,
 			const char* failingURL, const char* localizedDescription);
 	virtual void loadFinished() {}
 //	virtual void enableCompass(bool enable);
+	
+	//Documented in parent
 	virtual void editorFocusChanged(bool focused, const PalmIME::EditorState& state) {}
 	
 	/**

@@ -99,7 +99,14 @@ public:
 	 */
 	virtual int  getKey() const = 0;
 
+	/**
+	 * Bring this app to the foreground
+	 */
 	virtual void focus() = 0;
+	
+	/**
+	 * Request that our app not be the foreground app anymore
+	 */
 	virtual void unfocus() = 0;
 	
 	/**
@@ -117,10 +124,36 @@ public:
 	virtual void uriChanged(const char* url) = 0;
 	virtual void titleChanged(const char* title) = 0;
 	virtual void statusMessage(const char* message) = 0;
+	
+	/**
+	 * Presumably dispatches information about a page failing to load to something listening for it
+	 * 
+	 * This is pretty much implemented everywhere as
+	 * empty and doesn't seem to be called from
+	 * anywhere.  It appears to either be
+	 * functionality that has since been removed or
+	 * that was never fully implemented in the first
+	 * place.
+	 * 
+	 * @todo See if this can be removed entirely.
+	 * 
+	 * @param	domain			Unknown.
+	 * @param	errorCode		Unknown.
+	 * @param	failingURL		Unknown.
+	 * @param	localizedDescription	Unknown.
+	 */
 	virtual void dispatchFailedLoad(const char* domain, int errorCode,
 			const char* failingURL, const char* localizedDescription) = 0;
 	virtual void loadFinished() = 0;
 
+	/**
+	 * Called by the WebPage we're displaying so it can let us know when the text editor system's state changes
+	 * 
+	 * @todo Document this more fully once PalmIME::EditorState is documented.
+	 * 
+	 * @param	focused			Whether or not an editable field is currently focused on.
+	 * @param	state			The state of the editor.
+	 */
 	virtual void editorFocusChanged(bool focused, const PalmIME::EditorState& state) = 0;
 	
 	/**
@@ -131,7 +164,22 @@ public:
 	virtual void autoCapEnabled(bool enabled) = 0;
 	virtual void needTouchEvents(bool needTouchEvents) = 0;
 	
+	/**
+	 * Returns a pointer to an ApplicationDescription instance describing this app - basically a representation of its appinfo.json file
+	 * 
+	 * @see ApplicationDescription
+	 * 
+	 * @return				Pointer to ApplicationDescription instance containing information about this app.
+	 */
 	virtual ApplicationDescription* getAppDescription() = 0;
+	
+	/**
+	 * Gets an OpenGL ES context pointer for drawing to the display for this app
+	 * 
+	 * @todo Document this a bit further once Palm::WebGLES2Context and classes deriving from this one are documented further.
+	 * 
+	 * @return				OpenGL ES context pointer.
+	 */
 	virtual Palm::WebGLES2Context* getGLES2Context() = 0;
 
 	virtual void suspendAppRendering() = 0;
