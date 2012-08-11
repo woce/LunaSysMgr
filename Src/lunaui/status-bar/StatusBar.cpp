@@ -45,6 +45,9 @@
 #include <QGesture>
 #include <QGestureEvent>
 
+//Comment this out to hide the version number
+#define DEBUG_VERSION
+
 QColor StatusBar::s_defaultColor = QColor(0x51, 0x55, 0x58, 0xFF);
 static const std::string kDefaultCarrierName = "HP webOS";
 
@@ -64,7 +67,9 @@ StatusBar::StatusBar(StatusBarType type, int width, int height)
 	, m_title(0)
 	, m_infoItems(0)
 	, m_notif(0)
+#ifdef DEBUG_VERSION
 	, m_version(0)
+#endif
 	, m_systemUiGroup(0)
 	, m_titleGroup(0)
 	, m_notifGroup(0)
@@ -93,8 +98,10 @@ StatusBar::StatusBar(StatusBarType type, int width, int height)
 	// Title Bar (a value of true on the third arg turns on non-tablet UI)
 	m_title = new StatusBarTitle(Settings::LunaSettings()->statusBarTitleMaxWidth, height, m_type == TypeEmulatedCard);
 	
+#ifdef DEBUG_VERSION
 	// Version Text
 	m_version = new StatusBarVersion(5);
+#endif
 
 	if(Settings::LunaSettings()->tabletUi && m_type != TypeEmulatedCard) {
 		m_systemUiGroup = new StatusBarItemGroup(height, (m_type == TypeNormal || m_type == TypeDockMode), (m_type == TypeNormal || m_type == TypeDockMode), StatusBarItemGroup::AlignRight);
@@ -117,9 +124,11 @@ StatusBar::StatusBar(StatusBarType type, int width, int height)
 		m_titleGroup->setParentItem(this);
 
 		m_titleGroup->addItem(m_title);
-		
-		m_version->setParentItem(this);
 
+#ifdef DEBUG_VERSION
+		m_version->setParentItem(this);
+#endif
+		
 		if(m_type == TypeNormal || m_type == TypeEmulatedCard || m_type == TypeDockMode || m_type == TypeFirstUse) {
 			m_titleGroup->setActionable(false);
 			connect(m_titleGroup, SIGNAL(signalActionTriggered(bool)), this, SLOT(slotAppMenuMenuAction(bool)));
@@ -205,8 +214,10 @@ StatusBar::~StatusBar()
 	if (m_infoItems)
 		delete m_infoItems;
 	
+#ifdef DEBUG_VERSION
 	if (m_version)
 		delete m_version;
+#endif
 
 	if(m_systemUiGroup)
 		delete m_systemUiGroup;
@@ -410,8 +421,10 @@ void StatusBar::layout()
 		if(m_systemUiGroup)
 			m_systemUiGroup->setPos(m_bounds.width()/2, 0);
 		
+#ifdef DEBUG_VERSION
 		if(m_version)
-			m_version->setPos(-m_bounds.width()/3, 0);
+			m_version->setPos(-m_bounds.width()/3.0, 0);
+#endif
 
 		if(m_type == TypeLockScreen && m_clock)
 			m_clock->setPos (0, 0);
