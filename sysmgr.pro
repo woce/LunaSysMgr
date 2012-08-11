@@ -274,6 +274,7 @@ SOURCES = \
 	StatusBarInfo.cpp \
 	StatusBarItemGroup.cpp \
 	StatusBarNotificationArea.cpp \
+	StatusBarVersion.cpp \
 	SystemMenu.cpp \
 	BtDeviceClass.cpp \
 	IMEManager.cpp \
@@ -468,6 +469,7 @@ HEADERS = \
 	StatusBarItem.h \
 	StatusBarItemGroup.h \
 	StatusBarNotificationArea.h \
+	StatusBarVersion.h \
 	SystemMenu.h \
 	BtDeviceClass.h \
 	IMEManager.h \
