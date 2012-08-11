@@ -30,6 +30,8 @@
 
 #define TEXT_BASELINE_OFFSET            (-2)
 
+static const QString currentVersion = "3.0.5";
+
 StatusBarVersion::StatusBarVersion(unsigned int padding)
 	: m_font(0)
 	, m_textPadding(padding)
@@ -40,9 +42,9 @@ StatusBarVersion::StatusBarVersion(unsigned int padding)
 	m_font = new QFont(fontName, 15);
 	m_font->setPixelSize(15);
 	
-	//Figure out bounds, hardcoded to "3.0.5"
+	//Figure out & set bounds
 	QFontMetrics fontMetrics(*m_font);
-	m_textRect = fontMetrics.boundingRect("3.0.5");
+	m_textRect = fontMetrics.boundingRect(currentVersion);
 	
 	m_bounds = QRect(-m_textRect.width()/2 - m_textPadding, -m_textRect.height()/2,
 			         m_textRect.width() + m_textPadding * 2, m_textRect.height());
@@ -78,7 +80,7 @@ void StatusBarVersion::paint(QPainter* painter, const QStyleOptionGraphicsItem* 
 	painter->setPen(QColor(0xFF, 0xFF, 0xFF, 0xFF));
 	
 	//Draw text, hardcoded to "3.0.5"
-	painter->drawText(QPointF(-m_textRect.width()/2, baseLine), "3.0.5");
+	painter->drawText(QPointF(-m_textRect.width()/2, baseLine), currentVersion);
 
 	painter->setPen(oldPen);
 	painter->setFont(origFont);
