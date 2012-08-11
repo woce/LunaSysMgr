@@ -29,6 +29,7 @@
 #include "StatusBarInfo.h"
 #include "StatusBarItem.h"
 #include "StatusBarNotificationArea.h"
+#include "StatusBarVersion.h"
 #include "StatusBarItemGroup.h"
 #include "StatusBarServicesConnector.h"
 #include "AnimationSettings.h"
@@ -63,6 +64,7 @@ StatusBar::StatusBar(StatusBarType type, int width, int height)
 	, m_title(0)
 	, m_infoItems(0)
 	, m_notif(0)
+	, m_version(0)
 	, m_systemUiGroup(0)
 	, m_titleGroup(0)
 	, m_notifGroup(0)
@@ -90,6 +92,9 @@ StatusBar::StatusBar(StatusBarType type, int width, int height)
 	}
 	// Title Bar (a value of true on the third arg turns on non-tablet UI)
 	m_title = new StatusBarTitle(Settings::LunaSettings()->statusBarTitleMaxWidth, height, m_type == TypeEmulatedCard);
+	
+	// Version Text
+	m_version = new StatusBarVersion(5);
 
 	if(Settings::LunaSettings()->tabletUi && m_type != TypeEmulatedCard) {
 		m_systemUiGroup = new StatusBarItemGroup(height, (m_type == TypeNormal || m_type == TypeDockMode), (m_type == TypeNormal || m_type == TypeDockMode), StatusBarItemGroup::AlignRight);
@@ -112,6 +117,8 @@ StatusBar::StatusBar(StatusBarType type, int width, int height)
 		m_titleGroup->setParentItem(this);
 
 		m_titleGroup->addItem(m_title);
+		
+		m_version->setParentItem(this);
 
 		if(m_type == TypeNormal || m_type == TypeEmulatedCard || m_type == TypeDockMode || m_type == TypeFirstUse) {
 			m_titleGroup->setActionable(false);
@@ -194,9 +201,12 @@ StatusBar::~StatusBar()
 
 	if (m_title)
 		delete m_title;
-
+	
 	if (m_infoItems)
 		delete m_infoItems;
+	
+	if (m_version)
+		delete m_version;
 
 	if(m_systemUiGroup)
 		delete m_systemUiGroup;
@@ -399,6 +409,9 @@ void StatusBar::layout()
 		// This item is Right Aligned (The position  of the icon is the position of the RIGHT EDGE of the bounding rect)
 		if(m_systemUiGroup)
 			m_systemUiGroup->setPos(m_bounds.width()/2, 0);
+		
+		if(m_version)
+			m_version->setPos(-m_bounds.width()/3, 0);
 
 		if(m_type == TypeLockScreen && m_clock)
 			m_clock->setPos (0, 0);
