@@ -41,6 +41,7 @@ class StatusBarTitle;
 class StatusBarServicesConnector;
 class StatusBarInfo;
 class StatusBarNotificationArea;
+class StatusBarVersion;
 class StatusBarItemGroup;
 
 class StatusBar : public QGraphicsObject
@@ -203,6 +204,7 @@ private:
 	StatusBarTitle*            m_title;
 	StatusBarInfo*             m_infoItems;
 	StatusBarNotificationArea* m_notif;
+	StatusBarVersion*		   m_version;
 
 	StatusBarItemGroup* m_systemUiGroup;
 	StatusBarItemGroup* m_titleGroup;
