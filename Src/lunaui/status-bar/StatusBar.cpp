@@ -482,7 +482,7 @@ void StatusBar::layout()
 		
 #ifdef DEBUG_VERSION
 		if(m_version)
-			m_version->setPos(-m_bounds.width()/3.0, 0);
+			m_version->setPos(0, 0);
 #endif
 
 		if(m_type == TypeLockScreen && m_clock)
