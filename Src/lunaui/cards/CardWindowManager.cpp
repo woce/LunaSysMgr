@@ -2025,6 +2025,8 @@ void CardWindowManager::handleTapGestureMinimized(QTapGesture* event)
 				// tapped to the right of the active group
 				switchToNextGroup();
 			}
+
+			maximizeActiveWindow();
 		}
 		else {
 
