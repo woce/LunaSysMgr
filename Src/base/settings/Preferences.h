@@ -47,7 +47,6 @@ public:
 	std::string localeRegion() const;
 	std::string phoneRegion() const;
 	std::string timeFormat() const;
-	std::string deviceName() const;
 	uint32_t lockTimeout() const;
 	void setLockTimeout(uint32_t timeout);
 	
@@ -114,7 +113,6 @@ Q_SIGNALS:
     void signalRotationLockChanged(OrientationEvent::Orientation rotationLock);
 	void signalMuteSoundChanged(bool muteOn);
 	void signalAlsEnabled(bool enable);
-	void signalDeviceNameChanged(std::string deviceName);
 	
 private:
 
@@ -134,7 +132,6 @@ private:
 	std::string m_currentAlerttoneFile;		//path and filename of alert tone
 	std::string m_currentNotificationtoneFile;	//path and filename of alert tone
 	std::string m_currentTimeFormat;
-	std::string m_deviceName; // device name
 	bool m_showAlertsWhenLocked;
 	bool m_ledThrobberEnabled;
 	bool m_playFeedbackSounds;

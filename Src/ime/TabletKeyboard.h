@@ -115,16 +115,7 @@ class TabletKeyboard : public VirtualKeyboard
 
 	template <class T> T selectFromKeyType(UKey key, T letter, T functionKeys, T otherKeys)
 	{
-		if (UKeyIsFunctionKey(key) && !UKeyIsTextShortcutKey(key))
-		{
-			return functionKeys;
-		}
-		if (UKeyIsCharacter(key) || key == Qt::Key_Space)
-		{
-			return letter;
-		}
-		
-		return otherKeys;
+		return UKeyIsFunctionKey(key) && !UKeyIsTextShortcutKey(key) ? functionKeys : (((key >= Qt::Key_A && key <= Qt::Key_Z) || key == Qt::Key_Space) ? letter : otherKeys);
 	}
 
 public:
