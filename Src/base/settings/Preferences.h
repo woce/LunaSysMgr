@@ -95,6 +95,7 @@ public:
 	bool isAlsEnabled() const;
 
 	bool setStringPreference(const char * keyName, const char * value);
+  bool getTabbedCardsPreference() const { return m_tabbedCardsEnabled; }
 
   bool getInfiniteCardCyclingPreference() const { return m_infiniteCardCyclingEnabled; }
 
@@ -164,9 +165,10 @@ private:
 	
 	mutable Mutex m_mutex;
 	LSHandle* m_lsHandle;
-  LSMessageToken m_serverStatusToken;
+	LSMessageToken m_serverStatusToken;
 
-  bool m_infiniteCardCyclingEnabled;
+	bool m_infiniteCardCyclingEnabled;
+	bool m_tabbedCardsEnabled;
 
 };
 	

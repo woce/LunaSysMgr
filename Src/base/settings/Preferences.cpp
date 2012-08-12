@@ -85,6 +85,7 @@ Preferences::Preferences()
 	, m_enableVoiceDial(false)
     , m_rotationLock(OrientationEvent::Orientation_Invalid)
     , m_infiniteCardCyclingEnabled(false)
+  , m_tabbedCardsEnabled(false)
 	, m_muteOn(false)
 	, m_enableALS(true)
 	, m_deviceName("HP webOS")
@@ -587,7 +588,8 @@ bool Preferences::serverConnectCallback(LSHandle *sh, LSMessage *message, void *
 													   \"dualRSSI\", \
 													   \"lockTimeout\",\
 													   \"rotationLock\",\
-                             \"infiniteCardCyclingEnabled\",\
+													   \"infiniteCardCyclingEnabled\",\
+													   \"tabbedCardsEnabled\",\
 													   \"muteSound\",\
 													   \"" PALM_VIRTUAL_KEYBOARD_PREFS "\",\
 													   \"" PALM_VIRTUAL_KEYBOARD_SETTINGS "\",\
@@ -885,6 +887,13 @@ bool Preferences::getPreferencesCallback(LSHandle *sh, LSMessage *message, void 
 
 		if (prefObjPtr)
 			prefObjPtr->m_sysUiEnableStatusBarSearch = json_object_get_boolean(label);
+	}
+
+	label = json_object_object_get(json, "tabbedCardsEnabled");
+	if (label && !is_error(label)) {
+		if (prefObjPtr) {
+			prefObjPtr->m_tabbedCardsEnabled = json_object_get_int(label);
+		}
 	}
 
 	label = json_object_object_get(json, "lockTimeout");

@@ -2206,6 +2206,13 @@ void SystemUiController::handleSideFlick(bool next)
 	if (m_menuVisible) {
 		Q_EMIT signalHideMenu();
 	}
+	
+	if (Preferences::instance()->getTabbedCardsPreference() == true)
+	{
+		Q_EMIT signalSideSwipe(!next);
+		return;
+	}
+	
 	if (!m_launcherShown) {
 		Q_EMIT signalChangeCardWindow(next);
 	}
@@ -2332,7 +2339,16 @@ void SystemUiController::handleSideSlide(bool next) {
 	if (m_menuVisible) {
 		Q_EMIT signalHideMenu();
 	}
+	
+	if (Preferences::instance()->getTabbedCardsPreference() == true)
+	{
+		Q_EMIT signalSideSwipe(!next);
+		return;
+	}
 
 	//Switch to next/prev app based on next argument
-	Q_EMIT signalChangeCardWindow(next);
+	
+	if (!m_launcherShown) {
+		Q_EMIT signalChangeCardWindow(next);
+	}
 }
