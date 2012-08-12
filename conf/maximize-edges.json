@@ -1,0 +1,15 @@
+[
+   {
+    "category": "luna",
+    "prefs": [        
+        {
+          "group": "features",
+          "restart": "none",
+          "prefserv": "sysUiEnableMaximizeEdges",
+          "label": "Tap-to-Maximize Edge Cards",
+          "key": "maximizeEdges",
+          "type": "ToggleButton",
+          "value": false,
+        }]
+  }
+]
