@@ -30,7 +30,7 @@
 
 #define TEXT_BASELINE_OFFSET            (-2)
 
-static const QString currentVersion = "3.0.5";
+static const QString currentVersion = "UberLunah 4.0.0";
 
 StatusBarVersion::StatusBarVersion(unsigned int padding)
 	: m_font(0)
