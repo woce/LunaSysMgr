@@ -1,0 +1,21 @@
+[
+  {
+    "category": "luna",
+    "prefs": [ {
+      "group": "status bar",
+      "restart": "none",
+      "prefserv": "sysUiStatusBarSlide",
+      "label": "status bar item trigger",
+      "key": "statusbarslide",
+      "type": "ListSelector",
+      "value": 0,
+      "choices": [ {
+        "label": "Swipe",
+        "value": false
+      }, {
+        "label": "Slide",
+        "value": true
+      } ]
+    } ]
+  }
+]

@@ -16,9 +16,6 @@
 *
 * LICENSE@@@ */
 
-
-
-
 #ifndef STATUSBAR_H
 #define STATUSBAR_H
 
@@ -38,10 +35,13 @@
 
 class StatusBarClock;
 class StatusBarBattery;
+class StatusBarSearch;
+class StatusBarSeparator;
 class StatusBarTitle;
 class StatusBarServicesConnector;
 class StatusBarInfo;
 class StatusBarNotificationArea;
+class StatusBarVersion;
 class StatusBarItemGroup;
 
 class StatusBar : public QGraphicsObject
@@ -166,6 +166,7 @@ private Q_SLOTS:
 	void slotChildBoundingRectChanged();
 	void slotNotificationArealVisibilityChanged(bool visible);
 	void slotBannerMessageActivated();
+	void slotSearchMenuAction();
 	void slotNotificationMenuAction(bool active);
 	void slotSystemMenuMenuAction(bool active);
 	void slotAppMenuMenuAction(bool active);
@@ -173,6 +174,7 @@ private Q_SLOTS:
 	void slotBannerDeactivated();
 	void slotMenuGroupActivated(StatusBarItemGroup* group);
 	void slotDockModeStatusChanged(bool enabled);
+	void slotDeviceNameChanged(std::string deviceName);
 
 private:
 
@@ -196,14 +198,18 @@ private:
 	StatusBar::IndexRSSI1x  m_rssi1xIndex;
 
 	StatusBarClock*            m_clock;
+	StatusBarSearch*           m_search;
+	StatusBarSeparator*        m_separator;
 	StatusBarBattery*          m_battery;
 	StatusBarTitle*            m_title;
 	StatusBarInfo*             m_infoItems;
 	StatusBarNotificationArea* m_notif;
+	StatusBarVersion*		   m_version;
 
 	StatusBarItemGroup* m_systemUiGroup;
 	StatusBarItemGroup* m_titleGroup;
 	StatusBarItemGroup* m_notifGroup;
+	StatusBarItemGroup* m_searchGroup;
 
 	StatusBarServicesConnector* m_svcConnector;
 
@@ -211,6 +217,7 @@ private:
 	std::string m_carrierText;
 	std::string m_appTitle;
 	bool m_appMaximized;
+	bool m_deviceNameAsAppTitle;
 	bool m_forceOpaque;
 	bool m_showAppTitle;
 

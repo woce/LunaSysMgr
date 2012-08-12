@@ -252,6 +252,7 @@ SOURCES = \
 	CardGroup.cpp \
 	KeyboardMapping.cpp \
 	SingleClickGestureRecognizer.cpp \
+	ScreenEdgeSlideGestureRecognizer.cpp \
 	BootupAnimation.cpp \
 	ProgressAnimation.cpp \
 	CardHostWindow.cpp \
@@ -265,12 +266,15 @@ SOURCES = \
 	StatusBar.cpp \
 	StatusBarClock.cpp \
 	StatusBarBattery.cpp \
+	StatusBarSearch.cpp \
+	StatusBarSeparator.cpp \
 	StatusBarTitle.cpp \
 	StatusBarServicesConnector.cpp \
 	StatusBarIcon.cpp \
 	StatusBarInfo.cpp \
 	StatusBarItemGroup.cpp \
 	StatusBarNotificationArea.cpp \
+	StatusBarVersion.cpp \
 	SystemMenu.cpp \
 	BtDeviceClass.cpp \
 	IMEManager.cpp \
@@ -440,7 +444,9 @@ HEADERS = \
 	CardGroup.h \
 	KeyboardMapping.h \
 	SingleClickGestureRecognizer.h \
+	ScreenEdgeSlideGestureRecognizer.h \
 	SingleClickGesture.h \
+	ScreenEdgeSlideGesture.h \
 	BootupAnimation.h \
 	ProgressAnimation.h \
 	CardHostWindow.h \
@@ -454,6 +460,8 @@ HEADERS = \
 	StatusBar.h \
 	StatusBarClock.h \
 	StatusBarBattery.h \
+	StatusBarSearch.h \
+	StatusBarSeparator.h \
 	StatusBarTitle.h \
 	StatusBarServicesConnector.h \
 	StatusBarIcon.h \
@@ -461,6 +469,7 @@ HEADERS = \
 	StatusBarItem.h \
 	StatusBarItemGroup.h \
 	StatusBarNotificationArea.h \
+	StatusBarVersion.h \
 	SystemMenu.h \
 	BtDeviceClass.h \
 	IMEManager.h \

@@ -1462,8 +1462,6 @@ void CardWindowManager::handleMouseMoveMinimized(QGraphicsSceneMouseEvent* event
 
 			m_movement = MovementVLocked;
 		}
-
-		diff = delta;
 	}
 	else {
 
@@ -1521,7 +1519,8 @@ void CardWindowManager::handleMouseMoveMinimized(QGraphicsSceneMouseEvent* event
 
 		// cards are always offset from the parents origin
 		CardWindow::Position pos = m_draggedWin->position();
-		pos.trans.setY(delta.y());
+		//Set Y position to the current position + amount moved
+		pos.trans.setY(pos.trans.y() + diff.y());
 		m_draggedWin->setPosition(pos);
 	}
 }

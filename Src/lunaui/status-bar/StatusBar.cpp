@@ -16,19 +16,21 @@
 *
 * LICENSE@@@ */
 
-
-
+//TODO: Fix focusing with status bar search
 
 #include "StatusBar.h"
 #include "Settings.h"
 #include "Preferences.h"
 #include "SystemService.h"
 #include "StatusBarTitle.h"
+#include "StatusBarSearch.h"
+#include "StatusBarSeparator.h"
 #include "StatusBarClock.h"
 #include "StatusBarBattery.h"
 #include "StatusBarInfo.h"
 #include "StatusBarItem.h"
 #include "StatusBarNotificationArea.h"
+#include "StatusBarVersion.h"
 #include "StatusBarItemGroup.h"
 #include "StatusBarServicesConnector.h"
 #include "AnimationSettings.h"
@@ -38,14 +40,17 @@
 #include "DockModeMenuManager.h"
 #include "DashboardWindowContainer.h"
 #include "SystemUiController.h"
+#include "Preferences.h"
 
 
 #include <QPainter>
 #include <QGesture>
 #include <QGestureEvent>
 
+//Comment this out to hide the version number
+#define DEBUG_VERSION
+
 QColor StatusBar::s_defaultColor = QColor(0x51, 0x55, 0x58, 0xFF);
-static const std::string kDefaultCarrierName = "HP webOS";
 
 StatusBar::StatusBar(StatusBarType type, int width, int height)
 	: m_type(type)
@@ -60,20 +65,29 @@ StatusBar::StatusBar(StatusBarType type, int width, int height)
 	, m_bkgPixmap(0)
 	, m_battery(0)
 	, m_clock(0)
+	, m_search(0)
+	, m_separator(0)
 	, m_title(0)
 	, m_infoItems(0)
 	, m_notif(0)
+#ifdef DEBUG_VERSION
+	, m_version(0)
+#endif
 	, m_systemUiGroup(0)
 	, m_titleGroup(0)
 	, m_notifGroup(0)
+	, m_searchGroup(0)
 	, m_forceOpaque(false)
 	, m_platformHasPhoneRadio(false)
 {
-	m_carrierText = kDefaultCarrierName;
+	m_carrierText = Preferences::instance()->deviceName();
+	m_deviceNameAsAppTitle = true;
+    connect(Preferences::instance(), SIGNAL(signalDeviceNameChanged(std::string)), this, SLOT(slotDeviceNameChanged(std::string)));
 	m_appTitle = " ";
 
 	m_bounds = QRect(-width/2, -height/2, width, height);
 
+	//If the status bar isn't in an emulated card, create topbar items
 	if (m_type != TypeEmulatedCard)
 	{
 		// Charging icon
@@ -82,15 +96,26 @@ StatusBar::StatusBar(StatusBarType type, int width, int height)
 		unsigned int clockPadding = 0;
 		if(m_type == TypeDockMode)
 			clockPadding = 5;
-
+		
 		// Text for clock
 		m_clock = new StatusBarClock(clockPadding);
 
 		m_infoItems = new StatusBarInfo(m_type);
+
+		//Search Icon & Separator
+		m_search = new StatusBarSearch();
+		m_separator = new StatusBarSeparator();
 	}
+	
 	// Title Bar (a value of true on the third arg turns on non-tablet UI)
 	m_title = new StatusBarTitle(Settings::LunaSettings()->statusBarTitleMaxWidth, height, m_type == TypeEmulatedCard);
+	
+#ifdef DEBUG_VERSION
+	// Version Text
+	m_version = new StatusBarVersion(5);
+#endif
 
+	//If we're on a tablet and not in an emulated card
 	if(Settings::LunaSettings()->tabletUi && m_type != TypeEmulatedCard) {
 		m_systemUiGroup = new StatusBarItemGroup(height, (m_type == TypeNormal || m_type == TypeDockMode), (m_type == TypeNormal || m_type == TypeDockMode), StatusBarItemGroup::AlignRight);
 		connect(m_systemUiGroup, SIGNAL(signalBoundingRectChanged()), this, SLOT(slotChildBoundingRectChanged()));
@@ -103,8 +128,24 @@ StatusBar::StatusBar(StatusBarType type, int width, int height)
 			else 
 				m_systemUiGroup->addItem(m_clock);
 		}
+
 		m_systemUiGroup->addItem(m_battery);
 		m_systemUiGroup->addItem(m_infoItems);
+		
+		if(m_type != TypeLockScreen)
+		{
+			m_searchGroup = new StatusBarItemGroup(height, false, false, StatusBarItemGroup::AlignRight);
+			connect(m_searchGroup, SIGNAL(signalBoundingRectChanged()), this, SLOT(slotChildBoundingRectChanged()));
+			connect(m_searchGroup, SIGNAL(signalActivated(StatusBarItemGroup*)), this, SLOT(slotMenuGroupActivated(StatusBarItemGroup*)));
+			m_searchGroup->setParentItem(this);
+		
+			if(m_search && m_separator)
+			{
+				m_searchGroup->addItem(m_separator);
+				m_searchGroup->addItem(m_search);
+				m_searchGroup->addItem(m_separator);
+			}
+		}
 
 		m_titleGroup = new StatusBarItemGroup(height, (m_type == TypeNormal || m_type == TypeDockMode), (m_type == TypeNormal || m_type == TypeDockMode), StatusBarItemGroup::AlignLeft);
 		connect(m_titleGroup, SIGNAL(signalBoundingRectChanged()), this, SLOT(slotChildBoundingRectChanged()));
@@ -113,11 +154,16 @@ StatusBar::StatusBar(StatusBarType type, int width, int height)
 
 		m_titleGroup->addItem(m_title);
 
+#ifdef DEBUG_VERSION
+		m_version->setParentItem(this);
+#endif
+		
 		if(m_type == TypeNormal || m_type == TypeEmulatedCard || m_type == TypeDockMode || m_type == TypeFirstUse) {
 			m_titleGroup->setActionable(false);
 			connect(m_titleGroup, SIGNAL(signalActionTriggered(bool)), this, SLOT(slotAppMenuMenuAction(bool)));
 		}
 
+		//If we're in normal/dock mode
 		if(m_type == TypeNormal || m_type == TypeDockMode) {
 			m_notif = new StatusBarNotificationArea();
 			if (m_type == TypeNormal) {
@@ -142,12 +188,30 @@ StatusBar::StatusBar(StatusBarType type, int width, int height)
 
 			m_notifGroup->setActionable(true);
 			connect(m_notifGroup, SIGNAL(signalActionTriggered(bool)), this, SLOT(slotNotificationMenuAction(bool)));
+
+			m_searchGroup->setActionable(true);
+			connect(m_searchGroup, SIGNAL(signalActionTriggered(bool)), this, SLOT(slotSearchMenuAction()));
+
 		}
-	} else {
+	} else { //If we're on a phone or in an emulated card
 		if(m_clock)
 			m_clock->setParentItem(this);
 
-		if(m_type == TypeNormal || m_type == TypeDockMode) {
+		if(m_type == TypeNormal || m_type == TypeDockMode) { //Phone, Post-Firstuse
+				m_searchGroup = new StatusBarItemGroup(height, false, false, StatusBarItemGroup::AlignCenter);
+				if(m_searchGroup) {
+					m_searchGroup->setParentItem(this);
+					connect(m_searchGroup, SIGNAL(signalActionTriggered(bool)), this, SLOT(slotSearchMenuAction()));
+					m_searchGroup->setActionable(true);
+					
+					//Add two separators in phone UI for ease of activation
+					if(m_search)
+					{
+						m_searchGroup->addItem(m_separator);
+						m_searchGroup->addItem(m_search);
+						m_searchGroup->addItem(m_separator);
+					}
+				}
 			m_systemUiGroup = new StatusBarItemGroup(height, false, false, StatusBarItemGroup::AlignRight);
 			if(m_systemUiGroup) {
 				m_systemUiGroup->setParentItem(this);
@@ -159,7 +223,7 @@ StatusBar::StatusBar(StatusBarType type, int width, int height)
 					m_systemUiGroup->addItem(m_infoItems);
 			}
 		}
-		if (m_type == TypeNormal || m_type == TypeDockMode || m_type == TypeEmulatedCard || m_type == TypeFirstUse) {
+		if (m_type == TypeNormal || m_type == TypeDockMode || m_type == TypeEmulatedCard || m_type == TypeFirstUse) { //Phone, Emulated Card, Always
 			m_titleGroup    = new StatusBarItemGroup(height, m_type != TypeEmulatedCard, false, StatusBarItemGroup::AlignLeft);
 			if(m_titleGroup) {
 				m_titleGroup->setParentItem(this);
@@ -168,11 +232,13 @@ StatusBar::StatusBar(StatusBarType type, int width, int height)
 				if(m_title)
 					m_titleGroup->addItem(m_title);
 			}
-		} else {
+		} else { //Unknown m_type
 			if(m_battery)
 				m_battery->setParentItem(this);
 			if(m_title)
 				m_title->setParentItem(this);
+			if(m_search)
+				m_search->setParentItem(this);
 			if(m_infoItems)
 				m_infoItems->setParentItem(this);
 		}
@@ -194,12 +260,26 @@ StatusBar::~StatusBar()
 
 	if (m_title)
 		delete m_title;
-
+	
 	if (m_infoItems)
 		delete m_infoItems;
+	
+#ifdef DEBUG_VERSION
+	if (m_version)
+		delete m_version;
+#endif
 
 	if(m_systemUiGroup)
 		delete m_systemUiGroup;
+
+	if(m_searchGroup)
+		delete m_searchGroup;
+
+	if (m_search)
+		delete m_search;
+
+	if (m_separator)
+		delete m_separator;
 
 	if(m_titleGroup)
 		delete m_titleGroup;
@@ -391,6 +471,16 @@ void StatusBar::layout()
 {
 	if(Settings::LunaSettings()->tabletUi && m_type != TypeEmulatedCard) {
 		// Tablet UI layout
+		int versionOffset = 0;
+		
+		if(m_systemUiGroup)
+			versionOffset += m_systemUiGroup->boundingRect().width();
+		
+		if(m_systemUiGroup)
+			versionOffset -= m_systemUiGroup->separatorWidth()/2; // adjust it so it matches with the divider
+		
+		if(m_notifGroup)
+			versionOffset += m_notifGroup->boundingRect().width();
 
 		// This item is Left Aligned (The position  of the icon is the position of the LEFT EDGE of the bounding rect)
 		if(m_titleGroup)
@@ -417,6 +507,17 @@ void StatusBar::layout()
 
 			Q_EMIT signalDashboardAreaRightEdgeOffset(offset);
 		}
+		
+		if(m_searchGroup) {
+			m_searchGroup->setPos(m_bounds.width()/2 - versionOffset, 0);
+		}
+		
+#ifdef DEBUG_VERSION
+		if(m_version){
+			m_version->setPos(-versionOffset/2.5, 0);
+		}
+#endif
+		
 	} else {
 		// static layout (for Phone UI)
 		if(m_type == TypeNormal || m_type == TypeEmulatedCard || m_type == TypeFirstUse) {
@@ -425,9 +526,16 @@ void StatusBar::layout()
 				m_titleGroup->setPos(-m_bounds.width()/2, 0);
 
 			// This item is Right Aligned (The position  of the icon is the position of the RIGHT EDGE of the bounding rect)
+			if(m_searchGroup)
+				m_searchGroup->setPos(m_search->width()/2 + m_clock->width()/2, 0);
+
+			// This item is Right Aligned (The position  of the icon is the position of the RIGHT EDGE of the bounding rect)
 			if(m_systemUiGroup)
 				m_systemUiGroup->setPos(m_bounds.width()/2, 0);
 		} else {
+			if(m_search)
+				m_search->setPos(m_bounds.width() * 2, 0);
+				
 			if(m_battery)
 				m_battery->setPos (m_bounds.width()/2 - m_battery->width()/2, 0);
 
@@ -462,6 +570,9 @@ void StatusBar::resize(int w, int h)
 	if(m_notifGroup)
 		m_notifGroup->setHeight(h);
 
+	if(m_searchGroup)
+		m_searchGroup->setHeight(h);
+
 	layout();
 }
 
@@ -482,6 +593,7 @@ void StatusBar::setBarOpaque(bool opaque)
 void StatusBar::setMaximizedAppTitle(bool appMaximized, const char* title, const unsigned int customColor, bool appTitleActionable)
 {
 	m_appMaximized = appMaximized;
+	m_deviceNameAsAppTitle = false;
 
 	if(appMaximized) {
 		if (m_type != TypeDockMode) {
@@ -495,7 +607,10 @@ void StatusBar::setMaximizedAppTitle(bool appMaximized, const char* title, const
 				if(m_platformHasPhoneRadio)
 					m_title->setTitleString(m_carrierText, false);
 				else
-					m_title->setTitleString(kDefaultCarrierName, false);
+				{
+					m_title->setTitleString(Preferences::instance()->deviceName(), false);
+					m_deviceNameAsAppTitle = true;
+				}
 				setBackgroundColor(false);
 			} else if(!strcmp(title, "@CARRIER")) {
 				m_showAppTitle = false;
@@ -527,7 +642,10 @@ void StatusBar::setMaximizedAppTitle(bool appMaximized, const char* title, const
 		if(m_platformHasPhoneRadio)
 			m_title->setTitleString(m_carrierText, false);
 		else
-			m_title->setTitleString(kDefaultCarrierName, false);
+		{
+			m_title->setTitleString(Preferences::instance()->deviceName(), false);
+			m_deviceNameAsAppTitle = true;
+		}
 
 		if(m_titleGroup)
 			m_titleGroup->setActionable(false);
@@ -712,6 +830,15 @@ void StatusBar::slotBannerMessageActivated()
 	}
 }
 
+void StatusBar::slotSearchMenuAction()
+{
+	if(Preferences::instance()->sysUiEnableStatusBarSearch())
+	{
+		SystemUiController::instance()->showOrHideUniversalSearch(!SystemUiController::instance()->isUniversalSearchShown(), false, false);
+		SystemUiController::instance()->enterOrExitDockModeUi(false);
+	}
+}
+
 void StatusBar::slotNotificationMenuAction(bool active)
 {
 	if(m_notif && m_notif->handleBannerMsgTap()) // tap redirected to Banner Message Window
@@ -755,6 +882,8 @@ void StatusBar::slotMenuGroupActivated(StatusBarItemGroup* group)
 		m_titleGroup->actionTriggered();
 	if(m_notifGroup && (m_notifGroup != group) && (m_notifGroup->isActivated()))
 		m_notifGroup->actionTriggered();
+	if(m_searchGroup && (m_searchGroup != group) && (m_searchGroup->isActivated()))
+		m_searchGroup->actionTriggered();
 }
 
 void StatusBar::slotDockModeStatusChanged(bool enabled)
@@ -766,6 +895,14 @@ void StatusBar::slotDockModeStatusChanged(bool enabled)
 		else  {
 			m_notif->unregisterBannerView();
 		}
+	}
+}
+
+void StatusBar::slotDeviceNameChanged(std::string deviceName)
+{
+	if (m_deviceNameAsAppTitle)
+	{
+		m_title->setTitleString(deviceName, false);
 	}
 }
 
