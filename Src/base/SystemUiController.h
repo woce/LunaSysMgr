@@ -380,6 +380,8 @@ Q_SIGNALS:
 	void signalUiRotationCompleted();
 
 	void signalEmergencyModeWindowFocusChange(bool focus);
+	
+	void signalSideSwipe(bool direction);
 
 private Q_SLOTS:
 

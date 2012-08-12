@@ -48,6 +48,7 @@
 #include "IMEController.h"
 #include "EmulatedCardWindow.h"
 #include "ScreenEdgeFlickGesture.h"
+#include "ScreenEdgeSlideGesture.h"
 #include "SoundPlayerPool.h"
 #include "DashboardWindowManager.h"
 #include "StatusBarServicesConnector.h"
@@ -62,8 +63,6 @@ static const char* kSystemUiAppId = "com.palm.systemui";
 
 static const unsigned int s_statusBarLauncherColor = 0x4f545AFF;
 static const unsigned int s_statusBarJustTypeColor = 0x4f545AFF;
-
-static const int kFlickMinimumYLengthWithKeyboardUp = 60;
 
 SystemUiController* SystemUiController::instance()
 {
@@ -243,6 +242,50 @@ bool SystemUiController::handleEvent(QEvent *event)
 
 bool SystemUiController::handleMouseEvent(QMouseEvent *event)
 {
+	if(event->type() == QEvent::MouseButtonPress)
+	{
+		//Adhere to 'Enable Advanced Gestures' setting
+		if (!Preferences::instance()->sysUiEnableNextPrevGestures()) return false;
+
+		int xDown = event->pos().x();
+		int yDown = event->pos().y();
+
+		//Transform touch coordinates to match the screen orientation
+		switch (WindowServer::instance()->getUiOrientation())
+		{
+			case OrientationEvent::Orientation_Up: //Speakers Down
+				//Do nothing
+				break;
+			case OrientationEvent::Orientation_Down: //Speakers Up
+				xDown = (m_uiWidth-1) - xDown;
+				yDown = (m_uiHeight-1) - yDown;
+				break;
+			case OrientationEvent::Orientation_Left: //Speakers Right
+			{
+				int temp = (m_uiHeight-1) - xDown;
+				xDown = yDown;
+				yDown = temp;
+				break;
+			}
+			case OrientationEvent::Orientation_Right: //Speakers Left
+			{
+				int temp = xDown;
+				xDown = (m_uiWidth-1) - yDown;
+				yDown = temp;
+				break;
+			}
+			default:
+				g_warning("Unknown UI orientation");
+				return false;
+		}
+
+		//Eat mousedown events if they fall inside the gesture border
+		if (xDown <= kGestureBorderSize && yDown > m_statusBarPtr->boundingRect().height()) return true;
+		if (xDown >= (m_uiWidth-1) - kGestureBorderSize && yDown > m_statusBarPtr->boundingRect().height()) return true;
+		if (yDown >= (m_uiHeight-1) - kGestureBorderSize) return true;
+	}
+	
+	//Otherwise, let them through
 	return false;
 }
 
@@ -263,11 +306,24 @@ bool SystemUiController::handleGestureEvent (QGestureEvent* event)
 		}
 	}
 
-	if (!t) {
+	//If no tap has been detected and gestures are enabled
+	if (!t && Preferences::instance()->sysUiEnableNextPrevGestures() == true) {
 		if (Settings::LunaSettings()->uiType != Settings::UI_MINIMAL && !m_emergencyMode) {
+			//Screen-edge Flick Gestures
 			t = event->gesture((Qt::GestureType) SysMgrGestureScreenEdgeFlick);
-			if (t)
-				return handleScreenEdgeFlickGesture(t);
+			if (t && Preferences::instance()->sysUiSlideGestures() == 0)
+			{
+				handleScreenEdgeFlickGesture(t);
+				return true;
+			}
+			
+			//Screen-edge Slide Gestures
+			t = event->gesture((Qt::GestureType) GestureScreenEdgeSlide);
+			if (t && Preferences::instance()->sysUiSlideGestures() == 1)
+			{
+				handleScreenEdgeSlideGesture(t);
+				return true;
+			}
 		}
 	}
 	
@@ -2150,6 +2206,13 @@ void SystemUiController::handleSideFlick(bool next)
 	if (m_menuVisible) {
 		Q_EMIT signalHideMenu();
 	}
+	
+	if (Preferences::instance()->getTabbedCardsPreference() == true)
+	{
+		Q_EMIT signalSideSwipe(!next);
+		return;
+	}
+	
 	if (!m_launcherShown) {
 		Q_EMIT signalChangeCardWindow(next);
 	}
@@ -2197,4 +2260,95 @@ void SystemUiController::handleUpFlick(ScreenEdgeFlickGesture *g) {
 	}
 
 	Q_EMIT signalToggleLauncher();					
+}
+
+void SystemUiController::handleScreenEdgeSlideGesture(QGesture* gesture)
+{
+	ScreenEdgeSlideGesture* t = static_cast<ScreenEdgeSlideGesture*>(gesture);
+	
+	//Prevent double-firing with the keyboard open
+	if(t->state() != 1)
+		return;
+	
+	if(t->getEdge() == Left)
+	{
+		handleSideSlide(true);
+	}
+	if(t->getEdge() == Right)
+	{
+		handleSideSlide(false);
+	}
+	if(t->getEdge() == Bottom)
+	{
+		handleUpSlide();
+	}
+}
+
+void SystemUiController::handleUpSlide() {
+	//Close everything, go to card view. If already there, toggle the launcher.
+	
+	if (m_inDockMode) {
+		enterOrExitDockModeUi(false);
+		return;
+	}
+
+	if (m_deviceLocked)
+		return;
+
+	if (m_dashboardOpened) {
+		Q_EMIT signalCloseDashboard(true);
+	}
+
+	if (m_menuVisible) {
+		Q_EMIT signalHideMenu();
+	}
+
+	if (m_universalSearchShown) {
+		Q_EMIT signalHideUniversalSearch(false, false);
+		return;
+	}
+
+	if (m_launcherShown) {
+		Q_EMIT signalToggleLauncher();
+		return;
+	}
+
+	if ((m_activeCardWindow && m_maximizedCardWindow) || m_cardWindowAboutToMaximize) {
+		if (false == m_modalCardWindowActive)
+			Q_EMIT signalShowDock();
+
+		Q_EMIT signalMinimizeActiveCardWindow();
+		return;
+	}
+
+	Q_EMIT signalToggleLauncher();	
+}
+
+void SystemUiController::handleSideSlide(bool next) {
+	//Adhere to Enable App Switching Gestures
+	if (Preferences::instance()->sysUiEnableAppSwitchGestures() == false)
+		return;
+
+	if (m_deviceLocked)
+		return;
+
+	if (m_dashboardOpened) {
+		Q_EMIT signalCloseDashboard(true);
+	}
+
+	if (m_menuVisible) {
+		Q_EMIT signalHideMenu();
+	}
+	
+	if (Preferences::instance()->getTabbedCardsPreference() == true)
+	{
+		Q_EMIT signalSideSwipe(!next);
+		return;
+	}
+
+	//Switch to next/prev app based on next argument
+	
+	if (!m_launcherShown) {
+		Q_EMIT signalChangeCardWindow(next);
+	}
 }
