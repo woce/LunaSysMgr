@@ -38,6 +38,7 @@
 #include "Window.h"
 #include "WindowServer.h"
 #include "Utils.h"
+#include "Preferences.h"
 
 #include "CardWindowManagerStates.h"
 #include "CardGroup.h"
@@ -2025,6 +2026,9 @@ void CardWindowManager::handleTapGestureMinimized(QTapGesture* event)
 				// tapped to the right of the active group
 				switchToNextGroup();
 			}
+
+			if(Preferences::instance()->sysUiEnableMaximizeEdges())
+				maximizeActiveWindow();
 		}
 		else {
 
