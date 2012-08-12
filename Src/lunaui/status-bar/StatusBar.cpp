@@ -40,7 +40,6 @@
 #include "DockModeMenuManager.h"
 #include "DashboardWindowContainer.h"
 #include "SystemUiController.h"
-#include "Preferences.h"
 
 
 #include <QPainter>
@@ -51,6 +50,7 @@
 #define DEBUG_VERSION
 
 QColor StatusBar::s_defaultColor = QColor(0x51, 0x55, 0x58, 0xFF);
+static const std::string kDefaultCarrierName = "HP webOS";
 
 StatusBar::StatusBar(StatusBarType type, int width, int height)
 	: m_type(type)
@@ -80,9 +80,7 @@ StatusBar::StatusBar(StatusBarType type, int width, int height)
 	, m_forceOpaque(false)
 	, m_platformHasPhoneRadio(false)
 {
-	m_carrierText = Preferences::instance()->deviceName();
-	m_deviceNameAsAppTitle = true;
-    connect(Preferences::instance(), SIGNAL(signalDeviceNameChanged(std::string)), this, SLOT(slotDeviceNameChanged(std::string)));
+	m_carrierText = kDefaultCarrierName;
 	m_appTitle = " ";
 
 	m_bounds = QRect(-width/2, -height/2, width, height);
@@ -593,7 +591,6 @@ void StatusBar::setBarOpaque(bool opaque)
 void StatusBar::setMaximizedAppTitle(bool appMaximized, const char* title, const unsigned int customColor, bool appTitleActionable)
 {
 	m_appMaximized = appMaximized;
-	m_deviceNameAsAppTitle = false;
 
 	if(appMaximized) {
 		if (m_type != TypeDockMode) {
@@ -607,10 +604,7 @@ void StatusBar::setMaximizedAppTitle(bool appMaximized, const char* title, const
 				if(m_platformHasPhoneRadio)
 					m_title->setTitleString(m_carrierText, false);
 				else
-				{
-					m_title->setTitleString(Preferences::instance()->deviceName(), false);
-					m_deviceNameAsAppTitle = true;
-				}
+					m_title->setTitleString(kDefaultCarrierName, false);
 				setBackgroundColor(false);
 			} else if(!strcmp(title, "@CARRIER")) {
 				m_showAppTitle = false;
@@ -642,10 +636,7 @@ void StatusBar::setMaximizedAppTitle(bool appMaximized, const char* title, const
 		if(m_platformHasPhoneRadio)
 			m_title->setTitleString(m_carrierText, false);
 		else
-		{
-			m_title->setTitleString(Preferences::instance()->deviceName(), false);
-			m_deviceNameAsAppTitle = true;
-		}
+			m_title->setTitleString(kDefaultCarrierName, false);
 
 		if(m_titleGroup)
 			m_titleGroup->setActionable(false);
@@ -895,14 +886,6 @@ void StatusBar::slotDockModeStatusChanged(bool enabled)
 		else  {
 			m_notif->unregisterBannerView();
 		}
-	}
-}
-
-void StatusBar::slotDeviceNameChanged(std::string deviceName)
-{
-	if (m_deviceNameAsAppTitle)
-	{
-		m_title->setTitleString(deviceName, false);
 	}
 }
 
