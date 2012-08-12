@@ -28,9 +28,9 @@
 #include <QPainter>
 #include <glib.h>
 
-#define TEXT_BASELINE_OFFSET            (-2)
+#define TEXT_BASELINE_OFFSET            (-1)
 
-static const QString currentVersion = "UberLunah 4.0.0";
+static const QString currentVersion = "UberLunah 4.0.0 by WebOS Ports";
 
 StatusBarVersion::StatusBarVersion(unsigned int padding)
 	: m_font(0)
@@ -39,9 +39,15 @@ StatusBarVersion::StatusBarVersion(unsigned int padding)
 
 	// Set up text
 	const char* fontName = Settings::LunaSettings()->fontStatusBar.c_str();
-	m_font = new QFont(fontName, 15);
-	m_font->setPixelSize(15);
+	m_font = new QFont(fontName, 14);
+	m_font->setPixelSize(14);
 	
+	m_font->setLetterSpacing(QFont::PercentageSpacing, kStatusBarQtLetterSpacing);
+
+	if (m_font) {
+		m_font->setBold(true);
+	}
+
 	//Figure out & set bounds
 	QFontMetrics fontMetrics(*m_font);
 	m_textRect = fontMetrics.boundingRect(currentVersion);
@@ -79,7 +85,7 @@ void StatusBarVersion::paint(QPainter* painter, const QStyleOptionGraphicsItem* 
 	// paint the text
 	painter->setPen(QColor(0xFF, 0xFF, 0xFF, 0xFF));
 	
-	//Draw text, hardcoded to "3.0.5"
+	// Draw text
 	painter->drawText(QPointF(-m_textRect.width()/2, baseLine), currentVersion);
 
 	painter->setPen(oldPen);
