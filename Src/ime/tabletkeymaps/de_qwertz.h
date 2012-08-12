@@ -47,7 +47,10 @@ static TabletKeymap::constUKeyArray sMinusApostrophe_extended = { Qt::Key_Minus,
 										{ w, Qt::Key_7,			Qt::Key_Slash,							sDeQwertz7_extended },\
 										{ w, Qt::Key_8,			Qt::Key_ParenLeft,						sDeQwertz8_extended },\
 										{ w, Qt::Key_9,			Qt::Key_ParenRight,						sDeQwertz9_extended },\
-										{ w, Qt::Key_0,			Qt::Key_Equal,							sDeQwertz0_extended }
+										{ w, Qt::Key_0,			Qt::Key_Equal,							sDeQwertz0_extended },\
+										{ w, Qt::Key_Left,		Qt::Key_Up,							NULL },\
+										{ w, Qt::Key_Right,		Qt::Key_Down,							NULL }
+
 
 #define DE_QWERTZ_TOP_10(w)				{ w, Qt::Key_Q,			Qt::Key_QuoteLeft,						NULL },\
 										{ w, Qt::Key_W,			Qt::Key_AsciiTilde,						NULL },\
