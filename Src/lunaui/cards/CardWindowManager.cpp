@@ -2206,17 +2206,16 @@ void CardWindowManager::switchToPrevApp()
 		// couldn't move, switch to the previous group
 		int index = m_groups.indexOf(m_activeGroup);
 		if (index > 0) {
-
 			m_activeGroup = m_groups[index - 1];
             m_activeGroup->makeFrontCardActive();
+		}
     } else {
-      if (Preferences::instance()->getInfiniteCardCyclingPreference()) {
-        m_activeGroup = m_groups[m_groups.size()-1];
-        m_activeGroup->makeFrontCardActive();
-        if (m_groups.size() > 1) flyback = -1;
-      }
+		if (Preferences::instance()->getInfiniteCardCyclingPreference()) {
+		  m_activeGroup = m_groups[m_groups.size()-1];
+		  m_activeGroup->makeFrontCardActive();
+		  if (m_groups.size() > 1) flyback = -1;
+		}
     }
-	}
 			
     setActiveGroup(m_activeGroup);
 
@@ -2636,9 +2635,10 @@ void CardWindowManager::slideAllGroups(bool includeActiveCard, int flyback)
 	QPropertyAnimation* anim = new QPropertyAnimation(m_activeGroup, "x");
 	anim->setEasingCurve(AS_CURVE(cardSlideCurve));
 	anim->setDuration(AS(cardSlideDuration));
-	anim->setEndValue(0);
+	anim->setEndValue(animationTargetEnd);
 	setAnimationForGroup(m_activeGroup, anim);
-  if (flyback != 0) connect(anim,SIGNAL(finished()),this,SLOT(slotFinishFlyback()));
+	if (flyback != 0)
+		connect(anim,SIGNAL(finished()),this,SLOT(slotFinishFlyback()));
 
 	QList<QPropertyAnimation*> cardAnims = m_activeGroup->animateOpen(200, QEasingCurve::OutCubic, includeActiveCard);
 	Q_FOREACH(QPropertyAnimation* anim, cardAnims) {
