@@ -43,7 +43,10 @@ static TabletKeymap::constUKeyArray sSeDvorak0_extended = { Qt::Key_0, Qt::Key_P
 										{ w, Qt::Key_7,			Qt::Key_Ampersand,						sSeDvorak7_extended },\
 										{ w, Qt::Key_8,			Qt::Key_Asterisk,						sSeDvorak8_extended },\
 										{ w, Qt::Key_9,			Qt::Key_ParenLeft,						sSeDvorak9_extended },\
-										{ w, Qt::Key_0,			Qt::Key_ParenRight,						sSeDvorak0_extended }
+										{ w, Qt::Key_0,			Qt::Key_ParenRight,						sSeDvorak0_extended },\
+										{ w, Qt::Key_Left,		Qt::Key_Up,							    NULL },\
+										{ w, Qt::Key_Right,		Qt::Key_Down,							NULL }
+
 
 #define SE_DVORAK_TOP_10(w)				{ w, Qt::Key_Aring,		Qt::Key_section,						NULL },\
 										{ w, Qt::Key_Comma,		Qt::Key_Slash,							sCommaSlash_extended },\

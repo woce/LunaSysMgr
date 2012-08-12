@@ -51,7 +51,10 @@ static TabletKeymap::constUKeyArray sExclamAsterisk_extended = { Qt::Key_Exclam,
 										{ w, Qt::Key_Egrave,		Qt::Key_7,									sFrAzert7_extended },\
 										{ w, Qt::Key_ParenRight,	Qt::Key_8,									sFrAzert8_extended },\
 										{ w, Qt::Key_Ccedilla,		Qt::Key_9,									sFrAzert9_extended },\
-										{ w, Qt::Key_Agrave,		Qt::Key_0,									sFrAzert0_extended }
+										{ w, Qt::Key_Agrave,		Qt::Key_0,									sFrAzert0_extended },\
+										{ w, Qt::Key_Left,			Qt::Key_Up,									NULL },\
+										{ w, Qt::Key_Right,			Qt::Key_Down,								NULL }
+
 
 #define FR_AZERTY_TOP_10(w)				{ w, Qt::Key_A,				Qt::Key_AsciiTilde,							sA_extended },\
 										{ w, Qt::Key_Z,				Qt::Key_NumberSign,							sZ_extended },\
