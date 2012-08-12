@@ -471,6 +471,16 @@ void StatusBar::layout()
 {
 	if(Settings::LunaSettings()->tabletUi && m_type != TypeEmulatedCard) {
 		// Tablet UI layout
+		int versionOffset = 0;
+		
+		if(m_systemUiGroup)
+			versionOffset += m_systemUiGroup->boundingRect().width();
+		
+		if(m_systemUiGroup)
+			versionOffset -= m_systemUiGroup->separatorWidth()/2; // adjust it so it matches with the divider
+		
+		if(m_notifGroup)
+			versionOffset += m_notifGroup->boundingRect().width();
 
 		// This item is Left Aligned (The position  of the icon is the position of the LEFT EDGE of the bounding rect)
 		if(m_titleGroup)
@@ -479,11 +489,6 @@ void StatusBar::layout()
 		// This item is Right Aligned (The position  of the icon is the position of the RIGHT EDGE of the bounding rect)
 		if(m_systemUiGroup)
 			m_systemUiGroup->setPos(m_bounds.width()/2, 0);
-		
-#ifdef DEBUG_VERSION
-		if(m_version)
-			m_version->setPos(0, 0);
-#endif
 
 		if(m_type == TypeLockScreen && m_clock)
 			m_clock->setPos (0, 0);
@@ -504,19 +509,15 @@ void StatusBar::layout()
 		}
 		
 		if(m_searchGroup) {
-			int offset = 0;
-
-			if(m_systemUiGroup)
-				offset += m_systemUiGroup->boundingRect().width();
-
-			if(m_systemUiGroup)
-				offset -= m_systemUiGroup->separatorWidth()/2; // adjust it so it matches with the divider
-
-			if(m_notifGroup)
-				offset += m_notifGroup->boundingRect().width();
-
-			m_searchGroup->setPos(m_bounds.width()/2 - offset, 0);
+			m_searchGroup->setPos(m_bounds.width()/2 - versionOffset, 0);
 		}
+		
+#ifdef DEBUG_VERSION
+		if(m_version){
+			m_version->setPos(-versionOffset/2.5, 0);
+		}
+#endif
+		
 	} else {
 		// static layout (for Phone UI)
 		if(m_type == TypeNormal || m_type == TypeEmulatedCard || m_type == TypeFirstUse) {
