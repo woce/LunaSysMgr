@@ -68,7 +68,6 @@ Q_SIGNALS:
 
 private Q_SLOTS:
     void slotBluetoothKeyboardChanged(bool active);
-    void slotTouchesReleasedFromScreen();
 
 private:
     void hideIMEInternal();

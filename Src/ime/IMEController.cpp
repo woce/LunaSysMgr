@@ -47,9 +47,6 @@ IMEController::IMEController()
 
     connect(HostBase::instance(), SIGNAL(signalBluetoothKeyboardActive(bool)), 
         SLOT(slotBluetoothKeyboardChanged(bool)));
-
-    connect(WindowServer::instance(), SIGNAL(signalTouchesReleasedFromScreen()),
-        SLOT(slotTouchesReleasedFromScreen()));
 }
 
 void IMEController::setClient(InputClient* client)
@@ -114,9 +111,10 @@ void IMEController::hideIME()
 void IMEController::hideIMEInternal()
 {
     if (WindowServer::instance()->touchOnScreen()) {
-        m_pendingVisibility = PendingVisibilityHide;
+        m_pendingVisibility = PendingVisibilityNone;
     }
-    else if (m_imeOpened) {
+    
+	if (m_imeOpened) {
         m_imeOpened = false;
         Q_EMIT signalHideIME();
     }
@@ -125,18 +123,17 @@ void IMEController::hideIMEInternal()
 void IMEController::showIMEInternal()
 {
     if (WindowServer::instance()->touchOnScreen()) {
-        m_pendingVisibility = PendingVisibilityShow;
+        m_pendingVisibility = PendingVisibilityNone;
     }
-    else {
-        if (!m_imeOpened) {
-            m_imeOpened = true;
-            Q_EMIT signalShowIME();
-        }
+	
+	if (!m_imeOpened) {
+		m_imeOpened = true;
+		Q_EMIT signalShowIME();
+	}
 
-        if (m_client) {
-            Q_EMIT signalRestartInput(m_client->inputState());
-        }
-    }
+	if (m_client) {
+		Q_EMIT signalRestartInput(m_client->inputState());
+	}
 }
 
 void IMEController::notifyInputFocusChange(InputClient* client, bool focused)
@@ -171,20 +168,6 @@ void IMEController::slotBluetoothKeyboardChanged(bool active)
 #if !defined(TARGET_EMULATOR)
     setIMEActive(!active);
 #endif
-}
-
-void IMEController::slotTouchesReleasedFromScreen()
-{
-    if (m_pendingVisibility == PendingVisibilityHide) {
-
-        m_pendingVisibility = PendingVisibilityNone;
-        hideIMEInternal();
-    }
-    else if (m_pendingVisibility == PendingVisibilityShow) {
-
-        m_pendingVisibility = PendingVisibilityNone;
-        showIMEInternal();
-    }
 }
 
 void IMEController::setIMEActive(bool active)
