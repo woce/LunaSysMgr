@@ -407,6 +407,9 @@ private:
 	bool handleScreenEdgeFlickGesture(QGesture* gesture);
 	void handleSideFlick(bool next);
 	void handleUpFlick(ScreenEdgeFlickGesture *g);
+	void handleScreenEdgeSlideGesture(QGesture* gesture);
+	void handleSideSlide(bool next);
+	void handleUpSlide();
 
 	Window* m_parentOfModalWindow;
 	Window* m_activeCardWindow;
