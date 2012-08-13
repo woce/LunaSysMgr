@@ -151,15 +151,16 @@ StatusBar::StatusBar(StatusBarType type, int width, int height)
 		m_titleGroup->setParentItem(this);
 
 		m_titleGroup->addItem(m_title);
-
-#ifdef DEBUG_VERSION
-		m_version->setParentItem(this);
-#endif
 		
 		if(m_type == TypeNormal || m_type == TypeEmulatedCard || m_type == TypeDockMode || m_type == TypeFirstUse) {
 			m_titleGroup->setActionable(false);
 			connect(m_titleGroup, SIGNAL(signalActionTriggered(bool)), this, SLOT(slotAppMenuMenuAction(bool)));
 		}
+		
+#ifdef DEBUG_VERSION
+		if(m_version)
+			m_version->setParentItem(this);
+#endif
 
 		//If we're in normal/dock mode
 		if(m_type == TypeNormal || m_type == TypeDockMode) {
@@ -512,7 +513,10 @@ void StatusBar::layout()
 		
 #ifdef DEBUG_VERSION
 		if(m_version){
-			m_version->setPos(-versionOffset/2.5, 0);
+			if(m_type == TypeLockScreen)
+				m_version->setPos(-m_bounds.width()/5, 0);
+			else
+				m_version->setPos(-versionOffset/2.5, 0);
 		}
 #endif
 		
