@@ -3305,41 +3305,64 @@ void CardWindowManager::slotChangeCardWindow(bool next)
 
 void CardWindowManager::slotSideSwipe(bool direction)
 {
-  if (m_curState == m_maximizeState)  {
-    if (m_activeGroup->cards().size() == 1)  {
-      // Change Card Window
-		if (m_curState) {
-		  m_curState->changeCardWindow(!direction);
+	qCritical() << direction;
+	
+	//Minimized
+	if (m_curState == m_minimizeState)  {
+		if(direction)
+			switchToNextGroup();
+		else
+			switchToPrevGroup();
+		return;
+	}
+	
+	//Maximized
+	if (m_curState == m_maximizeState)  {
+		//Single card
+		if (m_activeGroup->cards().size() == 1)  {
+			if (m_curState) {
+				// Change Card Window
+				slotMinimizeActiveCardWindow();
+				
+				if(direction)
+					switchToNextGroup();
+				else
+					switchToPrevGroup();
+				
+				slotMaximizeActiveCardWindow();
+			}
 		}
-		
-    } else {
-
-      if (Preferences::instance()->getTabbedCardsPreference())  {
-        m_groupShift = 0; // Perhaps this can be smarter.
-        m_groupDir = direction;
-        Q_EMIT signalGroupWindow();
-        showGroupCards(direction);
-      }
-
-    }
-    return;
-  }
-  if (m_curState == m_minimizeState)  {
-		  m_curState->changeCardWindow(!direction);
-		  return;
-  }
-  if (m_curState == m_groupState) {
-	  if (m_groupDir == direction) {
-		  slotMaximizeActiveCardWindow();
-		  m_curState->changeCardWindow(!direction);
-		  if(m_activeGroup != m_groups.first() || m_activeGroup != m_groups.last())
-			  m_curState->changeCardWindow(!direction);
-     } else {
-        m_groupDir = direction;
-        showGroupCards(direction);
-     }
-     return;
-  }
+		//Stack
+		else
+		{
+			if (Preferences::instance()->getTabbedCardsPreference())  {
+				m_groupShift = 0; // Perhaps this can be smarter.
+				m_groupDir = direction;
+				Q_EMIT signalGroupWindow();
+				showGroupCards(direction);
+			}
+		}
+		return;
+	}
+	
+	//Grouped
+	if (m_curState == m_groupState) {
+		if (m_groupDir == direction) //Swiped in from the tab side
+		{
+			if(direction)
+				switchToNextGroup();
+			else
+				switchToPrevGroup();
+			
+			slotMaximizeActiveCardWindow();
+		}
+		else //Swiped in from the big card side
+		{
+			m_groupDir = direction;
+			showGroupCards(direction);
+		}
+		return;
+	}
 }
 
 
