@@ -100,20 +100,14 @@ void IMEController::performEditorAction(PalmIME::FieldAction action)
 
 void IMEController::hideIME()
 {
-    if (m_client && !HostBase::instance()->bluetoothKeyboardActive()) {
+    if (m_client && !HostBase::instance()->bluetoothKeyboardActive())
         m_client->removeInputFocus();
-    }
-    else {
-        hideIMEInternal();
-    }
+	
+	hideIMEInternal();
 }
 
 void IMEController::hideIMEInternal()
 {
-    if (WindowServer::instance()->touchOnScreen()) {
-        m_pendingVisibility = PendingVisibilityNone;
-    }
-    
 	if (m_imeOpened) {
         m_imeOpened = false;
         Q_EMIT signalHideIME();
@@ -122,10 +116,6 @@ void IMEController::hideIMEInternal()
 
 void IMEController::showIMEInternal()
 {
-    if (WindowServer::instance()->touchOnScreen()) {
-        m_pendingVisibility = PendingVisibilityNone;
-    }
-	
 	if (!m_imeOpened) {
 		m_imeOpened = true;
 		Q_EMIT signalShowIME();
