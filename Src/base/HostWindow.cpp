@@ -306,9 +306,6 @@ void HostWindow::onEditorFocusChanged(bool focused, const PalmIME::EditorState& 
 {
 	g_debug("IME: Window got focus change in sysmgr %s focused: %d, fieldtype: %d, fieldactions: 0x%02x", 
 			 appId().c_str(), focused, state.type, state.actions);
-	// cache input focus state for this window
-	setInputFocus(focused);
-	setInputState(state);
 
 	IMEController::instance()->notifyInputFocusChange(this, focused);
 }
