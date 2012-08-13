@@ -3307,18 +3307,11 @@ void CardWindowManager::slotSideSwipe(bool direction)
 {
   if (m_curState == m_maximizeState)  {
     if (m_activeGroup->cards().size() == 1)  {
-      if (Preferences::instance()->getTabbedCardsPreference())  {
-        slotMinimizeActiveCardWindow();
-      }
-      // MINIMIZE
-      /*
-      if (m_groups.size() == 1)  {
-        slotMinimizeActiveCardWindow();
-      } else {
-        if (m_curState) {
-          m_curState->changeCardWindow(!direction);
-        }
-      }*/
+      // Change Card Window
+		if (m_curState) {
+		  m_curState->changeCardWindow(!direction);
+		}
+		
     } else {
 
       if (Preferences::instance()->getTabbedCardsPreference())  {
@@ -3332,16 +3325,15 @@ void CardWindowManager::slotSideSwipe(bool direction)
     return;
   }
   if (m_curState == m_minimizeState)  {
-      m_curState->changeCardWindow(!direction);
-      return;
+		  m_curState->changeCardWindow(!direction);
+		  return;
   }
   if (m_curState == m_groupState) {
-     if (m_groupDir == direction) {
-        //Q_EMIT signalMaximizeActiveWindow();
-        if (direction == false) m_activeGroup->makeBackCardActive();
-        else m_activeGroup->makeFrontCardActive();
-
-        slotMinimizeActiveCardWindow();
+	  if (m_groupDir == direction) {
+		  slotMaximizeActiveCardWindow();
+		  m_curState->changeCardWindow(!direction);
+		  if(m_activeGroup != m_groups.first() || m_activeGroup != m_groups.last())
+			  m_curState->changeCardWindow(!direction);
      } else {
         m_groupDir = direction;
         showGroupCards(direction);
