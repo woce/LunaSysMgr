@@ -106,19 +106,19 @@ QGestureRecognizer::Result ScreenEdgeSlideGestureRecognizer::recognize(QGesture 
 				
 				//Figure out what edge we're on and output some values
 				if (event->type() == QEvent::TouchUpdate) {
-					if(delta.x() >= triggerDistance && abs(delta.x()) >= abs(delta.y()))
+					if(startPos.x() < kGestureBorderSize && delta.x() >= triggerDistance && abs(delta.x()) >= abs(delta.y()))
 					{
 						q->setEdge(Left);
 						q->setFired(true);
 						result = QGestureRecognizer::FinishGesture;
 					}
-					if(delta.x() <= -triggerDistance && abs(delta.x()) >= abs(delta.y()))
+					if(startPos.x() > displayBounds.x() - kGestureBorderSize && delta.x() <= -triggerDistance && abs(delta.x()) >= abs(delta.y()))
 					{
 						q->setEdge(Right);
 						q->setFired(true);
 						result = QGestureRecognizer::FinishGesture;
 					}
-					if(delta.y() <= -triggerDistance && abs(delta.y()) >= abs(delta.x()))
+					if(startPos.y() > displayBounds.y() - kGestureBorderSize && delta.y() <= -triggerDistance && abs(delta.y()) >= abs(delta.x()))
 					{
 						q->setEdge(Bottom);
 						q->setFired(true);
