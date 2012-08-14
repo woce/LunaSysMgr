@@ -60,10 +60,10 @@ public:
 
 	bool sysUiNoHomeButtonMode() const { return m_sysUiNoHomeButtonMode; }
 	bool sysUiEnableNextPrevGestures() const { return m_sysUiEnableNextPrevGestures; }
+	int sysUiGestureDetection() const { return m_sysUiGestureDetection; }
+	bool sysUiEnableAppSwitchGestures() const { return m_sysUiEnableAppSwitchGestures; }
 	bool sysUiStatusBarSlide() const { return m_sysUiStatusBarSlide; }
 	bool sysUiEnableStatusBarSearch() const { return m_sysUiEnableStatusBarSearch; }
-	bool sysUiSlideGestures() const { return m_sysUiSlideGestures; }
-	bool sysUiEnableAppSwitchGestures() const { return m_sysUiEnableAppSwitchGestures; }
 	bool sysUiEnableMaximizeEdges() const { return m_sysUiEnableMaximizeEdges; }
 
 	bool imeEnabled() const { return m_imeEnabled; }
@@ -138,10 +138,10 @@ private:
 
 	bool m_sysUiNoHomeButtonMode;
 	bool m_sysUiEnableNextPrevGestures;
+	int m_sysUiGestureDetection;
+	bool m_sysUiEnableAppSwitchGestures;
 	bool m_sysUiStatusBarSlide;
 	bool m_sysUiEnableStatusBarSearch;
-	bool m_sysUiSlideGestures;
-	bool m_sysUiEnableAppSwitchGestures;
 	bool m_sysUiEnableMaximizeEdges;
 
 	bool m_imeEnabled;

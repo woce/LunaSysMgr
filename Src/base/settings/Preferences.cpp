@@ -65,10 +65,10 @@ Preferences::Preferences()
 	, m_playFeedbackSounds(true)
 	, m_sysUiNoHomeButtonMode(true)
 	, m_sysUiEnableNextPrevGestures(false)
+	, m_sysUiEnableAppSwitchGestures(false)
+	, m_sysUiGestureDetection(0)
 	, m_sysUiStatusBarSlide(false)
 	, m_sysUiEnableStatusBarSearch(false)
-	, m_sysUiSlideGestures(false)
-	, m_sysUiEnableAppSwitchGestures(false)
 	, m_sysUiEnableMaximizeEdges(false)
 	, m_lockTimeout(0)
 	, m_lsHandle(0)
@@ -577,6 +577,7 @@ bool Preferences::serverConnectCallback(LSHandle *sh, LSMessage *message, void *
 													   \"sysUiSlideGestures\", \
 													   \"sysUiEnableAppSwitchGestures\", \
 													   \"sysUiEnableMaximizeEdges\", \
+													   \"sysUiGestureDetection\", \
 													   \"airplaneMode\", \
 													   \"hideWANAlert\", \
 													   \"roamingIndicator\", \
@@ -855,18 +856,18 @@ bool Preferences::getPreferencesCallback(LSHandle *sh, LSMessage *message, void 
 		}
 	}
 	
-	label = json_object_object_get(json, "sysUiSlideGestures");
-	if (label && !is_error(label)) {
-		
-		if (prefObjPtr)
-			prefObjPtr->m_sysUiSlideGestures = json_object_get_int(label);
-	}
-	
 	label = json_object_object_get(json, "sysUiEnableAppSwitchGestures");
 	if (label && !is_error(label)) {
 		
 		if (prefObjPtr)
-			prefObjPtr->m_sysUiEnableAppSwitchGestures = json_object_get_int(label);
+			prefObjPtr->m_sysUiEnableAppSwitchGestures = json_object_get_boolean(label);
+	}
+	
+	label = json_object_object_get(json, "sysUiGestureDetection");
+	if (label && !is_error(label)) {
+		
+		if (prefObjPtr)
+			prefObjPtr->m_sysUiGestureDetection = json_object_get_int(label);
 	}
 	
 	label = json_object_object_get(json, "sysUiEnableMaximizeEdges");

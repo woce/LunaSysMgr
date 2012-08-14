@@ -90,6 +90,7 @@
 #include "NativeAlertManager.h"
 #include "SingleClickGestureRecognizer.h"
 #include "ScreenEdgeSlideGestureRecognizer.h"
+#include "CardSwitchGestureRecognizer.h"
 #include "QtUtils.h"
 
 
@@ -426,6 +427,7 @@ WindowServer::WindowServer()
 
 	QGestureRecognizer::registerRecognizer(new SingleClickGestureRecognizer);
 	QGestureRecognizer::registerRecognizer(new ScreenEdgeSlideGestureRecognizer);
+	QGestureRecognizer::registerRecognizer(new CardSwitchGestureRecognizer);
 
 	viewportWidget->setAttribute(Qt::WA_AcceptTouchEvents);
 	viewportWidget->setAttribute(Qt::WA_OpaquePaintEvent, true);
@@ -462,6 +464,7 @@ WindowServer::WindowServer()
 	viewportWidget->grabGesture((Qt::GestureType) SysMgrGestureSingleClick);
 	viewportWidget->grabGesture((Qt::GestureType) SysMgrGestureScreenEdgeFlick);
 	viewportWidget->grabGesture((Qt::GestureType) GestureScreenEdgeSlide);
+	viewportWidget->grabGesture((Qt::GestureType) GestureCardSwitch);
 
 	m_uiRootItem.setBoundingRect(QRectF(-SystemUiController::instance()->currentUiWidth()/2, -SystemUiController::instance()->currentUiHeight()/2,
 						         SystemUiController::instance()->currentUiWidth(), SystemUiController::instance()->currentUiHeight()));

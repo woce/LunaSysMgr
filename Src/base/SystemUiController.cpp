@@ -49,6 +49,7 @@
 #include "EmulatedCardWindow.h"
 #include "ScreenEdgeFlickGesture.h"
 #include "ScreenEdgeSlideGesture.h"
+#include "CardSwitchGesture.h"
 #include "SoundPlayerPool.h"
 #include "DashboardWindowManager.h"
 #include "StatusBarServicesConnector.h"
@@ -85,6 +86,7 @@ SystemUiController::SystemUiController()
     m_modalWindowDismissErr = DismissUnknown;
 	m_cardWindowAboutToMaximize = false;
 	m_cardWindowMaximized = false;
+    m_switchCards = false;
 	m_dashboardOpened = false;
 	m_dashboardSoftDismissable = true;
 	m_dashboardHasContent = false;
@@ -306,12 +308,14 @@ bool SystemUiController::handleGestureEvent (QGestureEvent* event)
 		}
 	}
 
+	qCritical() << Preferences::instance()->sysUiGestureDetection();
+	
 	//If no tap has been detected and gestures are enabled
 	if (!t && Preferences::instance()->sysUiEnableNextPrevGestures() == true) {
 		if (Settings::LunaSettings()->uiType != Settings::UI_MINIMAL && !m_emergencyMode) {
 			//Screen-edge Flick Gestures
 			t = event->gesture((Qt::GestureType) SysMgrGestureScreenEdgeFlick);
-			if (t && Preferences::instance()->sysUiSlideGestures() == 0)
+			if (t && Preferences::instance()->sysUiGestureDetection() == 0)
 			{
 				handleScreenEdgeFlickGesture(t);
 				return true;
@@ -319,9 +323,17 @@ bool SystemUiController::handleGestureEvent (QGestureEvent* event)
 			
 			//Screen-edge Slide Gestures
 			t = event->gesture((Qt::GestureType) GestureScreenEdgeSlide);
-			if (t && Preferences::instance()->sysUiSlideGestures() == 1)
+			if (t && Preferences::instance()->sysUiGestureDetection() == 1)
 			{
 				handleScreenEdgeSlideGesture(t);
+				return true;
+			}
+			
+			//Fluid Card switch gesture
+			t = event->gesture((Qt::GestureType) GestureCardSwitch);
+			if (t && Preferences::instance()->sysUiGestureDetection() == 2)
+			{
+				handleCardSwitchGesture(event);
 				return true;
 			}
 		}
@@ -613,6 +625,10 @@ bool SystemUiController::handleKeyEvent(QKeyEvent *event)
 
 				return true;
 			}
+            
+            if (m_switchCards) {
+                Q_EMIT signalMaximizeActiveCardWindow();
+            }
 
             // the auto repeat flag set on the Home Key Release, signifies a Double Tap
             if (!event->isAutoRepeat()) {
@@ -2127,13 +2143,13 @@ bool SystemUiController::handleScreenEdgeFlickGesture(QGesture* gesture)
 			//g_warning("Orientation: Up");
 			switch(g->edge()) {
 				case ScreenEdgeFlickGesture::EdgeBottom: // Bottom
-					handleUpFlick(g);
+					handleUpSwipe();
 					return true;
 				case ScreenEdgeFlickGesture::EdgeTop: // Top
 					break;
 				case ScreenEdgeFlickGesture::EdgeLeft: // Left - fall thru to Right
 				case ScreenEdgeFlickGesture::EdgeRight: // Right
-					handleSideFlick(g->edge() != ScreenEdgeFlickGesture::EdgeRight);
+					handleSideSwipe(g->edge() != ScreenEdgeFlickGesture::EdgeRight);
 					return true;
 				case ScreenEdgeFlickGesture::EdgeUnknown:
 					break;
@@ -2145,11 +2161,11 @@ bool SystemUiController::handleScreenEdgeFlickGesture(QGesture* gesture)
 				case ScreenEdgeFlickGesture::EdgeBottom: // Top
 					break;
 				case ScreenEdgeFlickGesture::EdgeTop: // Bottom
-					handleUpFlick(g);
+					handleUpSwipe();
 					return true;
 				case ScreenEdgeFlickGesture::EdgeLeft: // Right - fall thru to Left
 				case ScreenEdgeFlickGesture::EdgeRight: // Left
-					handleSideFlick(g->edge() != ScreenEdgeFlickGesture::EdgeLeft);
+					handleSideSwipe(g->edge() != ScreenEdgeFlickGesture::EdgeLeft);
 					return true;
 				case ScreenEdgeFlickGesture::EdgeUnknown:
 					break;
@@ -2160,10 +2176,10 @@ bool SystemUiController::handleScreenEdgeFlickGesture(QGesture* gesture)
 			switch(g->edge()) {
 				case ScreenEdgeFlickGesture::EdgeBottom: // Right - fall thru to Left
 				case ScreenEdgeFlickGesture::EdgeTop: // Left
-					handleSideFlick(g->edge() != ScreenEdgeFlickGesture::EdgeBottom);
+					handleSideSwipe(g->edge() != ScreenEdgeFlickGesture::EdgeBottom);
 					return true;
 				case ScreenEdgeFlickGesture::EdgeLeft: // Bottom
-					handleUpFlick(g);
+					handleUpSwipe();
 					return true;
 				case ScreenEdgeFlickGesture::EdgeRight: // Top
 					break;
@@ -2176,12 +2192,12 @@ bool SystemUiController::handleScreenEdgeFlickGesture(QGesture* gesture)
 			switch(g->edge()) {
 				case ScreenEdgeFlickGesture::EdgeBottom: // Left - fall thru to Right
 				case ScreenEdgeFlickGesture::EdgeTop: // Right
-					handleSideFlick(g->edge() != ScreenEdgeFlickGesture::EdgeTop);
+					handleSideSwipe(g->edge() != ScreenEdgeFlickGesture::EdgeTop);
 					return true;
 				case ScreenEdgeFlickGesture::EdgeLeft: // Top
 					break;
 				case ScreenEdgeFlickGesture::EdgeRight:
-					handleUpFlick(g);
+					handleUpSwipe();
 					return true;
 				case ScreenEdgeFlickGesture::EdgeUnknown:
 					break;
@@ -2194,74 +2210,6 @@ bool SystemUiController::handleScreenEdgeFlickGesture(QGesture* gesture)
 	return false;
 }
 
-void SystemUiController::handleSideFlick(bool next)
-{
-	if(!Preferences::instance()->sysUiEnableAppSwitchGestures()) {
-		return;
-	}
-	if (m_dashboardOpened) {
-		g_warning ("%s: %d", __PRETTY_FUNCTION__, __LINE__);
-		Q_EMIT signalCloseDashboard(true);
-	}
-	if (m_menuVisible) {
-		Q_EMIT signalHideMenu();
-	}
-	
-	if (Preferences::instance()->getTabbedCardsPreference() == true)
-	{
-		Q_EMIT signalSideSwipe(!next);
-		return;
-	}
-	
-	if (!m_launcherShown) {
-		Q_EMIT signalChangeCardWindow(next);
-	}
-}
-
-void SystemUiController::handleUpFlick(ScreenEdgeFlickGesture *g) {
-	// enforce a larger minimum Y distance for the flick gesture when the keyboard is up
-	if(IMEController::instance()->isIMEOpened()) {
-		if(g->yDistance() < kFlickMinimumYLengthWithKeyboardUp)
-			return; // not long enough, so ignore it
-	}
-
-	if (m_inDockMode) {
-		enterOrExitDockModeUi(false);
-		return;
-	}
-
-	if (m_deviceLocked)
-		return;
-
-	if (m_dashboardOpened) {
-		Q_EMIT signalCloseDashboard(true);
-	}
-
-	if (m_menuVisible) {
-		Q_EMIT signalHideMenu();
-	}
-
-	if (m_universalSearchShown) {
-		Q_EMIT signalHideUniversalSearch(false, false);
-		return;
-	}
-		
-	if (m_launcherShown) {
-		Q_EMIT signalToggleLauncher();
-		return;
-	}
-
-	if ((m_activeCardWindow && m_maximizedCardWindow) || m_cardWindowAboutToMaximize) {
-		if (false == m_modalCardWindowActive)
-			Q_EMIT signalShowDock();
-		
-		Q_EMIT signalMinimizeActiveCardWindow();
-		return;
-	}
-
-	Q_EMIT signalToggleLauncher();					
-}
-
 void SystemUiController::handleScreenEdgeSlideGesture(QGesture* gesture)
 {
 	ScreenEdgeSlideGesture* t = static_cast<ScreenEdgeSlideGesture*>(gesture);
@@ -2272,70 +2220,69 @@ void SystemUiController::handleScreenEdgeSlideGesture(QGesture* gesture)
 	
 	if(t->getEdge() == Left)
 	{
-		handleSideSlide(true);
+		handleSideSwipe(true);
 	}
 	if(t->getEdge() == Right)
 	{
-		handleSideSlide(false);
+		handleSideSwipe(false);
 	}
 	if(t->getEdge() == Bottom)
 	{
-		handleUpSlide();
+		handleUpSwipe();
 	}
 }
 
-void SystemUiController::handleUpSlide() {
-	//Close everything, go to card view. If already there, toggle the launcher.
-	
+void SystemUiController::handleUpSwipe() {
 	if (m_inDockMode) {
 		enterOrExitDockModeUi(false);
 		return;
 	}
-
+	
 	if (m_deviceLocked)
 		return;
-
+	
 	if (m_dashboardOpened) {
 		Q_EMIT signalCloseDashboard(true);
 	}
-
+	
 	if (m_menuVisible) {
 		Q_EMIT signalHideMenu();
 	}
-
+	
 	if (m_universalSearchShown) {
 		Q_EMIT signalHideUniversalSearch(false, false);
 		return;
 	}
-
+	
 	if (m_launcherShown) {
 		Q_EMIT signalToggleLauncher();
 		return;
 	}
-
+	
 	if ((m_activeCardWindow && m_maximizedCardWindow) || m_cardWindowAboutToMaximize) {
 		if (false == m_modalCardWindowActive)
 			Q_EMIT signalShowDock();
-
+		
 		Q_EMIT signalMinimizeActiveCardWindow();
 		return;
 	}
-
-	Q_EMIT signalToggleLauncher();	
+	
+	Q_EMIT signalToggleLauncher();
 }
 
-void SystemUiController::handleSideSlide(bool next) {
+void SystemUiController::handleSideSwipe(bool next)
+{
 	//Adhere to Enable App Switching Gestures
 	if (Preferences::instance()->sysUiEnableAppSwitchGestures() == false)
 		return;
-
+	
 	if (m_deviceLocked)
 		return;
-
+	
 	if (m_dashboardOpened) {
 		Q_EMIT signalCloseDashboard(true);
 	}
-
+	
 	if (m_menuVisible) {
 		Q_EMIT signalHideMenu();
 	}
@@ -2345,10 +2292,34 @@ void SystemUiController::handleSideSlide(bool next) {
 		Q_EMIT signalSideSwipe(!next);
 		return;
 	}
-
+	
 	//Switch to next/prev app based on next argument
 	
 	if (!m_launcherShown) {
 		Q_EMIT signalChangeCardWindow(next);
 	}
+}
+
+void SystemUiController::handleCardSwitchGesture(QGestureEvent* event)
+{
+	QGesture* t = event->gesture((Qt::GestureType) GestureCardSwitch);
+    CardSwitchGesture* gesture = static_cast<CardSwitchGesture*>(t);
+    
+    if(gesture->state() == Qt::GestureStarted || gesture->state() == Qt::GestureUpdated)
+        m_switchCards = true;
+    else
+        m_switchCards = false;
+    
+	if (m_deviceLocked)
+		return;
+    
+	if (m_dashboardOpened) {
+		Q_EMIT signalCloseDashboard(true);
+	}
+    
+	if (m_menuVisible) {
+		Q_EMIT signalHideMenu();
+	}
+    
+    Q_EMIT signalSwitchCardEvent(event);
 }
