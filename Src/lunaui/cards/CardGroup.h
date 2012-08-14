@@ -42,6 +42,8 @@ class CardGroup : public QObject
 	Q_PROPERTY(QPointF pos READ pos WRITE setPos)
 	Q_PROPERTY(qreal x READ x WRITE setX)
 	Q_PROPERTY(qreal y READ y WRITE setY)
+	Q_PROPERTY(qreal curScale READ curScale WRITE setCurScale)
+	Q_PROPERTY(qreal nonCurScale READ nonCurScale WRITE setNonCurScale)
 
 public:
 
@@ -152,6 +154,16 @@ public:
 
 	qreal y() const { return m_pos.y(); }
 	void setY(const qreal& y);
+	
+	qreal curScale() const { return m_curScale; }
+	void setCurScale(const qreal& curScale) { m_curScale = curScale; }
+	
+	qreal nonCurScale() const { return m_nonCurScale; }
+	void setNonCurScale(const qreal& nonCurScale) { m_nonCurScale = nonCurScale; }
+    
+    bool switchMode() const { return m_switchMode; }
+    void setSwitchMode(bool switchMode) { m_switchMode = switchMode; }
+	
 	bool shouldMaximizeOrScroll(QPointF scenePt);
 	bool testHit(QPointF scenePt);
   int  testCardHit(QPointF scenePt); // Extended version of testHit
@@ -181,6 +193,7 @@ private:
 	// 1: 	3-4 cards with the second card being the center of the group
 	// N:	>4 cards where valid positions are between 1.0 and N - 4 + 1
 	qreal m_currentPosition;
+    bool m_switchMode;
 };
 
 Q_DECLARE_METATYPE(CardWindow::Position)

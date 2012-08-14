@@ -29,8 +29,8 @@
 
 #include <SysMgrDefs.h>
 
-enum Gesture {
-	GestureScreenEdgeSlide  = 0x0100 + 5
+enum SlideGesture {
+	GestureScreenEdgeSlide  = 0x0100 + 2
 };
 
 enum Edge {
