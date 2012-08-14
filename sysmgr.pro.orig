@@ -252,9 +252,12 @@ SOURCES = \
 	CardGroup.cpp \
 	KeyboardMapping.cpp \
 	SingleClickGestureRecognizer.cpp \
+<<<<<<< HEAD
 	ScreenEdgeSlideGestureRecognizer.cpp \
 	CardSwitchGestureRecognizer.cpp \
+=======
 	CardViewGestureRecognizer.cpp \
+>>>>>>> origin/maximized-upswipe
 	BootupAnimation.cpp \
 	ProgressAnimation.cpp \
 	CardHostWindow.cpp \
@@ -446,13 +449,17 @@ HEADERS = \
 	CardGroup.h \
 	KeyboardMapping.h \
 	SingleClickGestureRecognizer.h \
+<<<<<<< HEAD
 	ScreenEdgeSlideGestureRecognizer.h \
 	CardSwitchGestureRecognizer.h \
-	CardViewGestureRecognizer.h \
 	SingleClickGesture.h \
 	ScreenEdgeSlideGesture.h \
 	CardSwitchGesture.h \
+=======
+	CardViewGestureRecognizer.h \
+	SingleClickGesture.h \
 	CardViewGesture.h \
+>>>>>>> origin/maximized-upswipe
 	BootupAnimation.h \
 	ProgressAnimation.h \
 	CardHostWindow.h \

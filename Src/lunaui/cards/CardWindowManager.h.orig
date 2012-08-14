@@ -45,8 +45,11 @@ class PreparingState;
 class LoadingState;
 class FocusState;
 class ReorderState;
+<<<<<<< HEAD
 class SwitchState;
+=======
 class CardViewGestureState;
+>>>>>>> origin/maximized-upswipe
 
 QT_BEGIN_NAMESPACE
 class QTapGesture;
@@ -124,9 +127,11 @@ private Q_SLOTS:
 
 	void slotFocusMaximizedCardWindow(bool focus);
     
+<<<<<<< HEAD
 	void slotSwitchCardEvent(QGestureEvent* event);
-    
+=======
 	void slotCardViewGestureEvent(QGestureEvent* event);
+>>>>>>> origin/maximized-upswipe
 
     void slotTouchToShareAppUrlTransfered(const std::string& appId);
     void slotOpacityAnimationFinished();
@@ -147,10 +152,13 @@ Q_SIGNALS:
 	void signalMinimizeActiveWindow();
 	void signalEnterReorder(QPoint pt, int slice);
 	void signalExitReorder(bool canceled = true);
+<<<<<<< HEAD
 	void signalSwitchCardEvent(QGestureEvent* event);
 	void signalEnterSwitch();
+=======
 	void signalCardViewGestureEvent(QGestureEvent* event);
 	void signalEnterCardViewGestureState();
+>>>>>>> origin/maximized-upswipe
     void signalFirstCardRun();
     void signalGroupWindow();
 
@@ -167,9 +175,11 @@ private:
 	void handleMouseReleaseMinimized(QGraphicsSceneMouseEvent* event);
 	void handleMouseReleaseReorder(QGraphicsSceneMouseEvent* event);
     
+<<<<<<< HEAD
     void handleSwitchCard(QGestureEvent* event);
-    
+=======
     void handleCardViewGesture(QGestureEvent* event);
+>>>>>>> origin/maximized-upswipe
 
 	void handleFlickGestureMinimized(QGestureEvent* event);
 
@@ -255,9 +265,11 @@ private:
 
 	void setActiveGroup(CardGroup* group);
     
+<<<<<<< HEAD
     void setGroupSwitchMode(bool enable);
-    
+=======
     void setGroupsCardViewGesture(bool enable);
+>>>>>>> origin/maximized-upswipe
 
 	void disableCardRestoreToMaximized();
 	void restoreCardToMaximized();
@@ -368,8 +380,11 @@ private:
 	LoadingState* m_loadingState;
 	FocusState* m_focusState;
 	ReorderState* m_reorderState;
+<<<<<<< HEAD
 	SwitchState* m_switchState;
+=======
 	CardViewGestureState* m_cardViewGestureState;
+>>>>>>> origin/maximized-upswipe
 
 	CardWindowManagerState* m_curState;
 
@@ -403,8 +418,11 @@ private:
 	friend class LoadingState;
 	friend class FocusState;
 	friend class ReorderState;
+<<<<<<< HEAD
 	friend class SwitchState;
+=======
 	friend class CardViewGestureState;
+>>>>>>> origin/maximized-upswipe
 };
 
 #endif /* CARDWINDOWMANAGER_H */
