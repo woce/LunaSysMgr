@@ -317,7 +317,6 @@ bool SystemUiController::handleGestureEvent (QGestureEvent* event)
 			if (t && Preferences::instance()->sysUiGestureDetection() == 0)
 			{
 				handleScreenEdgeFlickGesture(t);
-				return true;
 			}
 			
 			//Screen-edge Slide Gestures
@@ -325,7 +324,6 @@ bool SystemUiController::handleGestureEvent (QGestureEvent* event)
 			if (t && Preferences::instance()->sysUiGestureDetection() == 1)
 			{
 				handleScreenEdgeSlideGesture(t);
-				return true;
 			}
 			
 			//Fluid Gestures
@@ -333,14 +331,12 @@ bool SystemUiController::handleGestureEvent (QGestureEvent* event)
 			if (t && Preferences::instance()->sysUiGestureDetection() == 2)
 			{
 				handleCardSwitchGesture(event);
-				return true;
 			}
 
 			t = event->gesture((Qt::GestureType) GestureCardView);
 			if (t && Preferences::instance()->sysUiGestureDetection() == 2)
 			{
 				handleCardViewGesture(event);
-				return true;
 			}
 		}
 	}
