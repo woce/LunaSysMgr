@@ -48,9 +48,12 @@
 #include "IMEController.h"
 #include "EmulatedCardWindow.h"
 #include "ScreenEdgeFlickGesture.h"
+<<<<<<< HEAD
 #include "ScreenEdgeSlideGesture.h"
 #include "CardSwitchGesture.h"
+=======
 #include "CardViewGesture.h"
+>>>>>>> origin/maximized-upswipe
 #include "SoundPlayerPool.h"
 #include "DashboardWindowManager.h"
 #include "StatusBarServicesConnector.h"
@@ -87,8 +90,11 @@ SystemUiController::SystemUiController()
     m_modalWindowDismissErr = DismissUnknown;
 	m_cardWindowAboutToMaximize = false;
 	m_cardWindowMaximized = false;
+<<<<<<< HEAD
     m_switchCards = false;
+=======
     m_cardViewGesture = false;
+>>>>>>> origin/maximized-upswipe
 	m_dashboardOpened = false;
 	m_dashboardSoftDismissable = true;
 	m_dashboardHasContent = false;
@@ -310,6 +316,12 @@ bool SystemUiController::handleGestureEvent (QGestureEvent* event)
 		}
 	}
 
+<<<<<<< HEAD
+	qCritical() << Preferences::instance()->sysUiGestureDetection();
+	
+	//If no tap has been detected and gestures are enabled
+=======
+>>>>>>> origin/maximized-upswipe
 	if (!t && Preferences::instance()->sysUiEnableNextPrevGestures() == true) {
 		if (Settings::LunaSettings()->uiType != Settings::UI_MINIMAL && !m_emergencyMode) {
 			//Screen-edge Flick Gestures
@@ -319,6 +331,7 @@ bool SystemUiController::handleGestureEvent (QGestureEvent* event)
 				handleScreenEdgeFlickGesture(t);
 				return true;
 			}
+<<<<<<< HEAD
 			
 			//Screen-edge Slide Gestures
 			t = event->gesture((Qt::GestureType) GestureScreenEdgeSlide);
@@ -328,18 +341,18 @@ bool SystemUiController::handleGestureEvent (QGestureEvent* event)
 				return true;
 			}
 			
-			//Fluid Gestures
+			//Fluid Card switch gesture
 			t = event->gesture((Qt::GestureType) GestureCardSwitch);
 			if (t && Preferences::instance()->sysUiGestureDetection() == 2)
 			{
 				handleCardSwitchGesture(event);
-				return true;
-			}
+=======
 
 			t = event->gesture((Qt::GestureType) GestureCardView);
-			if (t && Preferences::instance()->sysUiGestureDetection() == 2)
+			if (t && Preferences::instance()->sysUiGestureDetection() == 1)
 			{
 				handleCardViewGesture(event);
+>>>>>>> origin/maximized-upswipe
 				return true;
 			}
 		}
@@ -632,11 +645,11 @@ bool SystemUiController::handleKeyEvent(QKeyEvent *event)
 				return true;
 			}
             
+<<<<<<< HEAD
             if (m_switchCards) {
-                Q_EMIT signalMaximizeActiveCardWindow();
-            }
-            
+=======
             if (m_cardViewGesture) {
+>>>>>>> origin/maximized-upswipe
                 Q_EMIT signalMaximizeActiveCardWindow();
             }
 
@@ -2240,9 +2253,13 @@ void SystemUiController::handleScreenEdgeSlideGesture(QGesture* gesture)
 	{
 		handleUpSwipe();
 	}
+<<<<<<< HEAD
 }
 
 void SystemUiController::handleUpSwipe() {
+=======
+	
+>>>>>>> origin/maximized-upswipe
 	if (m_inDockMode) {
 		enterOrExitDockModeUi(false);
 		return;
@@ -2280,6 +2297,7 @@ void SystemUiController::handleUpSwipe() {
 	Q_EMIT signalToggleLauncher();
 }
 
+<<<<<<< HEAD
 void SystemUiController::handleSideSwipe(bool next)
 {
 	//Adhere to Enable App Switching Gestures
@@ -2319,19 +2337,8 @@ void SystemUiController::handleCardSwitchGesture(QGestureEvent* event)
         m_switchCards = true;
     else
         m_switchCards = false;
-    
-	if (m_deviceLocked)
-		return;
-    
-	if (m_dashboardOpened) {
-		Q_EMIT signalCloseDashboard(true);
-	}
-    
-	if (m_menuVisible) {
-		Q_EMIT signalHideMenu();
-	}
-    
-    Q_EMIT signalSwitchCardEvent(event);
+=======
+	Q_EMIT signalToggleLauncher();		
 }
 
 void SystemUiController::handleCardViewGesture(QGestureEvent* event)
@@ -2346,6 +2353,7 @@ void SystemUiController::handleCardViewGesture(QGestureEvent* event)
         m_cardViewGesture = true;
     else
         m_cardViewGesture = false;
+>>>>>>> origin/maximized-upswipe
     
 	if (m_deviceLocked)
 		return;
@@ -2358,5 +2366,9 @@ void SystemUiController::handleCardViewGesture(QGestureEvent* event)
 		Q_EMIT signalHideMenu();
 	}
     
+<<<<<<< HEAD
+    Q_EMIT signalSwitchCardEvent(event);
+=======
     Q_EMIT signalCardViewGestureEvent(event);
+>>>>>>> origin/maximized-upswipe
 }

@@ -24,8 +24,11 @@
 
 #include "Common.h"
 
+<<<<<<< HEAD
 #include "CardSwitchGesture.h"
+=======
 #include "CardViewGesture.h"
+>>>>>>> origin/maximized-upswipe
 
 #include <QState>
 #include <QGraphicsSceneMouseEvent>
@@ -56,8 +59,11 @@ public:
 	virtual void flickGestureEvent(QGestureEvent* event) {}
 	virtual void tapGestureEvent(QTapGesture* event) {}
 	virtual void tapAndHoldGestureEvent(QTapAndHoldGesture* event) {}
+<<<<<<< HEAD
 	virtual void switchCardEvent(QGestureEvent* event) {}
+=======
 	virtual void cardViewGestureEvent(QGestureEvent* event) {}
+>>>>>>> origin/maximized-upswipe
 
 	virtual void windowAdded(CardWindow* win);
 	virtual void windowRemoved(CardWindow* win);
@@ -302,11 +308,16 @@ private:
 
 // -----------------------------------------------------------------------------------
 
+<<<<<<< HEAD
 class SwitchState : public CardWindowManagerState
+=======
+class CardViewGestureState : public CardWindowManagerState
+>>>>>>> origin/maximized-upswipe
 {
 	Q_OBJECT
 
 public:
+<<<<<<< HEAD
 	SwitchState(CardWindowManager* wm) 
 				: CardWindowManagerState(wm) { setObjectName("Switch"); }
 
@@ -315,19 +326,12 @@ public:
 protected:
 	virtual void onExit(QEvent* event);
 	virtual void onEntry(QEvent* event);
-};
-
-// -----------------------------------------------------------------------------------
-
-class CardViewGestureState : public CardWindowManagerState
-{
-	Q_OBJECT
-
-public:
+=======
 	CardViewGestureState(CardWindowManager* wm) 
 				: CardWindowManagerState(wm) { setObjectName("CardViewGesture"); }
 
 	virtual void cardViewGestureEvent(QGestureEvent* event);
+>>>>>>> origin/maximized-upswipe
 };
 
 #endif /* CARDWINDOWMANAGERSTATES_H */

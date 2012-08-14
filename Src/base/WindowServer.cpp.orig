@@ -89,9 +89,12 @@
 
 #include "NativeAlertManager.h"
 #include "SingleClickGestureRecognizer.h"
+<<<<<<< HEAD
 #include "ScreenEdgeSlideGestureRecognizer.h"
 #include "CardSwitchGestureRecognizer.h"
+=======
 #include "CardViewGestureRecognizer.h"
+>>>>>>> origin/maximized-upswipe
 #include "QtUtils.h"
 
 
@@ -427,9 +430,12 @@ WindowServer::WindowServer()
 		viewportWidget = new QWidget;
 
 	QGestureRecognizer::registerRecognizer(new SingleClickGestureRecognizer);
+<<<<<<< HEAD
 	QGestureRecognizer::registerRecognizer(new ScreenEdgeSlideGestureRecognizer);
 	QGestureRecognizer::registerRecognizer(new CardSwitchGestureRecognizer);
+=======
 	QGestureRecognizer::registerRecognizer(new CardViewGestureRecognizer);
+>>>>>>> origin/maximized-upswipe
 
 	viewportWidget->setAttribute(Qt::WA_AcceptTouchEvents);
 	viewportWidget->setAttribute(Qt::WA_OpaquePaintEvent, true);
@@ -465,9 +471,12 @@ WindowServer::WindowServer()
 	viewportWidget->grabGesture((Qt::GestureType) SysMgrGestureFlick);
 	viewportWidget->grabGesture((Qt::GestureType) SysMgrGestureSingleClick);
 	viewportWidget->grabGesture((Qt::GestureType) SysMgrGestureScreenEdgeFlick);
+<<<<<<< HEAD
 	viewportWidget->grabGesture((Qt::GestureType) GestureScreenEdgeSlide);
 	viewportWidget->grabGesture((Qt::GestureType) GestureCardSwitch);
+=======
 	viewportWidget->grabGesture((Qt::GestureType) GestureCardView);
+>>>>>>> origin/maximized-upswipe
 
 	m_uiRootItem.setBoundingRect(QRectF(-SystemUiController::instance()->currentUiWidth()/2, -SystemUiController::instance()->currentUiHeight()/2,
 						         SystemUiController::instance()->currentUiWidth(), SystemUiController::instance()->currentUiHeight()));

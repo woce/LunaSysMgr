@@ -43,8 +43,11 @@
 #include "CardWindowManagerStates.h"
 #include "CardGroup.h"
 #include "FlickGesture.h"
+<<<<<<< HEAD
 #include "CardSwitchGesture.h"
+=======
 #include "CardViewGesture.h"
+>>>>>>> origin/maximized-upswipe
 #include "GhostCard.h"
 #include "IMEController.h"
 
@@ -96,8 +99,11 @@ CardWindowManager::CardWindowManager(int maxWidth, int maxHeight)
 	, m_loadingState(0)
 	, m_focusState(0)
 	, m_reorderState(0)
+<<<<<<< HEAD
 	, m_switchState(0)
+=======
 	, m_cardViewGestureState(0)
+>>>>>>> origin/maximized-upswipe
 	, m_curState(0)
 	, m_addingModalWindow(false)
 	, m_initModalMaximizing(false)
@@ -142,14 +148,16 @@ CardWindowManager::CardWindowManager(int maxWidth, int maxHeight)
 	connect(sysui, SIGNAL(signalFocusMaximizedCardWindow(bool)),
 			SLOT(slotFocusMaximizedCardWindow(bool)));
     
+<<<<<<< HEAD
 	connect(sysui, SIGNAL(signalSwitchCardEvent(QGestureEvent*)),
 			SLOT(slotSwitchCardEvent(QGestureEvent*)));
-    
-	connect(sysui, SIGNAL(signalCardViewGestureEvent(QGestureEvent*)),
-			SLOT(slotCardViewGestureEvent(QGestureEvent*)));
 
 	connect(sysui, SIGNAL(signalSideSwipe(bool)),
 		SLOT(slotSideSwipe(bool)));
+=======
+	connect(sysui, SIGNAL(signalCardViewGestureEvent(QGestureEvent*)),
+			SLOT(slotCardViewGestureEvent(QGestureEvent*)));
+>>>>>>> origin/maximized-upswipe
 
     connect(SystemService::instance(), SIGNAL(signalTouchToShareAppUrlTransfered(const std::string&)),
             SLOT(slotTouchToShareAppUrlTransfered(const std::string&)));
@@ -201,8 +209,11 @@ void CardWindowManager::init()
 	m_loadingState = new LoadingState(this);
 	m_focusState = new FocusState(this);
 	m_reorderState = new ReorderState(this);
+<<<<<<< HEAD
 	m_switchState = new SwitchState(this);
+=======
 	m_cardViewGestureState = new CardViewGestureState(this);
+>>>>>>> origin/maximized-upswipe
 
 	m_stateMachine->addState(m_minimizeState);
 	m_stateMachine->addState(m_groupState);
@@ -211,8 +222,11 @@ void CardWindowManager::init()
 	m_stateMachine->addState(m_loadingState);
 	m_stateMachine->addState(m_focusState);
 	m_stateMachine->addState(m_reorderState);
+<<<<<<< HEAD
 	m_stateMachine->addState(m_switchState);
+=======
 	m_stateMachine->addState(m_cardViewGestureState);
+>>>>>>> origin/maximized-upswipe
 
 	// connect allowed state transitions
 	m_minimizeState->addTransition(this,
@@ -243,11 +257,13 @@ void CardWindowManager::init()
 		SIGNAL(signalPreparingWindow(CardWindow*)), m_preparingState);
 	m_maximizeState->addTransition(new MaximizeToFocusTransition(this, m_focusState));
 	m_maximizeState->addTransition(this,
+<<<<<<< HEAD
 		SIGNAL(signalGroupWindow()), m_groupState);
 	m_maximizeState->addTransition(this,
 		SIGNAL(signalEnterSwitch()), m_switchState);
-	m_maximizeState->addTransition(this,
+=======
 		SIGNAL(signalEnterCardViewGestureState()), m_cardViewGestureState);
+>>>>>>> origin/maximized-upswipe
 
 	m_focusState->addTransition(this,
 		SIGNAL(signalMaximizeActiveWindow()), m_maximizeState);
@@ -1182,8 +1198,11 @@ void CardWindowManager::maximizeActiveWindow(bool animate)
 
 		setActiveGroup(m_activeGroup);
         
+<<<<<<< HEAD
         setGroupSwitchMode(true);
         
+=======
+>>>>>>> origin/maximized-upswipe
 		if(animate)
 			slideAllGroups(false);
 		else
@@ -2022,15 +2041,29 @@ void CardWindowManager::handleMouseReleaseReorder(QGraphicsSceneMouseEvent* even
 	slideAllGroups();
 }
 
+<<<<<<< HEAD
 void CardWindowManager::handleSwitchCard(QGestureEvent* event)
 {
 	QGesture* t = event->gesture((Qt::GestureType) GestureCardSwitch);
     CardSwitchGesture* gesture = static_cast<CardSwitchGesture*>(t);
     
+=======
+void CardWindowManager::handleCardViewGesture(QGestureEvent* event)
+{
+	QGesture* t = event->gesture((Qt::GestureType) GestureCardView);
+    CardViewGesture* gesture = static_cast<CardViewGesture*>(t);
+	
+	int delta = gesture->pos().y() - gesture->lastPos().y();
+	
+	qreal nonCurScale;
+	qreal curScale;
+	
+>>>>>>> origin/maximized-upswipe
     switch(gesture->state())
     {
         case Qt::GestureUpdated:
         {
+<<<<<<< HEAD
             QPoint diff = (gesture->pos() - gesture->lastPos()).toPoint();
             
             if (m_movement == MovementUnlocked) {
@@ -2069,27 +2102,7 @@ void CardWindowManager::handleSwitchCard(QGestureEvent* event)
         }
         case Qt::GestureCanceled:
             maximizeActiveWindow();
-            m_movement = MovementUnlocked;
-            break;
-        default:
-            break;
-    }
-}
-
-void CardWindowManager::handleCardViewGesture(QGestureEvent* event)
-{
-	QGesture* t = event->gesture((Qt::GestureType) GestureCardView);
-    CardViewGesture* gesture = static_cast<CardViewGesture*>(t);
-	
-	int delta = gesture->pos().y() - gesture->lastPos().y();
-	
-	qreal nonCurScale;
-	qreal curScale;
-	
-    switch(gesture->state())
-    {
-        case Qt::GestureUpdated:
-        {
+=======
 			setGroupsCardViewGesture(true);
 			
             if (m_movement == MovementUnlocked) {
@@ -2174,6 +2187,7 @@ void CardWindowManager::handleCardViewGesture(QGestureEvent* event)
 			}
 			slideAllGroups();
 			maximizeActiveWindow();
+>>>>>>> origin/maximized-upswipe
             m_movement = MovementUnlocked;
             break;
         default:
@@ -2350,17 +2364,17 @@ void CardWindowManager::setActiveGroup(CardGroup* group)
 	SystemUiController::instance()->setActiveCardWindow(m_activeGroup ? m_activeGroup->activeCard() : 0);
 }
 
+<<<<<<< HEAD
 void CardWindowManager::setGroupSwitchMode(bool enable)
 {
 	for (int i=0; i<m_groups.size();i++) {
         m_groups[i]->setSwitchMode(enable);
-    }
-}
-
+=======
 void CardWindowManager::setGroupsCardViewGesture(bool enable)
 {
 	for (int i=0; i<m_groups.size();i++) {
         m_groups[i]->setCardViewGesture(enable);
+>>>>>>> origin/maximized-upswipe
     }
 }
 
@@ -3572,6 +3586,7 @@ void CardWindowManager::slotFocusMaximizedCardWindow(bool focus)
 		m_curState->focusMaximizedCardWindow(focus);
 }
 
+<<<<<<< HEAD
 void CardWindowManager::slotSwitchCardEvent(QGestureEvent* event)
 {
 	QGesture* t = event->gesture((Qt::GestureType) GestureCardSwitch);
@@ -3584,8 +3599,7 @@ void CardWindowManager::slotSwitchCardEvent(QGestureEvent* event)
     
     if (m_curState)
         m_curState->switchCardEvent(event);
-}
-
+=======
 void CardWindowManager::slotCardViewGestureEvent(QGestureEvent* event)
 {
 	QGesture* t = event->gesture((Qt::GestureType) GestureCardView);
@@ -3598,6 +3612,7 @@ void CardWindowManager::slotCardViewGestureEvent(QGestureEvent* event)
     
     if (m_curState)
         m_curState->cardViewGestureEvent(event);
+>>>>>>> origin/maximized-upswipe
 }
 
 void CardWindowManager::slotTouchToShareAppUrlTransfered(const std::string& appId)
