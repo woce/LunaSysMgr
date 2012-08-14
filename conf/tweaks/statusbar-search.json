@@ -6,6 +6,7 @@
       "restart": "none",
       "prefserv": "sysUiEnableStatusBarSearch",
       "label": "enable search icon",
+      "help": "Enable the Just Type status bar icon.",
       "key": "statusBarSearch",
       "type": "ToggleButton",
       "value": false,

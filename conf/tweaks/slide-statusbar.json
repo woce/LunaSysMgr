@@ -6,6 +6,7 @@
       "restart": "none",
       "prefserv": "sysUiStatusBarSlide",
       "label": "status bar item trigger",
+      "help": "Triggers status bar items after the finger has moved 15px.",
       "key": "statusbarslide",
       "type": "ListSelector",
       "value": 0,
