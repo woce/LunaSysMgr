@@ -29,8 +29,8 @@
 
 #include <SysMgrDefs.h>
 
-enum Gesture {
-	GestureCardView  = 0x0100 + 6
+enum ViewGesture {
+	GestureCardView  = 0x0100 + 2
 };
 
 class CardViewGesture : public QGesture

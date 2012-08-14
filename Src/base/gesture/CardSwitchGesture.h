@@ -29,7 +29,7 @@
 
 #include <SysMgrDefs.h>
 
-enum CardGesture {
+enum SwitchGesture {
 	GestureCardSwitch  = 0x0100 + 1
 };
 

@@ -2101,8 +2101,8 @@ void CardWindowManager::handleCardViewGesture(QGestureEvent* event)
                 m_movement = MovementVLocked;
             }
 			
-			nonCurScale = qMax(qreal(m_activeGroup->nonCurScale() + (delta/350.0)), kNonActiveScale);
-			curScale = qMax(qreal(m_activeGroup->curScale() + (delta/350.0)), kActiveScale);
+			nonCurScale = qMax(qreal(m_activeGroup->nonCurScale() + (delta/250.0)), kNonActiveScale);
+			curScale = qMax(qreal(m_activeGroup->curScale() + (delta/250.0)), kActiveScale);
 			nonCurScale = qMin(nonCurScale, qreal(1.0));
 			curScale = qMin(curScale, qreal(1.0));
 			
@@ -2398,31 +2398,30 @@ void CardWindowManager::switchToNextApp()
 void CardWindowManager::switchToPrevApp()
 {
 	disableCardRestoreToMaximized();
-
+	
 	if (!m_activeGroup || m_groups.empty())
 		return;
-
+	
     int flyback = 0;  // For infinite card cycling
-
-
+	
+	
 	if (!m_activeGroup->makePreviousCardActive()) {
-
-		// couldn't move, switch to the previous group
+		// couldn't move, switch to the next group
 		int index = m_groups.indexOf(m_activeGroup);
 		if (index > 0) {
 			m_activeGroup = m_groups[index - 1];
             m_activeGroup->makeFrontCardActive();
+		} else {
+			if (Preferences::instance()->getInfiniteCardCyclingPreference()) {
+				m_activeGroup = m_groups[m_groups.size()-1];
+				m_activeGroup->makeFrontCardActive();
+				if (m_groups.size() > 1) flyback = -1;
+			}
 		}
-    } else {
-		if (Preferences::instance()->getInfiniteCardCyclingPreference()) {
-		  m_activeGroup = m_groups[m_groups.size()-1];
-		  m_activeGroup->makeFrontCardActive();
-		  if (m_groups.size() > 1) flyback = -1;
-		}
-    }
-			
+	}
+	
     setActiveGroup(m_activeGroup);
-
+	
 	slideAllGroups();
 }
 
@@ -3505,8 +3504,6 @@ void CardWindowManager::slotChangeCardWindow(bool next)
 
 void CardWindowManager::slotSideSwipe(bool direction)
 {
-	qCritical() << direction;
-	
 	//Minimized
 	if (m_curState == m_minimizeState)  {
 		if(direction)
