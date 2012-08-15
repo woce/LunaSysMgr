@@ -34,6 +34,7 @@
 #include <QGestureEvent>
 #include <QTapGesture>
 #include <QTapAndHoldGesture>
+#include <QDebug>
 
 CardWindowManagerState::CardWindowManagerState(CardWindowManager* wm)
 	: m_wm(wm)
@@ -171,6 +172,10 @@ void MinimizeState::onEntry(QEvent* event)
 	}
 	SystemUiController::instance()->setCardWindowMaximized(false);
 	SystemUiController::instance()->setMaximizedCardWindow(0);
+    
+    //Stop Group Switch Mode
+    m_wm->setGroupSwitchMode(false);
+    m_wm->slideAllGroups();
 }
 
 //---------------------------------------------------------------------------------------------------
@@ -572,6 +577,7 @@ void MaximizeState::processTouchToShareTransfer(const std::string& appId)
 void MaximizeState::onEntry(QEvent* event)
 {
 	CardWindowManagerState::onEntry(event);
+	
 	CardWindow* activeWin = m_wm->activeWindow();
 	Q_ASSERT(activeWin != 0);
 
@@ -857,4 +863,31 @@ void ReorderState::onEntry(QEvent* event)
 	}
 
 	SystemUiController::instance()->enterOrExitCardReorder(true);
+}
+
+// --------------------------------------------------------------------------------------------------
+
+void SwitchState::switchCardEvent(QGestureEvent* event)
+{
+	m_wm->handleSwitchCard(event);
+}
+
+void SwitchState::onExit(QEvent* event)
+{
+	CardWindowManagerState::onExit(event);
+}
+
+void SwitchState::onEntry(QEvent* event)
+{
+	CardWindowManagerState::onEntry(event);
+    
+    //Make sure the quicklaunch bar doesn't appear during switch
+	SystemUiController::instance()->setCardWindowMaximized(true);
+}
+
+// --------------------------------------------------------------------------------------------------
+
+void CardViewGestureState::cardViewGestureEvent(QGestureEvent* event)
+{
+	m_wm->handleCardViewGesture(event);
 }

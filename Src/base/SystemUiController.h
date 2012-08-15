@@ -313,6 +313,8 @@ Q_SIGNALS:
 	void signalCardWindowMaximized();
 	void signalCardWindowMinimized();
 	void signalChangeCardWindow(bool next);
+    void signalSwitchCardEvent(QGestureEvent* event);
+    void signalCardViewGestureEvent(QGestureEvent* event);
 
 	void signalHideMenu();
 
@@ -405,11 +407,11 @@ private:
 	bool allowSuspend();
 	void setSuspended(bool);
 	bool handleScreenEdgeFlickGesture(QGesture* gesture);
-	void handleSideFlick(bool next);
-	void handleUpFlick(ScreenEdgeFlickGesture *g);
 	void handleScreenEdgeSlideGesture(QGesture* gesture);
-	void handleSideSlide(bool next);
-	void handleUpSlide();
+	void handleSideSwipe(bool next);
+	void handleUpSwipe();
+	void handleCardSwitchGesture(QGestureEvent* event);
+	void handleCardViewGesture(QGestureEvent* event);
 
 	Window* m_parentOfModalWindow;
 	Window* m_activeCardWindow;
@@ -419,6 +421,8 @@ private:
 
 	bool m_cardWindowAboutToMaximize;
 	bool m_cardWindowMaximized;
+    bool m_switchCards;
+    bool m_cardViewGesture;
 	bool m_dashboardOpened;
 	bool m_dashboardSoftDismissable;
 	bool m_dashboardHasContent;

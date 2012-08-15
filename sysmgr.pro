@@ -253,6 +253,8 @@ SOURCES = \
 	KeyboardMapping.cpp \
 	SingleClickGestureRecognizer.cpp \
 	ScreenEdgeSlideGestureRecognizer.cpp \
+	CardSwitchGestureRecognizer.cpp \
+	CardViewGestureRecognizer.cpp \
 	BootupAnimation.cpp \
 	ProgressAnimation.cpp \
 	CardHostWindow.cpp \
@@ -445,8 +447,12 @@ HEADERS = \
 	KeyboardMapping.h \
 	SingleClickGestureRecognizer.h \
 	ScreenEdgeSlideGestureRecognizer.h \
+	CardSwitchGestureRecognizer.h \
+	CardViewGestureRecognizer.h \
 	SingleClickGesture.h \
 	ScreenEdgeSlideGesture.h \
+	CardSwitchGesture.h \
+	CardViewGesture.h \
 	BootupAnimation.h \
 	ProgressAnimation.h \
 	CardHostWindow.h \

@@ -42,6 +42,8 @@ class CardGroup : public QObject
 	Q_PROPERTY(QPointF pos READ pos WRITE setPos)
 	Q_PROPERTY(qreal x READ x WRITE setX)
 	Q_PROPERTY(qreal y READ y WRITE setY)
+	Q_PROPERTY(qreal curScale READ curScale WRITE setCurScale)
+	Q_PROPERTY(qreal nonCurScale READ nonCurScale WRITE setNonCurScale)
 
 public:
 
@@ -63,7 +65,7 @@ public:
 	// returns whether the move was successful.
 	// NOTE: does not modify the GraphicsScene stacking order, you must 
 	// explicitly call raiseCards().
-  bool moveActiveCardTo(int location);
+	bool moveActiveCardTo(int location);
 	bool moveActiveCard(int direction);
 
 	// raises/lowers the current active card to the next/previous spot 
@@ -152,13 +154,26 @@ public:
 
 	qreal y() const { return m_pos.y(); }
 	void setY(const qreal& y);
+	
+	qreal curScale() const { return m_curScale; }
+	void setCurScale(const qreal& curScale) { m_curScale = curScale; }
+	
+	qreal nonCurScale() const { return m_nonCurScale; }
+	void setNonCurScale(const qreal& nonCurScale) { m_nonCurScale = nonCurScale; }
+    
+    bool switchMode() const { return m_switchMode; }
+    void setSwitchMode(bool switchMode) { m_switchMode = switchMode; }
+    
+    bool cardViewGesture() const { return m_cardViewGesture; }
+    void setCardViewGesture(bool cardViewGesture) { m_cardViewGesture = cardViewGesture; }
+	
 	bool shouldMaximizeOrScroll(QPointF scenePt);
 	bool testHit(QPointF scenePt);
-  int  testCardHit(QPointF scenePt); // Extended version of testHit
+	int  testCardHit(QPointF scenePt); // Extended version of testHit
 	void moveToActiveCard();
 
-  QList<CardWindow*> cards() const { return m_cards; }
-  void removeCardWithoutDeleting(int cardNumber) {m_cards.removeAt(cardNumber);} // Removes Card from card list, not deleting memory.
+	QList<CardWindow*> cards() const { return m_cards; }
+	void removeCardWithoutDeleting(int cardNumber) {m_cards.removeAt(cardNumber);} // Removes Card from card list, not deleting memory.
 private:
 
 	QVector<CardWindow::Position> calculateOpenedPositions(qreal xOffset = 0.0);
@@ -171,8 +186,8 @@ private:
 	qreal m_nonCurScale;
 	int m_leftWidth;
 	int m_rightWidth;
-  QList<CardWindow*> m_cards;
-  CardWindow* m_activeCard;
+	QList<CardWindow*> m_cards;
+	CardWindow* m_activeCard;
 	int m_cardGroupRotFactor;
 	double m_cardGroupXDistanceFactor;
 	// currentPosition is the position within an open card group.
@@ -181,6 +196,8 @@ private:
 	// 1: 	3-4 cards with the second card being the center of the group
 	// N:	>4 cards where valid positions are between 1.0 and N - 4 + 1
 	qreal m_currentPosition;
+    bool m_switchMode;
+    bool m_cardViewGesture;
 };
 
 Q_DECLARE_METATYPE(CardWindow::Position)
