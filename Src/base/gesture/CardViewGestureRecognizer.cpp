@@ -60,33 +60,35 @@ QGestureRecognizer::Result CardViewGestureRecognizer::recognize(QGesture *state,
 				
 				if(startPos.y() < displayBounds.y() - kGestureBorderSize)
 				{
-					result = QGestureRecognizer::Ignore;
+					return result = QGestureRecognizer::Ignore;
 				}
 				else
 				{
 					QPoint delta = pos - startPos;
 					
 					if (event->type() == QEvent::TouchUpdate) {
+						QPoint diff = q->pos().toPoint() - q->lastPos().toPoint();
+						if(abs(diff.y()) > abs(diff.x()))
+						{
+							if(diff.y() > -5 || diff.y() < 5)
+								q->setFlick(0);
+							else if(diff.y() >= 25 && diff.y() <= 100)
+								q->setFlick(1);
+							else if(diff.y() <= -25 && diff.y() >= -100)
+								q->setFlick(-1);
+						}
+						
 						if(startPos.y() >= displayBounds.y() - kGestureBorderSize)
 						{
                             result = QGestureRecognizer::MayBeGesture;
                             if(delta.y() <= 0 && delta.y() < delta.x())
                             {
-                                q->setLastPos(q->pos());
-                                q->setPos(pos);
-                                q->setEdge(true);
-                                result = QGestureRecognizer::TriggerGesture;
+								q->setLastPos(q->pos());
+								q->setPos(pos);
+								q->setEdge(true);
+                                return result = QGestureRecognizer::TriggerGesture;
                             }
 						}
-                        
-                        QPoint diff = q->pos().toPoint() - q->lastPos().toPoint();
-                        
-                        if(diff.y() > -5 || diff.y() < 5)
-                            q->setFlick(0);
-                        else if(diff.y() >= 25 && diff.y() <= 100)
-                            q->setFlick(1);
-                        else if(diff.y() <= -25 && diff.y() >= -100)
-                            q->setFlick(-1);
                         
 					} else if (event->type() == QEvent::TouchEnd) {
 						result = QGestureRecognizer::FinishGesture;

@@ -2338,7 +2338,7 @@ void SystemUiController::handleCardViewGesture(QGestureEvent* event)
 	QGesture* t = event->gesture((Qt::GestureType) GestureCardView);
     CardViewGesture* gesture = static_cast<CardViewGesture*>(t);
 	
-	if (!m_cardViewGesture && !m_cardWindowMaximized && (gesture->state() == Qt::GestureUpdated || gesture->flick() != 0))
+	if (!m_cardViewGesture && !m_cardWindowMaximized && gesture->state() == Qt::GestureUpdated)
 	{
 		Q_EMIT signalToggleLauncher();
 	}
