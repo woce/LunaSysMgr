@@ -6,8 +6,8 @@
           "group": "cards",
           "restart": "none",
           "prefserv": "tabbedCardsEnabled",
-          "label": "Tabbed Cards",w
-	  "help": "Enable Tabbed Cards when performing a sideways bezel gesture inside a maximised, stacked card.",
+          "label": "Tabbed Cards",
+          "help": "Enable Tabbed Cards when performing a sideways bezel gesture inside a maximised, stacked card.",
           "key": "tabbedcards_features",
           "type": "ToggleButton",
           "value": false,
