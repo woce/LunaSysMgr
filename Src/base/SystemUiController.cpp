@@ -2338,7 +2338,7 @@ void SystemUiController::handleCardViewGesture(QGestureEvent* event)
 	QGesture* t = event->gesture((Qt::GestureType) GestureCardView);
     CardViewGesture* gesture = static_cast<CardViewGesture*>(t);
 	
-	if (!m_cardViewGesture && !m_cardWindowMaximized && gesture->state() == Qt::GestureUpdated)
+	if (!m_cardViewGesture && !m_cardWindowMaximized && (gesture->state() == Qt::GestureUpdated || gesture->flick()))
 	{
 		Q_EMIT signalToggleLauncher();
 	}
@@ -2355,6 +2355,6 @@ void SystemUiController::handleCardViewGesture(QGestureEvent* event)
 	if (m_menuVisible) {
 		Q_EMIT signalHideMenu();
 	}
-    
+	
     Q_EMIT signalCardViewGestureEvent(event);
 }
