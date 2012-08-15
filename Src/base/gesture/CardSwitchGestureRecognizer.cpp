@@ -67,6 +67,17 @@ QGestureRecognizer::Result CardSwitchGestureRecognizer::recognize(QGesture *stat
 					QPoint delta = pos - startPos;
 						
 					if (event->type() == QEvent::TouchUpdate) {
+                        QPoint diff = q->pos().toPoint() - q->lastPos().toPoint();
+                        if(abs(diff.x()) > abs(diff.y()))
+						{
+							if(diff.x() >= 25 && diff.x() <= 100)
+								q->setFlick(1);
+							else if(diff.x() < 5 && diff.x() > -5)
+								q->setFlick(0);
+							else if(diff.x() <= -25 && diff.x() >= -100)
+								q->setFlick(-1);
+						}
+						
 						if(startPos.x() <= kGestureBorderSize)
 						{
                             result = QGestureRecognizer::MayBeGesture;
@@ -90,15 +101,6 @@ QGestureRecognizer::Result CardSwitchGestureRecognizer::recognize(QGesture *stat
                                 result = QGestureRecognizer::TriggerGesture;
                             }
 						}
-                        
-                        QPoint diff = q->pos().toPoint() - q->lastPos().toPoint();
-                        
-                        if(diff.x() >= 25 && diff.x() <= 100)
-                            q->setFlick(1);
-                        else if(diff.x() < 5 && diff.x() > -5)
-                            q->setFlick(0);
-                        else if(diff.x() <= -25 && diff.x() >= -100)
-                            q->setFlick(-1);
                         
 					} else if (event->type() == QEvent::TouchEnd) {
 						result = QGestureRecognizer::FinishGesture;
