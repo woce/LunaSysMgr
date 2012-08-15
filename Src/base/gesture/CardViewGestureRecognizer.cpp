@@ -81,16 +81,18 @@ QGestureRecognizer::Result CardViewGestureRecognizer::recognize(QGesture *state,
 			if(abs(delta.x()) > abs(delta.y()))
 				break;
 			
+			qCritical() << diff.y();
+			
 			if(diff.y() > -5 && diff.y() < 5)
 			{
 				q->setFlick(0);
 			}
-			else if(diff.y() <= -25 && diff.y() >= -100)
+			else if(diff.y() <= -25)
 			{
 				q->setFlick(-1);
 			}
 			
-			if(delta.y() <= 15)
+			if(delta.y() <= -15)
 			{
 				q->setLastPos(q->pos());
 				q->setPos(pos);
