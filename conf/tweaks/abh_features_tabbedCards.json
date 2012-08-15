@@ -7,7 +7,7 @@
           "restart": "none",
           "prefserv": "tabbedCardsEnabled",
           "label": "Tabbed Cards",
-          "help": "Enable Tabbed Cards when performing a sideways bezel gesture inside a maximised, stacked card.",
+          "help": "Enable Tabbed Cards when performing a sideways bezel gesture inside a maximised, stacked card. NOTE: Currently incompatible with Fluid Gestures.",
           "key": "tabbedcards_features",
           "type": "ToggleButton",
           "value": false,
