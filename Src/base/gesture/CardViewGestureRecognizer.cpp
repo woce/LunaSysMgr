@@ -28,15 +28,18 @@ QGestureRecognizer::Result CardViewGestureRecognizer::recognize(QGesture *state,
 	QPoint startPos;
 	QPoint pos;
 	QPoint displayBounds;
+	QPoint delta;
+	QPoint diff;
+	static bool fired;
 
-    QGestureRecognizer::Result result = QGestureRecognizer::CancelGesture;
+    QGestureRecognizer::Result result = QGestureRecognizer::Ignore;
     
     switch (event->type()) {
 		case QEvent::TouchBegin:
 			//Reset Flick
             q->setFlick(0);
+			fired = false;
 			result = QGestureRecognizer::MayBeGesture;
-			break;
         case QEvent::TouchUpdate: {
 			//Return if there are != 1 fingers
 			if(ev->touchPoints().size() != 1)
@@ -72,9 +75,8 @@ QGestureRecognizer::Result CardViewGestureRecognizer::recognize(QGesture *state,
 				break;
 			}
 			
-			QPoint delta = pos - startPos;
-			
-			QPoint diff = q->pos().toPoint() - q->lastPos().toPoint();
+			delta = pos - startPos;
+			diff = q->pos().toPoint() - q->lastPos().toPoint();
 			
 			if(abs(delta.x()) > abs(delta.y()))
 				break;
@@ -88,17 +90,23 @@ QGestureRecognizer::Result CardViewGestureRecognizer::recognize(QGesture *state,
 				q->setFlick(-1);
 			}
 			
-			if(delta.y() <= 0 && delta.y() < delta.x())
+			if(delta.y() <= 15)
 			{
 				q->setLastPos(q->pos());
 				q->setPos(pos);
 				q->setEdge(true);
 				result = QGestureRecognizer::TriggerGesture;
+				fired = true;
 			}
 			break;
 		}
 		case QEvent::TouchEnd:
-			result = QGestureRecognizer::FinishGesture;
+			if(fired)
+			{
+				result = QGestureRecognizer::FinishGesture;
+			}
+			else
+				result = QGestureRecognizer::Ignore;
 			break;
 		default:
 			result = QGestureRecognizer::Ignore;

@@ -2051,7 +2051,6 @@ void CardWindowManager::handleSwitchCard(QGestureEvent* event)
                     switchToPrevApp();
                     break;
                 case 0:
-                    qCritical() << gesture->edge() << gesture->pos();
                     if(gesture->edge() == false && gesture->pos().x() > SystemUiController::instance()->currentUiWidth()/2) //Left Edge
                         switchToPrevApp();
                     if(gesture->edge() == true && gesture->pos().x() < SystemUiController::instance()->currentUiWidth()/2) //Right Edge
@@ -2088,6 +2087,7 @@ void CardWindowManager::handleCardViewGesture(QGestureEvent* event)
 	
     switch(gesture->state())
     {
+        case Qt::GestureStarted:
         case Qt::GestureUpdated:
         {
 			setGroupsCardViewGesture(true);
@@ -2117,30 +2117,8 @@ void CardWindowManager::handleCardViewGesture(QGestureEvent* event)
         case Qt::GestureFinished:
 			setGroupsCardViewGesture(false);
             switch(gesture->flick())
-		{
-			case 1:
-				for(int i=m_groups.size()-1;i>=0;i--)
-				{
-					m_groups[i]->setNonCurScale(kNonActiveScale);
-					m_groups[i]->setCurScale(kActiveScale);
-				}
-				slideAllGroups();
-				maximizeActiveWindow();
-				break;
-			case 0:
-				
-				if(m_activeGroup->curScale() < (kActiveScale + 1.0)/2)
-				{
-					for(int i=m_groups.size()-1;i>=0;i--)
-					{
-						m_groups[i]->setNonCurScale(kNonActiveScale);
-						m_groups[i]->setCurScale(kActiveScale);
-					}
-					slideAllGroups();
-					minimizeActiveWindow();
-				}
-				else
-				{
+			{
+				case 1:
 					for(int i=m_groups.size()-1;i>=0;i--)
 					{
 						m_groups[i]->setNonCurScale(kNonActiveScale);
@@ -2148,21 +2126,42 @@ void CardWindowManager::handleCardViewGesture(QGestureEvent* event)
 					}
 					slideAllGroups();
 					maximizeActiveWindow();
-				}
-				
-				break;
-			case -1:
-				for(int i=m_groups.size()-1;i>=0;i--)
-				{
-					m_groups[i]->setNonCurScale(kNonActiveScale);
-					m_groups[i]->setCurScale(kActiveScale);
-				}
-				slideAllGroups();
-				minimizeActiveWindow();
-				break;
-			default:
-				break;
-		}
+					break;
+				case 0:
+					if(m_activeGroup->curScale() < (kActiveScale + 1.0)/2)
+					{
+						for(int i=m_groups.size()-1;i>=0;i--)
+						{
+							m_groups[i]->setNonCurScale(kNonActiveScale);
+							m_groups[i]->setCurScale(kActiveScale);
+						}
+						slideAllGroups();
+						minimizeActiveWindow();
+					}
+					else
+					{
+						for(int i=m_groups.size()-1;i>=0;i--)
+						{
+							m_groups[i]->setNonCurScale(kNonActiveScale);
+							m_groups[i]->setCurScale(kActiveScale);
+						}
+						slideAllGroups();
+						maximizeActiveWindow();
+					}
+					
+					break;
+				case -1:
+					for(int i=m_groups.size()-1;i>=0;i--)
+					{
+						m_groups[i]->setNonCurScale(kNonActiveScale);
+						m_groups[i]->setCurScale(kActiveScale);
+					}
+					slideAllGroups();
+					minimizeActiveWindow();
+					break;
+				default:
+					break;
+			}
 			m_movement = MovementUnlocked;
 			break;
         case Qt::GestureCanceled:

@@ -107,7 +107,7 @@ QGestureRecognizer::Result CardSwitchGestureRecognizer::recognize(QGesture *stat
 					}
 				}
 			}
-			else if (ev->touchPoints().size() > 1)
+			else
 			{
 				result = QGestureRecognizer::CancelGesture;
 			}
