@@ -4,21 +4,31 @@
     "prefs":
 	[
 		{
-			"group": "gestures",
+			"group": "gestures",	
 			"restart": "none",
-			"prefserv": "sysUiSlideGestures",
-			"label": "Enable Slide Gestures",
-			"help": "Triggers gestures on finger move of 15px instead of on finger release.",
-			"key": "slideGestures",
-			"type": "ToggleButton",
-			"value": false
+			"prefserv": "sysUiGestureDetection",
+			"label": "Gesture Detection",
+			"help": "Swipe- Trigger gestures after releasing the finger during a high-velocity swipe. Slide - Trigger gestures on finger move of 15px instead of on finger release. Fluid - Gestures track the user's finger for a more fluid user experience.",
+			"key": "gestureDetection",
+			"type": "ListSelector",
+			"value": 0,
+			"choices": [ {
+				"label": "Swipe",
+				"value": 0
+			}, {
+				"label": "Slide",
+				"value": 1
+			}, {
+				"label": "Fluid",
+				"value": 2
+			} ]
 		},
 		{
 			"group": "gestures",
 			"restart": "none",
 			"prefserv": "sysUiEnableAppSwitchGestures",
-			"label": "Enable App Switch Gestures",
-			"help": "Enable/Disable sliding in from the left/right bezels to switch apps.",
+			"label": "Enable Side Bezel Gestures",
+			"help": "Enable/Disable gestures from the left/right bezels.",
 			"key": "slideAppSwitchGestures",
 			"type": "ToggleButton",
 			"value": false

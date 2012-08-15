@@ -60,11 +60,15 @@ public:
 
 	bool sysUiNoHomeButtonMode() const { return m_sysUiNoHomeButtonMode; }
 	bool sysUiEnableNextPrevGestures() const { return m_sysUiEnableNextPrevGestures; }
+<<<<<<< HEAD
 	int sysUiGestureDetection() const { return m_sysUiGestureDetection; }
 	bool sysUiEnableAppSwitchGestures() const { return m_sysUiEnableAppSwitchGestures; }
 	bool sysUiStatusBarSlide() const { return m_sysUiStatusBarSlide; }
 	bool sysUiEnableStatusBarSearch() const { return m_sysUiEnableStatusBarSearch; }
 	bool sysUiEnableMaximizeEdges() const { return m_sysUiEnableMaximizeEdges; }
+=======
+	bool sysUiGestureDetection() const { return m_sysUiGestureDetection; }
+>>>>>>> origin/maximized-upswipe
 
 	bool imeEnabled() const { return m_imeEnabled; }
 	bool pinyinEnabled() const { return m_pinyinEnabled; }
@@ -138,11 +142,15 @@ private:
 
 	bool m_sysUiNoHomeButtonMode;
 	bool m_sysUiEnableNextPrevGestures;
+<<<<<<< HEAD
 	int m_sysUiGestureDetection;
 	bool m_sysUiEnableAppSwitchGestures;
 	bool m_sysUiStatusBarSlide;
 	bool m_sysUiEnableStatusBarSearch;
 	bool m_sysUiEnableMaximizeEdges;
+=======
+	bool m_sysUiGestureDetection;
+>>>>>>> origin/maximized-upswipe
 
 	bool m_imeEnabled;
 	bool m_pinyinEnabled;
