@@ -19,8 +19,8 @@
 
 
 
-#ifndef SCREENEDGESLIDEGESTURE_H
-#define SCREENEDGESLIDEGESTURE_H
+#ifndef CARDVIEWGESTURE_H
+#define CARDVIEWGESTURE_H
 
 #include "Common.h"
 
@@ -29,33 +29,33 @@
 
 #include <SysMgrDefs.h>
 
-enum SlideGesture {
-	GestureScreenEdgeSlide  = 0x0100 + 2
+enum ViewGesture {
+	GestureCardView  = 0x0100 + 2
 };
 
-enum Edge {
-	Left = 0,
-	Right,
-	Bottom
-};
-
-class ScreenEdgeSlideGesture : public QGesture
+class CardViewGesture : public QGesture
 {
 public:
 
-	ScreenEdgeSlideGesture(QObject* parent = 0) : QGesture(parent, (Qt::GestureType) GestureScreenEdgeSlide) {}
-	int getEdge() { return edge; }
-	bool getFired() { return fired; }
-	void setEdge(int inEdge) { edge = inEdge; }
-	void setFired(bool inFired) { fired = inFired; }
+	CardViewGesture(QObject* parent = 0) : QGesture(parent, (Qt::GestureType) GestureCardView) {}
+    QPointF pos() const { return m_pos; }
+    void setPos(QPointF pos) { m_pos = pos; }
+    QPointF lastPos() const { return m_lastPos; }
+    void setLastPos(QPointF lastPos) { m_lastPos = lastPos; }
+    int flick() const { return m_flick; }
+    void setFlick(int flick) { m_flick = flick; }
+    bool edge() const { return m_edge; }
+    void setEdge(bool edge) { m_edge = edge; }
 
 private:
-	int edge;
-	bool fired;
+    QPointF m_pos;
+    QPointF m_lastPos;
+    bool m_edge;
+    int m_flick;
 
 private:
 
-	friend class ScreenEdgeSlideGestureRecognizer;
+	friend class CardViewGestureRecognizer;
 };
 
-#endif /* SCREENEDGESLIDEGESTURE_H */
+#endif /* CARDVIEWGESTURE_H */

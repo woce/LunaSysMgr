@@ -43,6 +43,8 @@
 #include "CardWindowManagerStates.h"
 #include "CardGroup.h"
 #include "FlickGesture.h"
+#include "CardSwitchGesture.h"
+#include "CardViewGesture.h"
 #include "GhostCard.h"
 #include "IMEController.h"
 
@@ -94,6 +96,8 @@ CardWindowManager::CardWindowManager(int maxWidth, int maxHeight)
 	, m_loadingState(0)
 	, m_focusState(0)
 	, m_reorderState(0)
+	, m_switchState(0)
+	, m_cardViewGestureState(0)
 	, m_curState(0)
 	, m_addingModalWindow(false)
 	, m_initModalMaximizing(false)
@@ -131,12 +135,18 @@ CardWindowManager::CardWindowManager(int maxWidth, int maxHeight)
 			SLOT(slotMaximizeActiveCardWindow()));
 	connect(sysui, SIGNAL(signalMinimizeActiveCardWindow()),
 			SLOT(slotMinimizeActiveCardWindow()));
-
+    
 	connect(sysui, SIGNAL(signalChangeCardWindow(bool)),
 			SLOT(slotChangeCardWindow(bool)));
 
 	connect(sysui, SIGNAL(signalFocusMaximizedCardWindow(bool)),
 			SLOT(slotFocusMaximizedCardWindow(bool)));
+    
+	connect(sysui, SIGNAL(signalSwitchCardEvent(QGestureEvent*)),
+			SLOT(slotSwitchCardEvent(QGestureEvent*)));
+    
+	connect(sysui, SIGNAL(signalCardViewGestureEvent(QGestureEvent*)),
+			SLOT(slotCardViewGestureEvent(QGestureEvent*)));
 
 	connect(sysui, SIGNAL(signalSideSwipe(bool)),
 		SLOT(slotSideSwipe(bool)));
@@ -155,7 +165,6 @@ CardWindowManager::CardWindowManager(int maxWidth, int maxHeight)
 	grabGesture(Qt::TapGesture);
 	grabGesture(Qt::TapAndHoldGesture);
 	grabGesture((Qt::GestureType) SysMgrGestureFlick);
-
 }
 
 CardWindowManager::~CardWindowManager()
@@ -182,6 +191,7 @@ void CardWindowManager::init()
 	qRegisterMetaType<CardWindow*>("CardWindow*");
 
 	m_stateMachine = new QStateMachine(this);
+	SystemUiController* sysui = SystemUiController::instance();
 
 	// setup our states
 	m_minimizeState = new MinimizeState(this);
@@ -191,6 +201,8 @@ void CardWindowManager::init()
 	m_loadingState = new LoadingState(this);
 	m_focusState = new FocusState(this);
 	m_reorderState = new ReorderState(this);
+	m_switchState = new SwitchState(this);
+	m_cardViewGestureState = new CardViewGestureState(this);
 
 	m_stateMachine->addState(m_minimizeState);
 	m_stateMachine->addState(m_groupState);
@@ -199,6 +211,8 @@ void CardWindowManager::init()
 	m_stateMachine->addState(m_loadingState);
 	m_stateMachine->addState(m_focusState);
 	m_stateMachine->addState(m_reorderState);
+	m_stateMachine->addState(m_switchState);
+	m_stateMachine->addState(m_cardViewGestureState);
 
 	// connect allowed state transitions
 	m_minimizeState->addTransition(this,
@@ -229,7 +243,11 @@ void CardWindowManager::init()
 		SIGNAL(signalPreparingWindow(CardWindow*)), m_preparingState);
 	m_maximizeState->addTransition(new MaximizeToFocusTransition(this, m_focusState));
 	m_maximizeState->addTransition(this,
-	SIGNAL(signalGroupWindow()), m_groupState);
+		SIGNAL(signalGroupWindow()), m_groupState);
+	m_maximizeState->addTransition(this,
+		SIGNAL(signalEnterSwitch()), m_switchState);
+	m_maximizeState->addTransition(this,
+		SIGNAL(signalEnterCardViewGestureState()), m_cardViewGestureState);
 
 	m_focusState->addTransition(this,
 		SIGNAL(signalMaximizeActiveWindow()), m_maximizeState);
@@ -264,6 +282,14 @@ void CardWindowManager::init()
 
 	m_reorderState->addTransition(this,
 		SIGNAL(signalExitReorder(bool)), m_minimizeState);
+	
+	m_cardViewGestureState->addTransition(this,
+		SIGNAL(signalMinimizeActiveWindow()), m_minimizeState);
+	m_cardViewGestureState->addTransition(this,
+		SIGNAL(signalMaximizeActiveWindow()), m_maximizeState);
+
+	m_switchState->addTransition(this,
+		SIGNAL(signalMaximizeActiveWindow()), m_maximizeState);
 
 	// start off minimized
 	m_stateMachine->setInitialState(m_minimizeState);
@@ -1155,7 +1181,9 @@ void CardWindowManager::maximizeActiveWindow(bool animate)
 		m_activeGroup->raiseCards();
 
 		setActiveGroup(m_activeGroup);
-
+        
+        setGroupSwitchMode(true);
+        
 		if(animate)
 			slideAllGroups(false);
 		else
@@ -1307,9 +1335,9 @@ void CardWindowManager::mousePressEvent(QGraphicsSceneMouseEvent* event)
 	// We may get a second pen down. Just ignore it.
 	if (m_penDown)
 		return;
-
+		
 	resetMouseTrackState();
-
+	
 	if (m_groups.empty() || !m_activeGroup)
 		return;
 
@@ -1994,6 +2022,165 @@ void CardWindowManager::handleMouseReleaseReorder(QGraphicsSceneMouseEvent* even
 	slideAllGroups();
 }
 
+void CardWindowManager::handleSwitchCard(QGestureEvent* event)
+{
+	QGesture* t = event->gesture((Qt::GestureType) GestureCardSwitch);
+    CardSwitchGesture* gesture = static_cast<CardSwitchGesture*>(t);
+    
+    switch(gesture->state())
+    {
+        case Qt::GestureUpdated:
+        {
+            QPoint diff = (gesture->pos() - gesture->lastPos()).toPoint();
+            
+            if (m_movement == MovementUnlocked) {
+                m_movement = MovementHLocked;
+                m_activeGroupPivot = 0;
+            }
+            else {
+                m_activeGroupPivot += diff.x();
+                slideAllGroupsTo(m_activeGroupPivot);
+            }
+            break;
+        }
+        case Qt::GestureFinished:
+        {
+            switch(gesture->flick())
+            {
+                case 1:
+                    switchToPrevApp();
+                    break;
+                case 0:
+                    qCritical() << gesture->edge() << gesture->pos();
+                    if(gesture->edge() == false && gesture->pos().x() > SystemUiController::instance()->currentUiWidth()/2) //Left Edge
+                        switchToPrevApp();
+                    if(gesture->edge() == true && gesture->pos().x() < SystemUiController::instance()->currentUiWidth()/2) //Right Edge
+                        switchToNextApp();
+                    break;
+                case -1:
+                    switchToNextApp();
+                    break;
+                default:
+                    break;
+            }
+            maximizeActiveWindow();
+            m_movement = MovementUnlocked;
+            break;
+        }
+        case Qt::GestureCanceled:
+            maximizeActiveWindow();
+            m_movement = MovementUnlocked;
+            break;
+        default:
+            break;
+    }
+}
+
+void CardWindowManager::handleCardViewGesture(QGestureEvent* event)
+{
+	QGesture* t = event->gesture((Qt::GestureType) GestureCardView);
+    CardViewGesture* gesture = static_cast<CardViewGesture*>(t);
+	
+	int delta = gesture->pos().y() - gesture->lastPos().y();
+	
+	qreal nonCurScale;
+	qreal curScale;
+	
+    switch(gesture->state())
+    {
+        case Qt::GestureUpdated:
+        {
+			setGroupsCardViewGesture(true);
+			
+            if (m_movement == MovementUnlocked) {
+				for(int i=m_groups.size()-1;i>=0;i--)
+				{
+					m_groups[i]->setNonCurScale(1.0);
+					m_groups[i]->setCurScale(1.0);
+				}
+                m_movement = MovementVLocked;
+            }
+			
+			nonCurScale = qMax(qreal(m_activeGroup->nonCurScale() + (delta/250.0)), kNonActiveScale);
+			curScale = qMax(qreal(m_activeGroup->curScale() + (delta/250.0)), kActiveScale);
+			nonCurScale = qMin(nonCurScale, qreal(1.0));
+			curScale = qMin(curScale, qreal(1.0));
+			
+			for(int i=m_groups.size()-1;i>=0;i--)
+			{
+				m_groups[i]->setNonCurScale(nonCurScale);
+				m_groups[i]->setCurScale(curScale);
+			}
+			slideAllGroups();
+            break;
+        }
+        case Qt::GestureFinished:
+			setGroupsCardViewGesture(false);
+            switch(gesture->flick())
+		{
+			case 1:
+				for(int i=m_groups.size()-1;i>=0;i--)
+				{
+					m_groups[i]->setNonCurScale(kNonActiveScale);
+					m_groups[i]->setCurScale(kActiveScale);
+				}
+				slideAllGroups();
+				maximizeActiveWindow();
+				break;
+			case 0:
+				
+				if(m_activeGroup->curScale() < (kActiveScale + 1.0)/2)
+				{
+					for(int i=m_groups.size()-1;i>=0;i--)
+					{
+						m_groups[i]->setNonCurScale(kNonActiveScale);
+						m_groups[i]->setCurScale(kActiveScale);
+					}
+					slideAllGroups();
+					minimizeActiveWindow();
+				}
+				else
+				{
+					for(int i=m_groups.size()-1;i>=0;i--)
+					{
+						m_groups[i]->setNonCurScale(kNonActiveScale);
+						m_groups[i]->setCurScale(kActiveScale);
+					}
+					slideAllGroups();
+					maximizeActiveWindow();
+				}
+				
+				break;
+			case -1:
+				for(int i=m_groups.size()-1;i>=0;i--)
+				{
+					m_groups[i]->setNonCurScale(kNonActiveScale);
+					m_groups[i]->setCurScale(kActiveScale);
+				}
+				slideAllGroups();
+				minimizeActiveWindow();
+				break;
+			default:
+				break;
+		}
+			m_movement = MovementUnlocked;
+			break;
+        case Qt::GestureCanceled:
+			setGroupsCardViewGesture(false);
+			for(int i=m_groups.size()-1;i>=0;i--)
+			{
+				m_groups[i]->setNonCurScale(kNonActiveScale);
+				m_groups[i]->setCurScale(kActiveScale);
+			}
+			slideAllGroups();
+			maximizeActiveWindow();
+            m_movement = MovementUnlocked;
+            break;
+        default:
+            break;
+    }
+}
+
 void CardWindowManager::handleTapGestureMinimized(QTapGesture* event)
 {
 	if (!m_activeGroup)
@@ -2007,7 +2194,6 @@ void CardWindowManager::handleTapGestureMinimized(QTapGesture* event)
 		//  slide the card fan over to make it more visible.
 		if (m_activeGroup->shouldMaximizeOrScroll(event->position())) {
 			m_activeGroup->setActiveCard(event->position());
-			m_activeGroup->moveToActiveCard();
 			maximizeActiveWindow();
 		}
 		else {
@@ -2164,6 +2350,20 @@ void CardWindowManager::setActiveGroup(CardGroup* group)
 	SystemUiController::instance()->setActiveCardWindow(m_activeGroup ? m_activeGroup->activeCard() : 0);
 }
 
+void CardWindowManager::setGroupSwitchMode(bool enable)
+{
+	for (int i=0; i<m_groups.size();i++) {
+        m_groups[i]->setSwitchMode(enable);
+    }
+}
+
+void CardWindowManager::setGroupsCardViewGesture(bool enable)
+{
+	for (int i=0; i<m_groups.size();i++) {
+        m_groups[i]->setCardViewGesture(enable);
+    }
+}
+
 void CardWindowManager::switchToNextApp()
 {
 	disableCardRestoreToMaximized();
@@ -2198,31 +2398,30 @@ void CardWindowManager::switchToNextApp()
 void CardWindowManager::switchToPrevApp()
 {
 	disableCardRestoreToMaximized();
-
+	
 	if (!m_activeGroup || m_groups.empty())
 		return;
-
+	
     int flyback = 0;  // For infinite card cycling
-
-
+	
+	
 	if (!m_activeGroup->makePreviousCardActive()) {
-
-		// couldn't move, switch to the previous group
+		// couldn't move, switch to the next group
 		int index = m_groups.indexOf(m_activeGroup);
 		if (index > 0) {
 			m_activeGroup = m_groups[index - 1];
             m_activeGroup->makeFrontCardActive();
+		} else {
+			if (Preferences::instance()->getInfiniteCardCyclingPreference()) {
+				m_activeGroup = m_groups[m_groups.size()-1];
+				m_activeGroup->makeFrontCardActive();
+				if (m_groups.size() > 1) flyback = -1;
+			}
 		}
-    } else {
-		if (Preferences::instance()->getInfiniteCardCyclingPreference()) {
-		  m_activeGroup = m_groups[m_groups.size()-1];
-		  m_activeGroup->makeFrontCardActive();
-		  if (m_groups.size() > 1) flyback = -1;
-		}
-    }
-			
+	}
+	
     setActiveGroup(m_activeGroup);
-
+	
 	slideAllGroups();
 }
 
@@ -2929,7 +3128,7 @@ void CardWindowManager::slotPositiveSpaceChanged(const QRect& r)
 		SystemUiController::instance()->setMinimumPositiveSpaceHeight(kMinimumHeight);
 
 		m_targetPositiveSpace = r;
-
+		
 		// TODO: this is a temporary solution to fake the existence of the search pill
 		// 	which happens to be 48 pixels tall
 		kActiveScale = ((qreal) (r.height() - 48) * kActiveWindowScale) / (qreal) m_normalScreenBounds.height();
@@ -3305,8 +3504,6 @@ void CardWindowManager::slotChangeCardWindow(bool next)
 
 void CardWindowManager::slotSideSwipe(bool direction)
 {
-	qCritical() << direction;
-	
 	//Minimized
 	if (m_curState == m_minimizeState)  {
 		if(direction)
@@ -3370,6 +3567,34 @@ void CardWindowManager::slotFocusMaximizedCardWindow(bool focus)
 {
 	if (m_curState)
 		m_curState->focusMaximizedCardWindow(focus);
+}
+
+void CardWindowManager::slotSwitchCardEvent(QGestureEvent* event)
+{
+	QGesture* t = event->gesture((Qt::GestureType) GestureCardSwitch);
+    CardSwitchGesture* s = static_cast<CardSwitchGesture*>(t);
+
+    if(m_curState == m_maximizeState && s->state() == Qt::GestureUpdated)
+    {
+        Q_EMIT signalEnterSwitch();
+    }
+    
+    if (m_curState)
+        m_curState->switchCardEvent(event);
+}
+
+void CardWindowManager::slotCardViewGestureEvent(QGestureEvent* event)
+{
+	QGesture* t = event->gesture((Qt::GestureType) GestureCardView);
+    CardViewGesture* s = static_cast<CardViewGesture*>(t);
+
+    if(m_curState == m_maximizeState && s->state() == Qt::GestureUpdated)
+    {
+        Q_EMIT signalEnterCardViewGestureState();
+    }
+    
+    if (m_curState)
+        m_curState->cardViewGestureEvent(event);
 }
 
 void CardWindowManager::slotTouchToShareAppUrlTransfered(const std::string& appId)
