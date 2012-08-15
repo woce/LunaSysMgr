@@ -81,7 +81,7 @@ QGestureRecognizer::Result CardViewGestureRecognizer::recognize(QGesture *state,
 			if(abs(delta.x()) > abs(delta.y()))
 				break;
 			
-			if(diff.y() > -5 || diff.y() < 5)
+			if(diff.y() > -5 && diff.y() < 5)
 			{
 				q->setFlick(0);
 			}
