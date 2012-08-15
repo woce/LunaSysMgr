@@ -1,0 +1,14 @@
+diff --git a/com.palm.app.deviceinfo/app/controllers/list-assistant.js b/com.palm.app.deviceinfo/app/controllers/list-assistant.js
+index 292e5d1..6820df9 100644
+--- a/com.palm.app.deviceinfo/app/controllers/list-assistant.js
++++ b/com.palm.app.deviceinfo/app/controllers/list-assistant.js.new
+@@ -139,6 +139,9 @@ var ListAssistant = Class.create({
+ 				item.title = $L('Build');
+ 				item.data = this.fields.buildNumber;
+ 			} else if (item.title == $L('Build')) {
++				item.title = $L('By');
++				item.data = "WebOS Ports";
++			} else if (item.title == $L('By')) {
+ 				item.title = $L('Version');
+ 				item.data = this.fields.system;
+ 			}
