@@ -66,7 +66,7 @@ QGestureRecognizer::Result CardViewGestureRecognizer::recognize(QGesture *state,
 				{
 					QPoint delta = pos - startPos;
 					
-					if (event->type() == QEvent::TouchUpdate || QEvent::TouchBegin) {
+					if (event->type() == QEvent::TouchUpdate) {
 						if(startPos.y() >= displayBounds.y() - kGestureBorderSize)
 						{
                             result = QGestureRecognizer::MayBeGesture;
@@ -93,7 +93,7 @@ QGestureRecognizer::Result CardViewGestureRecognizer::recognize(QGesture *state,
 					}
 				}
 			}
-			else if (ev->touchPoints().size() > 1)
+			else
 			{
 				result = QGestureRecognizer::CancelGesture;
 			}
