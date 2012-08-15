@@ -2308,6 +2308,9 @@ void SystemUiController::handleSideSwipe(bool next)
 
 void SystemUiController::handleCardSwitchGesture(QGestureEvent* event)
 {
+	if (m_deviceLocked)
+		return;
+	
 	QGesture* t = event->gesture((Qt::GestureType) GestureCardSwitch);
     CardSwitchGesture* gesture = static_cast<CardSwitchGesture*>(t);
     
@@ -2315,9 +2318,6 @@ void SystemUiController::handleCardSwitchGesture(QGestureEvent* event)
         m_switchCards = true;
     else
         m_switchCards = false;
-    
-	if (m_deviceLocked)
-		return;
     
 	if (m_dashboardOpened) {
 		Q_EMIT signalCloseDashboard(true);
@@ -2332,19 +2332,21 @@ void SystemUiController::handleCardSwitchGesture(QGestureEvent* event)
 
 void SystemUiController::handleCardViewGesture(QGestureEvent* event)
 {
+	if (m_deviceLocked)
+		return;
+
 	QGesture* t = event->gesture((Qt::GestureType) GestureCardView);
     CardViewGesture* gesture = static_cast<CardViewGesture*>(t);
 	
 	if (!m_cardViewGesture && !m_cardWindowMaximized && gesture->state() == Qt::GestureUpdated)
+	{
 		Q_EMIT signalToggleLauncher();
+	}
     
     if(gesture->state() == Qt::GestureStarted || gesture->state() == Qt::GestureUpdated)
         m_cardViewGesture = true;
     else
         m_cardViewGesture = false;
-    
-	if (m_deviceLocked)
-		return;
     
 	if (m_dashboardOpened) {
 		Q_EMIT signalCloseDashboard(true);

@@ -65,12 +65,12 @@ QGestureRecognizer::Result CardViewGestureRecognizer::recognize(QGesture *state,
 				else
 				{
 					QPoint delta = pos - startPos;
-						
-					if (event->type() == QEvent::TouchUpdate) {
+					
+					if (event->type() == QEvent::TouchUpdate || QEvent::TouchBegin) {
 						if(startPos.y() >= displayBounds.y() - kGestureBorderSize)
 						{
                             result = QGestureRecognizer::MayBeGesture;
-                            if(delta.y() <= -kGestureTriggerDistance)
+                            if(delta.y() <= 0 && delta.y() < delta.x())
                             {
                                 q->setLastPos(q->pos());
                                 q->setPos(pos);
