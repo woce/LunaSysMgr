@@ -54,7 +54,9 @@ static TabletKeymap::constUKeyArray sExclamAsterisk_extended = { Qt::Key_Exclam,
 										{ w, Qt::Key_Egrave,		Qt::Key_7,									sFrAzert7_extended },\
 										{ w, Qt::Key_ParenRight,	Qt::Key_8,									sFrAzert8_extended },\
 										{ w, Qt::Key_Ccedilla,		Qt::Key_9,									sFrAzert9_extended },\
-										{ w, Qt::Key_Agrave,		Qt::Key_0,									sFrAzert0_extended }
+										{ w, Qt::Key_Agrave,		Qt::Key_0,									sFrAzert0_extended },\
+										{ w, Qt::Key_Left,			Qt::Key_Up,								    NULL },\
+										{ w, Qt::Key_Right,			Qt::Key_Down,								NULL }
 
 #define FR_AZERTY_TOP_10(w)				{ w, Qt::Key_A,				Qt::Key_AsciiTilde,							sA_extended },\
 										{ w, Qt::Key_Z,				Qt::Key_NumberSign,							sZ_extended },\
@@ -78,12 +80,12 @@ static TabletKeymap::constUKeyArray sExclamAsterisk_extended = { Qt::Key_Exclam,
 										{ w, Qt::Key_L,				Qt::Key_diaeresis,							sL_extended },\
 										{ w, Qt::Key_M,				Qt::Key_AsciiCircum,						sM_extended }
 
-#define FR_AZERTY_LOW_9(w)				{ w, Qt::Key_W,				Qt::Key_Up,									NULL  },\
-										{ w, Qt::Key_X,				Qt::Key_Down,								sOptions },\
-										{ w, Qt::Key_C,				Qt::Key_Left,								sC_extended },\
-										{ w, Qt::Key_V,				Qt::Key_Right,								NULL },\
-										{ w, Qt::Key_B,				cKey_Emoticon_Smile,						sToggleLanguage_extended },\
-										{ w, Qt::Key_N,				cKey_Emoticon_Frown,						sN_extended },\
+#define FR_AZERTY_LOW_9(w)				{ w, Qt::Key_W,				cKey_Emoticon_Smile,						NULL  },\
+										{ w, Qt::Key_X,				cKey_Emoticon_Wink,							sOptions },\
+										{ w, Qt::Key_C,				cKey_Emoticon_Frown,						sC_extended },\
+										{ w, Qt::Key_V,				cKey_Emoticon_Cry,							NULL },\
+										{ w, Qt::Key_B,				cKey_Emoticon_Yuck,							sToggleLanguage_extended },\
+										{ w, Qt::Key_N,				cKey_Emoticon_Gasp,							sN_extended },\
 										{ w, Qt::Key_Comma,			Qt::Key_Question,							sCommaQuestion_extended },\
 										{ w, Qt::Key_Period,		Qt::Key_Semicolon,							sPeriodSemicolon_extended },\
 										{ w, Qt::Key_Colon,			Qt::Key_Slash,								sColonSlash_extended }
