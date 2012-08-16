@@ -35,10 +35,11 @@
 namespace Tablet_Keyboard {
 
 // Keyboard layouts (added in reverse order because the order is changed when added to linked list)
-#include "tabletkeymaps/se.h"
-#include "tabletkeymaps/de.h"
-#include "tabletkeymaps/fr.h"
-#include "tabletkeymaps/en.h"
+#include "tabletkeymaps/se.h" // Swedish
+#include "tabletkeymaps/ru.h" // Russian
+#include "tabletkeymaps/de.h" // German
+#include "tabletkeymaps/fr.h" // French
+#include "tabletkeymaps/en.h" // English
 
 /* --- Layout Family --- */
 const TabletKeymap::LayoutFamily * TabletKeymap::LayoutFamily::s_firstFamily = NULL;

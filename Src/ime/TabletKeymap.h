@@ -142,7 +142,9 @@ inline bool UKeyIsTextShortcutKey(UKey ukey)	{ return ukey >= 0x01200300 && ukey
 inline bool UKeyIsKeyboardComboKey(UKey ukey)	{ return ukey >= cKey_KeyboardComboChoice_First && ukey <= cKey_KeyboardComboChoice_Last;}
 inline bool UKeyIsKeyboardSizeKey(UKey ukey)	{ return ukey >= cKey_Resize_First && ukey <= cKey_Resize_Last;}
 inline bool UKeyIsEmoticonKey(UKey ukey)		{ return ukey >= cKey_Emoticon_Frown && ukey <= cKey_Emoticon_Heart; }
-inline bool UKeyIsCharacter(UKey ukey)          { return (ukey >= Qt::Key_A && ukey <= Qt::Key_Z) || (ukey >= Qt::Key_Agrave && ukey <= Qt::Key_ydiaeresis && ukey != Qt::Key_multiply && ukey != Qt::Key_division); }
+inline bool UKeyIsCharacter(UKey ukey)          { return (ukey >= Qt::Key_A && ukey <= Qt::Key_Z) // A-Z
+                                                         || (ukey >= UKey(0x0410) && ukey <= UKey(0x42F)) || ukey == UKey(0x0401) // Russian keys
+                                                         || (ukey >= Qt::Key_Agrave && ukey <= Qt::Key_ydiaeresis && ukey != Qt::Key_multiply && ukey != Qt::Key_division); } // the rest ;-)
 inline bool UKeyIsNumber(UKey ukey)             { return (ukey >= Qt::Key_0 && ukey <= Qt::Key_9); }
 
 const QPoint cOutside(-1, -1);		// special value meaning representing "outside of keyboard", or "no key".
@@ -152,7 +154,7 @@ class TabletKeymap : public Mapper_IF
 public:
 	enum {
 		cKeymapRows = 5,
-		cKeymapColumns = 12,
+		cKeymapColumns = 14,
 	};
 
 	enum EShiftMode
