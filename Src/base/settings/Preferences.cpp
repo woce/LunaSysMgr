@@ -89,6 +89,7 @@ Preferences::Preferences()
 	, m_tabbedCardsEnabled(false)
 	, m_muteOn(false)
 	, m_enableALS(true)
+	, m_showReticleAnimation(true)
 {
 	init();
 	registerService();
@@ -585,6 +586,7 @@ bool Preferences::serverConnectCallback(LSHandle *sh, LSMessage *message, void *
 													   \"rotationLock\",\
 													   \"infiniteCardCyclingEnabled\",\
 													   \"tabbedCardsEnabled\",\
+													   \"showReticleAnimation\",\
 													   \"muteSound\",\
 													   \"" PALM_VIRTUAL_KEYBOARD_PREFS "\",\
 													   \"" PALM_VIRTUAL_KEYBOARD_SETTINGS "\",\
@@ -894,6 +896,13 @@ bool Preferences::getPreferencesCallback(LSHandle *sh, LSMessage *message, void 
 	if (label && !is_error(label)) {
 		if (prefObjPtr) {
 			prefObjPtr->m_tabbedCardsEnabled = json_object_get_int(label);
+		}
+	}
+
+	label = json_object_object_get(json, "showReticleAnimation");
+	if (label && !is_error(label)) {
+		if (prefObjPtr) {
+			prefObjPtr->m_showReticleAnimation = json_object_get_boolean(label);
 		}
 	}
 
