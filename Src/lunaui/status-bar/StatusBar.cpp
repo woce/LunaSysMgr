@@ -46,6 +46,7 @@
 #include <QGestureEvent>
 
 QColor StatusBar::s_defaultColor = QColor(0x51, 0x55, 0x58, 0xFF);
+static const std::string kDefaultCarrierName = "HP webOS";
 
 StatusBar::StatusBar(StatusBarType type, int width, int height)
 	: m_type(type)
@@ -69,8 +70,13 @@ StatusBar::StatusBar(StatusBarType type, int width, int height)
 	, m_forceOpaque(false)
 	, m_platformHasPhoneRadio(false)
 {
-	m_carrierText = Preferences::instance()->deviceName();
-	m_deviceNameAsAppTitle = true;
+	if (Preferences::instance()->sysUiShowDeviceNameAsCarrierText())
+	{
+		m_carrierText = Preferences::instance()->deviceName();
+		m_deviceNameAsAppTitle = true;
+	}
+	else
+		m_carrierText = kDefaultCarrierName;
     connect(Preferences::instance(), SIGNAL(signalDeviceNameChanged(std::string)), this, SLOT(slotDeviceNameChanged(std::string)));
 	m_appTitle = " ";
 
@@ -499,8 +505,13 @@ void StatusBar::setMaximizedAppTitle(bool appMaximized, const char* title, const
 					m_title->setTitleString(m_carrierText, false);
 				else
 				{
-					m_title->setTitleString(Preferences::instance()->deviceName(), false);
-					m_deviceNameAsAppTitle = true;
+					if (Preferences::instance()->sysUiShowDeviceNameAsCarrierText())
+					{
+						m_title->setTitleString(Preferences::instance()->deviceName(), false);
+						m_deviceNameAsAppTitle = true;
+					}
+					else
+						m_title->setTitleString(kDefaultCarrierName, false);
 				}
 				setBackgroundColor(false);
 			} else if(!strcmp(title, "@CARRIER")) {
@@ -534,8 +545,13 @@ void StatusBar::setMaximizedAppTitle(bool appMaximized, const char* title, const
 			m_title->setTitleString(m_carrierText, false);
 		else
 		{
-			m_title->setTitleString(Preferences::instance()->deviceName(), false);
-			m_deviceNameAsAppTitle = true;
+			if (Preferences::instance()->sysUiShowDeviceNameAsCarrierText())
+			{
+				m_title->setTitleString(Preferences::instance()->deviceName(), false);
+				m_deviceNameAsAppTitle = true;
+			}
+			else
+				m_title->setTitleString(kDefaultCarrierName, false);
 		}
 
 		if(m_titleGroup)

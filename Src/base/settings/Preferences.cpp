@@ -65,6 +65,7 @@ Preferences::Preferences()
 	, m_playFeedbackSounds(true)
 	, m_sysUiNoHomeButtonMode(true)
 	, m_sysUiEnableNextPrevGestures(false)
+	, m_sysUiShowDeviceNameAsCarrierText(false)
 	, m_lockTimeout(0)
 	, m_lsHandle(0)
 	, m_imeEnabled(false)
@@ -572,6 +573,7 @@ bool Preferences::serverConnectCallback(LSHandle *sh, LSMessage *message, void *
 													   \"imeType\", \
 													   \"sysUiNoHomeButtonMode\", \
 													   \"sysUiEnableNextPrevGestures\", \
+													   \"sysUiShowDeviceNameAsCarrierText\", \
 													   \"airplaneMode\", \
 													   \"hideWANAlert\", \
 													   \"roamingIndicator\", \
@@ -846,6 +848,14 @@ bool Preferences::getPreferencesCallback(LSHandle *sh, LSMessage *message, void 
 #ifdef HAVE_QPA
 			setAdvancedGestures(prefObjPtr->m_sysUiEnableNextPrevGestures ? 1 : 0);
 #endif
+		}
+	}
+
+	label = json_object_object_get(json, "sysUiShowDeviceNameAsCarrierText");
+	if (label && !is_error(label)) {
+
+		if (prefObjPtr) {
+			prefObjPtr->m_sysUiShowDeviceNameAsCarrierText = json_object_get_boolean(label);
 		}
 	}
 
