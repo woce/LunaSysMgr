@@ -173,7 +173,6 @@ private Q_SLOTS:
 	void slotBannerDeactivated();
 	void slotMenuGroupActivated(StatusBarItemGroup* group);
 	void slotDockModeStatusChanged(bool enabled);
-	void slotDeviceNameChanged(std::string deviceName);
 
 private:
 
@@ -212,7 +211,6 @@ private:
 	std::string m_carrierText;
 	std::string m_appTitle;
 	bool m_appMaximized;
-	bool m_deviceNameAsAppTitle;
 	bool m_forceOpaque;
 	bool m_showAppTitle;
 
