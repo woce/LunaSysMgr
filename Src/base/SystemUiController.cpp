@@ -2337,24 +2337,16 @@ void SystemUiController::handleCardViewGesture(QGestureEvent* event)
 
 	QGesture* t = event->gesture((Qt::GestureType) GestureCardView);
     CardViewGesture* gesture = static_cast<CardViewGesture*>(t);
+    
+    if(gesture->fired() == false) return;
 	
-	if (!m_cardViewGesture && !m_cardWindowMaximized && (gesture->state() == Qt::GestureUpdated || gesture->flick()))
-	{
+	if (!m_cardViewGesture && !m_cardWindowMaximized && gesture->state() == Qt::GestureUpdated)
 		Q_EMIT signalToggleLauncher();
-	}
-	
-	//TEMPORARY fix for fluid-upswipe not working
-	if (!m_cardViewGesture && m_cardWindowMaximized && (gesture->state() == Qt::GestureUpdated || gesture->flick()))
-	{
-		Q_EMIT signalMinimizeActiveCardWindow();
-	}
 
-    if(gesture->state() == Qt::GestureStarted || gesture->state() == Qt::GestureUpdated)
+    if(gesture->state() == Qt::GestureUpdated)
         m_cardViewGesture = true;
     else
         m_cardViewGesture = false;
-	
-	return;
     
 	if (m_dashboardOpened) {
 		Q_EMIT signalCloseDashboard(true);

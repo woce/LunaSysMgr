@@ -30,20 +30,26 @@ QGestureRecognizer::Result CardViewGestureRecognizer::recognize(QGesture *state,
 	QPoint displayBounds;
 	QPoint delta;
 	QPoint diff;
-	static bool fired;
 
     QGestureRecognizer::Result result = QGestureRecognizer::Ignore;
     
     switch (event->type()) {
 		case QEvent::TouchBegin:
-			//Reset Flick
-            q->setFlick(0);
-			fired = false;
-			result = QGestureRecognizer::MayBeGesture;
-        case QEvent::TouchUpdate: {
-			//Return if there are != 1 fingers
-			if(ev->touchPoints().size() != 1)
-				return result;
+        case QEvent::TouchUpdate:
+		case QEvent::TouchEnd: {
+			if(event->type() == QEvent::TouchBegin)
+			{
+				//Reset
+				q->setFlick(0);
+				q->setFired(false);
+			}
+			
+			//Break if there are more than 1 fingers
+			if(ev->touchPoints().size() > 1)
+			{
+				result = QGestureRecognizer::FinishGesture;
+				break;
+			}
 			
 			//Get the various coordinates
 			displayBounds = QPoint(info.displayWidth/2, info.displayHeight/2);
@@ -68,48 +74,45 @@ QGestureRecognizer::Result CardViewGestureRecognizer::recognize(QGesture *state,
 			pos += displayBounds;
 			displayBounds *= 2;
 			
-			//Ignore the gesture unless if it's outside the gesture border
-			if(startPos.y() < displayBounds.y() - kGestureBorderSize)
-			{
-				result = QGestureRecognizer::Ignore;
-				break;
-			}
+			q->setLastPos(q->pos());
+			q->setPos(pos);
 			
 			delta = pos - startPos;
-			diff = q->pos().toPoint() - q->lastPos().toPoint();
+			diff = pos - q->lastPos().toPoint();
 			
+			//Ignore the gesture unless if it's outside the gesture border
+			if(startPos.y() < displayBounds.y() - kGestureBorderSize)
+				break;
+			
+			//Ignore the gesture if it's not vertical
 			if(abs(delta.x()) > abs(delta.y()))
 				break;
 			
-			qCritical() << diff.y();
-			
+			//Is the user's finger moving fast enough for a flick?
 			if(diff.y() > -5 && diff.y() < 5)
 			{
 				q->setFlick(0);
+			}
+			else if(diff.y() >= 25)
+			{
+				q->setFlick(1);
 			}
 			else if(diff.y() <= -25)
 			{
 				q->setFlick(-1);
 			}
 			
-			if(delta.y() <= -15)
+			//Do we?
+			if(delta.y() <= 0 && event->type() == QEvent::TouchUpdate)
 			{
-				q->setLastPos(q->pos());
-				q->setPos(pos);
-				q->setEdge(true);
+				q->setFired(true);
 				result = QGestureRecognizer::TriggerGesture;
-				fired = true;
 			}
+			
+			if(event->type() == QEvent::TouchEnd)
+				result = QGestureRecognizer::FinishGesture;
 			break;
 		}
-		case QEvent::TouchEnd:
-			if(fired)
-			{
-				result = QGestureRecognizer::FinishGesture;
-			}
-			else
-				result = QGestureRecognizer::Ignore;
-			break;
 		default:
 			result = QGestureRecognizer::Ignore;
 			break;

@@ -2087,7 +2087,6 @@ void CardWindowManager::handleCardViewGesture(QGestureEvent* event)
 	
     switch(gesture->state())
     {
-        case Qt::GestureStarted:
         case Qt::GestureUpdated:
         {
 			setGroupsCardViewGesture(true);
@@ -2164,17 +2163,6 @@ void CardWindowManager::handleCardViewGesture(QGestureEvent* event)
 			}
 			m_movement = MovementUnlocked;
 			break;
-        case Qt::GestureCanceled:
-			setGroupsCardViewGesture(false);
-			for(int i=m_groups.size()-1;i>=0;i--)
-			{
-				m_groups[i]->setNonCurScale(kNonActiveScale);
-				m_groups[i]->setCurScale(kActiveScale);
-			}
-			slideAllGroups();
-			maximizeActiveWindow();
-            m_movement = MovementUnlocked;
-            break;
         default:
             break;
     }
