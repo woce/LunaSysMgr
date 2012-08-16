@@ -35,6 +35,7 @@
 namespace Tablet_Keyboard {
 
 // Keyboard layouts (added in reverse order because the order is changed when added to linked list)
+#include "tabletkeymaps/uk.h" // Ukrainian
 #include "tabletkeymaps/se.h" // Swedish
 #include "tabletkeymaps/ru.h" // Russian
 #include "tabletkeymaps/de.h" // German
