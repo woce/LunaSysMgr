@@ -2308,18 +2308,18 @@ void SystemUiController::handleSideSwipe(bool next)
 
 void SystemUiController::handleCardSwitchGesture(QGestureEvent* event)
 {
+	//No point continuing if the device is locked
 	if (m_deviceLocked)
 		return;
 	
 	QGesture* t = event->gesture((Qt::GestureType) GestureCardSwitch);
     CardSwitchGesture* gesture = static_cast<CardSwitchGesture*>(t);
     
+    //Nor if the gesture hasn't actually been fired
     if(gesture->fired() == false) return;
     
     if(gesture->state() == Qt::GestureStarted || gesture->state() == Qt::GestureUpdated)
-    {
         m_switchCards = true;
-    }
     else
         m_switchCards = false;
     
@@ -2328,29 +2328,32 @@ void SystemUiController::handleCardSwitchGesture(QGestureEvent* event)
 
 void SystemUiController::handleCardViewGesture(QGestureEvent* event)
 {
+	//No point continuing if the device is locked
 	if (m_deviceLocked)
 		return;
 
 	QGesture* t = event->gesture((Qt::GestureType) GestureCardView);
     CardViewGesture* gesture = static_cast<CardViewGesture*>(t);
     
+	//Nor if the gesture hasn't fired
     if(gesture->fired() == false) return;
 	
+	//Toggle the launcher if minimized, i'd like to add fluid launcher functionality at some point
 	if (!m_cardViewGesture && !m_cardWindowMaximized && gesture->state() == Qt::GestureUpdated)
 		Q_EMIT signalToggleLauncher();
-
+		
+	//Set the state variable
     if(gesture->state() == Qt::GestureUpdated)
         m_cardViewGesture = true;
     else
         m_cardViewGesture = false;
     
-	if (m_dashboardOpened) {
+    //Hide the relevant stuff
+	if (m_dashboardOpened)
 		Q_EMIT signalCloseDashboard(true);
-	}
-    
-	if (m_menuVisible) {
+
+	if (m_menuVisible)
 		Q_EMIT signalHideMenu();
-	}
 	
     Q_EMIT signalCardViewGestureEvent(event);
 }
