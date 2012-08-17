@@ -34,6 +34,7 @@ QGestureRecognizer::Result CardSwitchGestureRecognizer::recognize(QGesture *stat
     switch (event->type()) {
 		case QEvent::TouchBegin:
             q->setFlick(0);
+            q->setFired(false);
         case QEvent::TouchUpdate:
 		case QEvent::TouchEnd: {
 			if (ev->touchPoints().size() == 1) {
@@ -86,6 +87,7 @@ QGestureRecognizer::Result CardSwitchGestureRecognizer::recognize(QGesture *stat
                                 q->setLastPos(q->pos());
                                 q->setPos(pos);
                                 q->setEdge(false);
+                                q->setFired(true);
                                 result = QGestureRecognizer::TriggerGesture;
 
                             }
@@ -98,6 +100,7 @@ QGestureRecognizer::Result CardSwitchGestureRecognizer::recognize(QGesture *stat
                                 q->setLastPos(q->pos());
                                 q->setPos(pos);
                                 q->setEdge(true);
+                                q->setFired(true);
                                 result = QGestureRecognizer::TriggerGesture;
                             }
 						}

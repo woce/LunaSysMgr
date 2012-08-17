@@ -2314,18 +2314,14 @@ void SystemUiController::handleCardSwitchGesture(QGestureEvent* event)
 	QGesture* t = event->gesture((Qt::GestureType) GestureCardSwitch);
     CardSwitchGesture* gesture = static_cast<CardSwitchGesture*>(t);
     
+    if(gesture->fired() == false) return;
+    
     if(gesture->state() == Qt::GestureStarted || gesture->state() == Qt::GestureUpdated)
+    {
         m_switchCards = true;
+    }
     else
         m_switchCards = false;
-    
-	if (m_dashboardOpened) {
-		Q_EMIT signalCloseDashboard(true);
-	}
-    
-	if (m_menuVisible) {
-		Q_EMIT signalHideMenu();
-	}
     
     Q_EMIT signalSwitchCardEvent(event);
 }
