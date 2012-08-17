@@ -47,6 +47,7 @@ public:
 	std::string localeRegion() const;
 	std::string phoneRegion() const;
 	std::string timeFormat() const;
+	std::string deviceName() const;
 	uint32_t lockTimeout() const;
 	void setLockTimeout(uint32_t timeout);
 	
@@ -65,6 +66,7 @@ public:
 	bool sysUiStatusBarSlide() const { return m_sysUiStatusBarSlide; }
 	bool sysUiEnableStatusBarSearch() const { return m_sysUiEnableStatusBarSearch; }
 	bool sysUiEnableMaximizeEdges() const { return m_sysUiEnableMaximizeEdges; }
+	bool sysUiShowDeviceNameAsCarrierText() const { return m_sysUiShowDeviceNameAsCarrierText; }
 
 	bool imeEnabled() const { return m_imeEnabled; }
 	bool pinyinEnabled() const { return m_pinyinEnabled; }
@@ -113,6 +115,7 @@ Q_SIGNALS:
     void signalRotationLockChanged(OrientationEvent::Orientation rotationLock);
 	void signalMuteSoundChanged(bool muteOn);
 	void signalAlsEnabled(bool enable);
+	void signalDeviceNameChanged(std::string deviceName);
 	
 private:
 
@@ -132,6 +135,7 @@ private:
 	std::string m_currentAlerttoneFile;		//path and filename of alert tone
 	std::string m_currentNotificationtoneFile;	//path and filename of alert tone
 	std::string m_currentTimeFormat;
+	std::string m_deviceName; // device name
 	bool m_showAlertsWhenLocked;
 	bool m_ledThrobberEnabled;
 	bool m_playFeedbackSounds;
@@ -143,6 +147,7 @@ private:
 	bool m_sysUiStatusBarSlide;
 	bool m_sysUiEnableStatusBarSearch;
 	bool m_sysUiEnableMaximizeEdges;
+	bool m_sysUiShowDeviceNameAsCarrierText;
 
 	bool m_imeEnabled;
 	bool m_pinyinEnabled;

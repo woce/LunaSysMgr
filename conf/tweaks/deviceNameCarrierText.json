@@ -1,0 +1,15 @@
+[
+   {
+    "category": "luna",
+    "prefs": [        
+        {
+          "group": "status bar",
+          "restart": "none",
+          "prefserv": "sysUiShowDeviceNameAsCarrierText",
+          "label": "Show device name as carrier text",
+          "key": "devicenameCarriertext",
+          "type": "ToggleButton",
+          "value": false,
+        }]
+  }
+]
