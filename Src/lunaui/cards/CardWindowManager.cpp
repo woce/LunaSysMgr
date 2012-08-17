@@ -2031,12 +2031,15 @@ void CardWindowManager::handleSwitchCard(QGestureEvent* event)
     {
         case Qt::GestureUpdated:
         {
+        	//Calculate the distance since the last frame
             QPoint diff = (gesture->pos() - gesture->lastPos()).toPoint();
             
+            //If the movement is unlocked, lock it and reset the pivot
             if (m_movement == MovementUnlocked) {
                 m_movement = MovementHLocked;
                 m_activeGroupPivot = 0;
             }
+            //Otherwise, move relative to the user's finger
             else {
                 m_activeGroupPivot += diff.x();
                 slideAllGroupsTo(m_activeGroupPivot);
@@ -2045,28 +2048,34 @@ void CardWindowManager::handleSwitchCard(QGestureEvent* event)
         }
         case Qt::GestureFinished:
         {
+        	//Is there a flick?
             switch(gesture->flick())
             {
+            	//Right, switch to the previous app
                 case 1:
                     switchToPrevApp();
                     break;
+                //No, decide which card to switch to based on position
                 case 0:
                     if(gesture->edge() == false && gesture->pos().x() > SystemUiController::instance()->currentUiWidth()/2) //Left Edge
                         switchToPrevApp();
                     if(gesture->edge() == true && gesture->pos().x() < SystemUiController::instance()->currentUiWidth()/2) //Right Edge
                         switchToNextApp();
                     break;
+                //Left, switch to next app
                 case -1:
                     switchToNextApp();
                     break;
                 default:
                     break;
             }
+            //Restore the windows to maximized and reset the movement lock
             maximizeActiveWindow();
             m_movement = MovementUnlocked;
             break;
         }
         case Qt::GestureCanceled:
+            //Restore the windows to maximized and reset the movement lock
             maximizeActiveWindow();
             m_movement = MovementUnlocked;
             break;
@@ -2080,8 +2089,10 @@ void CardWindowManager::handleCardViewGesture(QGestureEvent* event)
 	QGesture* t = event->gesture((Qt::GestureType) GestureCardView);
     CardViewGesture* gesture = static_cast<CardViewGesture*>(t);
 	
+    //Calculate the total distance traveled
 	int delta = gesture->pos().y() - gesture->lastPos().y();
 	
+	//Card size to use
 	qreal nonCurScale;
 	qreal curScale;
 	
@@ -2089,43 +2100,56 @@ void CardWindowManager::handleCardViewGesture(QGestureEvent* event)
     {
         case Qt::GestureUpdated:
         {
+			//Put the groups in fluid sizing mode
 			setGroupsCardViewGesture(true);
 			
+			//If the movement isn't locked
             if (m_movement == MovementUnlocked) {
+            	//Set all the cards' scales to 1
 				for(int i=m_groups.size()-1;i>=0;i--)
 				{
 					m_groups[i]->setNonCurScale(1.0);
 					m_groups[i]->setCurScale(1.0);
 				}
+				//Lock the movement
                 m_movement = MovementVLocked;
             }
 			
+			//Calculate the current scales based on finger movement
 			nonCurScale = qMax(qreal(m_activeGroup->nonCurScale() + (delta/250.0)), kNonActiveScale);
 			curScale = qMax(qreal(m_activeGroup->curScale() + (delta/250.0)), kActiveScale);
 			nonCurScale = qMin(nonCurScale, qreal(1.0));
 			curScale = qMin(curScale, qreal(1.0));
 			
+			//Set all the cards' scales
 			for(int i=m_groups.size()-1;i>=0;i--)
 			{
 				m_groups[i]->setNonCurScale(nonCurScale);
 				m_groups[i]->setCurScale(curScale);
 			}
+			//Move them into place
 			slideAllGroups();
             break;
         }
         case Qt::GestureFinished:
+			//Reset the fluid sizing mode
 			setGroupsCardViewGesture(false);
+			//Is there a flick?
             switch(gesture->flick())
 			{
+				//Yes, downward
 				case 1:
+					//Reset the cards' scales to their minimzed values
 					for(int i=m_groups.size()-1;i>=0;i--)
 					{
 						m_groups[i]->setNonCurScale(kNonActiveScale);
 						m_groups[i]->setCurScale(kActiveScale);
 					}
+					//Move them into place and maximize
 					slideAllGroups();
 					maximizeActiveWindow();
 					break;
+				//No, calculate the cards' final state based on current scale
 				case 0:
 					if(m_activeGroup->curScale() < (kActiveScale + 1.0)/2)
 					{
@@ -2149,18 +2173,22 @@ void CardWindowManager::handleCardViewGesture(QGestureEvent* event)
 					}
 					
 					break;
+				//Yes, upward
 				case -1:
+					//Reset the cards' scales to their minimzed values
 					for(int i=m_groups.size()-1;i>=0;i--)
 					{
 						m_groups[i]->setNonCurScale(kNonActiveScale);
 						m_groups[i]->setCurScale(kActiveScale);
 					}
+					//Move them into place & minimze them
 					slideAllGroups();
 					minimizeActiveWindow();
 					break;
 				default:
 					break;
 			}
+			//Reset the movement lock
 			m_movement = MovementUnlocked;
 			break;
         default:
