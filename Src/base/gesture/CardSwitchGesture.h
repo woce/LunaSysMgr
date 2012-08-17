@@ -46,12 +46,15 @@ public:
     void setFlick(int flick) { m_flick = flick; }
     bool edge() const { return m_edge; }
     void setEdge(bool edge) { m_edge = edge; }
+    bool fired() const { return m_fired; }
+    void setFired(bool fired) { m_fired = fired; }
 
 private:
     QPointF m_pos;
     QPointF m_lastPos;
-    bool m_edge;
     int m_flick;
+    bool m_edge;
+    bool m_fired;
 
 private:
 
