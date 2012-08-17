@@ -29,6 +29,7 @@
 
 #include <SysMgrDefs.h>
 
+//Enum for referencing the gesture as a (Qt::GestureType)
 enum SwitchGesture {
 	GestureCardSwitch  = 0x0100 + 1
 };
@@ -36,25 +37,27 @@ enum SwitchGesture {
 class CardSwitchGesture : public QGesture
 {
 public:
-
 	CardSwitchGesture(QObject* parent = 0) : QGesture(parent, (Qt::GestureType) GestureCardSwitch) {}
-    QPointF pos() const { return m_pos; }
-    void setPos(QPointF pos) { m_pos = pos; }
-    QPointF lastPos() const { return m_lastPos; }
-    void setLastPos(QPointF lastPos) { m_lastPos = lastPos; }
-    int flick() const { return m_flick; }
-    void setFlick(int flick) { m_flick = flick; }
-    bool edge() const { return m_edge; }
-    void setEdge(bool edge) { m_edge = edge; }
-    bool fired() const { return m_fired; }
-    void setFired(bool fired) { m_fired = fired; }
+
+	QPointF pos() const { return m_pos; }
+	void setPos(QPointF pos) { m_pos = pos; }
+	QPointF lastPos() const { return m_lastPos; }
+	void setLastPos(QPointF lastPos) { m_lastPos = lastPos; }
+	
+	int flick() const { return m_flick; }
+	void setFlick(int flick) { m_flick = flick; }
+	bool edge() const { return m_edge; }
+	void setEdge(bool edge) { m_edge = edge; }
+	bool fired() const { return m_fired; }
+	void setFired(bool fired) { m_fired = fired; }
 
 private:
-    QPointF m_pos;
-    QPointF m_lastPos;
-    int m_flick;
-    bool m_edge;
-    bool m_fired;
+	QPointF m_pos;
+	QPointF m_lastPos;
+	
+	int m_flick;
+	bool m_edge;
+	bool m_fired;
 
 private:
 
