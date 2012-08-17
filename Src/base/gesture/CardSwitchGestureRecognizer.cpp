@@ -106,6 +106,7 @@ QGestureRecognizer::Result CardSwitchGestureRecognizer::recognize(QGesture *stat
 						}
                         
 					} else if (event->type() == QEvent::TouchEnd) {
+                        q->setFired(true);
 						result = QGestureRecognizer::FinishGesture;
 					}
 				}
