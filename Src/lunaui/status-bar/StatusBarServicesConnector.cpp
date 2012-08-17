@@ -28,6 +28,7 @@
 #include "DeviceInfo.h"
 #include "BtDeviceClass.h"
 #include "SystemService.h"
+#include "Preferences.h"
 #include <string.h>
 #include <map>
 
@@ -921,7 +922,10 @@ void StatusBarServicesConnector::handlePowerStatus(const char* radioState, bool 
 		}
 		m_phoneRadioState = true;
 		if (m_phoneType == PHONE_TYPE_NONE) {
-			sprintf(m_carrierText, "HP webOS");
+			if (Preferences::instance()->sysUiShowDeviceNameAsCarrierText())
+				sprintf(m_carrierText, Preferences::instance()->deviceName().c_str());
+			else
+				sprintf(m_carrierText, "HP webOS");
 		}
 		else if (m_phoneType == PHONE_TYPE_GSM) {
 			sprintf(m_carrierText, "%s", LOCALIZED("Network search...").c_str());
@@ -1051,9 +1055,12 @@ void StatusBarServicesConnector::handleNetworkStatus(const char* networkState, s
 	if(!m_phoneRadioState)
 		return;
 
-	//If it is wifi only device, update the status bar with default carrier text and return.
+	//If it is wifi only device, update the status bar with default carrier text (device name or "HP webOS") and return.
 	if (m_phoneType == PHONE_TYPE_NONE) {
-		sprintf(m_carrierText, "HP webOS");
+		if (Preferences::instance()->sysUiShowDeviceNameAsCarrierText())
+			sprintf(m_carrierText, Preferences::instance()->deviceName().c_str());
+		else
+			sprintf(m_carrierText, "HP webOS");
 		Q_EMIT signalCarrierTextChanged(m_carrierText);
 		return;
 	}

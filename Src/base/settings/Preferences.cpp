@@ -70,6 +70,7 @@ Preferences::Preferences()
 	, m_sysUiStatusBarSlide(false)
 	, m_sysUiEnableStatusBarSearch(false)
 	, m_sysUiEnableMaximizeEdges(false)
+	, m_sysUiShowDeviceNameAsCarrierText(false)
 	, m_lockTimeout(0)
 	, m_lsHandle(0)
 	, m_imeEnabled(false)
@@ -89,6 +90,7 @@ Preferences::Preferences()
 	, m_tabbedCardsEnabled(false)
 	, m_muteOn(false)
 	, m_enableALS(true)
+	, m_deviceName("HP webOS")
 {
 	init();
 	registerService();
@@ -120,6 +122,12 @@ std::string Preferences::timeFormat() const
 {
 	MutexLocker locker(&m_mutex);
 	return m_currentTimeFormat;	
+}
+
+std::string Preferences::deviceName() const
+{
+	MutexLocker locker(&m_mutex);
+	return m_deviceName;	
 }
 
 uint32_t Preferences::lockTimeout() const
@@ -577,6 +585,7 @@ bool Preferences::serverConnectCallback(LSHandle *sh, LSMessage *message, void *
 													   \"sysUiStatusBarSlide\", \
 													   \"sysUiEnableStatusBarSearch\", \
 													   \"sysUiEnableMaximizeEdges\", \
+													   \"sysUiShowDeviceNameAsCarrierText\", \
 													   \"airplaneMode\", \
 													   \"hideWANAlert\", \
 													   \"roamingIndicator\", \
@@ -589,7 +598,8 @@ bool Preferences::serverConnectCallback(LSHandle *sh, LSMessage *message, void *
 													   \"" PALM_VIRTUAL_KEYBOARD_PREFS "\",\
 													   \"" PALM_VIRTUAL_KEYBOARD_SETTINGS "\",\
 					 	 	 	 	 	 	 	 	   \"enableVoiceCommand\",\
-													   \"enableALS\" ]}",
+													   \"enableALS\",\
+													   \"deviceName\" ]}",
 					 getPreferencesCallback, prefObjPtr, NULL, &error);
 		if (!ret) {
 			g_critical("%s: Failed in calling palm://com.palm.systemservice/getPreferences: %s",
@@ -897,6 +907,14 @@ bool Preferences::getPreferencesCallback(LSHandle *sh, LSMessage *message, void 
 		}
 	}
 
+	label = json_object_object_get(json, "sysUiShowDeviceNameAsCarrierText");
+	if (label && !is_error(label)) {
+
+		if (prefObjPtr) {
+			prefObjPtr->m_sysUiShowDeviceNameAsCarrierText = json_object_get_boolean(label);
+		}
+	}
+
 	label = json_object_object_get(json, "lockTimeout");
 	if (label && !is_error(label) && json_object_is_type(label, json_type_int)) {
 
@@ -1012,6 +1030,17 @@ bool Preferences::getPreferencesCallback(LSHandle *sh, LSMessage *message, void 
 			Q_EMIT prefObjPtr->signalAlsEnabled (prefObjPtr->m_enableALS);
 		}
 	}
+
+	label = json_object_object_get(json, "deviceName");
+	if (label && !is_error(label)) {
+		if (prefObjPtr) 
+		{
+			MutexLocker locker(&prefObjPtr->m_mutex);
+			prefObjPtr->m_deviceName = json_object_get_string(label);
+			Q_EMIT prefObjPtr->signalDeviceNameChanged(prefObjPtr->m_deviceName);
+		}
+	}
+	
 Done:
 
 	if (json && !is_error(json))
