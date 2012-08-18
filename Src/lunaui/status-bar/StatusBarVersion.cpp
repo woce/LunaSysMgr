@@ -30,7 +30,7 @@
 
 #define TEXT_BASELINE_OFFSET            (-1)
 
-static const QString currentVersion = "WebOS Ports LunaCE 4.3.3";
+static const QString currentVersion = "WebOS Ports LunaCE 4.3.4";
 
 StatusBarVersion::StatusBarVersion(unsigned int padding)
 	: m_font(0)
