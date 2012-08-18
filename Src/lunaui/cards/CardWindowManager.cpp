@@ -3589,13 +3589,44 @@ void CardWindowManager::slotSwitchCardEvent(QGestureEvent* event)
 	QGesture* t = event->gesture((Qt::GestureType) GestureCardSwitch);
     CardSwitchGesture* s = static_cast<CardSwitchGesture*>(t);
 
-    if(m_curState == m_maximizeState && s->state() == Qt::GestureUpdated)
+    if(!Preferences::instance()->getTabbedCardsPreference())
     {
-        Q_EMIT signalEnterSwitch();
+		if(m_curState == m_maximizeState && s->state() == Qt::GestureUpdated)
+		{
+			Q_EMIT signalEnterSwitch();
+		}
+		
+		if (m_curState)
+			m_curState->switchCardEvent(event);
     }
-    
-    if (m_curState)
-        m_curState->switchCardEvent(event);
+    else
+    {
+    	if(m_activeGroup->size() == 1)
+    	{
+			if(m_curState == m_maximizeState && s->state() == Qt::GestureUpdated && m_movement == MovementUnlocked)
+			{
+				Q_EMIT signalEnterSwitch();
+			}
+			
+			if (m_curState)
+			{
+				m_curState->switchCardEvent(event);
+			}
+		}
+		else
+		{
+			if(m_movement == MovementUnlocked)
+			{
+				slotSideSwipe(s->edge());
+				m_movement = MovementHLocked;
+			}
+		}
+			
+		if(t->state() == Qt::GestureFinished)
+		{
+			m_movement = MovementUnlocked;
+		}
+    }
 }
 
 void CardWindowManager::slotCardViewGestureEvent(QGestureEvent* event)

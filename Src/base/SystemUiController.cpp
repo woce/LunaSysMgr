@@ -2300,7 +2300,6 @@ void SystemUiController::handleSideSwipe(bool next)
 	}
 	
 	//Switch to next/prev app based on next argument
-	
 	if (!m_launcherShown) {
 		Q_EMIT signalChangeCardWindow(next);
 	}
