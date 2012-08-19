@@ -83,9 +83,11 @@ QGestureRecognizer::Result CardViewGestureRecognizer::recognize(QGesture *state,
 			//Ignore the gesture unless if it's outside the gesture border
 			if(startPos.y() < displayBounds.y() - kGestureBorderSize)
 				break;
+				
+			qCritical() << delta.x() << delta.y();
 			
 			//Ignore the gesture if it's not vertical
-			if(abs(delta.x()) > abs(delta.y()))
+			if(abs(delta.x()) > abs(delta.y()) && q->fired() == false)
 				break;
 			
 			//Is the user's finger moving fast enough for a flick?
@@ -102,7 +104,6 @@ QGestureRecognizer::Result CardViewGestureRecognizer::recognize(QGesture *state,
 				q->setFlick(-1);
 			}
 			
-			//Do we?
 			if(delta.y() <= 0 && event->type() == QEvent::TouchUpdate)
 			{
 				q->setFired(true);
