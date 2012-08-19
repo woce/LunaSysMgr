@@ -988,7 +988,10 @@ void TabletKeyboard::touchEvent(const QTouchEvent& te)
 			}
 		}
 		else
+		{
 			g_warning("TabletKeyboard::touchEvent: hidden (probably being hidden...), so we will ignore these touches.");
+			stopRepeat();
+		}
 		// everything is released: make sure we have nothing left in our records...
 		if (te.type() == QEvent::TouchEnd)
 		{
@@ -1000,7 +1003,6 @@ void TabletKeyboard::touchEvent(const QTouchEvent& te)
 					m_candidateBar.endTrace(iter->id());
 				m_touches.clear();
 			}
-			stopRepeat();
 			if (m_resizeMode)
 			{
 				m_resizeMode = false;

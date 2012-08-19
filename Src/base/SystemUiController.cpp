@@ -2338,7 +2338,7 @@ void SystemUiController::handleCardViewGesture(QGestureEvent* event)
     if(gesture->fired() == false) return;
 	
 	//Toggle the launcher if minimized, i'd like to add fluid launcher functionality at some point
-	if (!m_cardViewGesture && !m_cardWindowMaximized && gesture->state() == Qt::GestureUpdated)
+	if (!m_cardViewGesture && !m_cardWindowMaximized && gesture->state() == Qt::GestureStarted)
 		Q_EMIT signalToggleLauncher();
 		
 	//Set the state variable
