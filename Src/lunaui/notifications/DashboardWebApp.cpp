@@ -45,7 +45,8 @@ DashboardWebApp::DashboardWebApp(PIpcChannel *channel)
 	: WindowedWebApp(0, 0, Window::Type_Dashboard, channel)
 {
 	m_width = WebAppManager::instance()->currentUiWidth();
-	m_height = kDashboardWindowHeight;
+	srand(time(NULL));
+	m_height = rand() % 108 + 52;
 	
 	m_windowWidth =  m_width;
 	m_windowHeight = m_height;
