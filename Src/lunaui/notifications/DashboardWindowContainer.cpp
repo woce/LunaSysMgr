@@ -159,9 +159,11 @@ int DashboardWindowContainer::getTotalItemsHeight()
 		
 	int height = 0;
 	
+	height -= m_menuSeparatorHeight;
+	
 	for (int i = m_items.count() - 1; i >= 0; i--) {
 		if (!m_pendingDeleteItems.contains(m_items[i])) {
-			height += m_items[i]->boundingRect().height() + m_menuSeparatorHeight;
+			height += m_items[i]->boundingRect().height();
 		}
 	}
 	
@@ -535,19 +537,47 @@ void DashboardWindowContainer::layoutAllWindowsInMenu()
 {
 	if(!m_isMenu)
 		return;
+		
+	qCritical() << "Layout Windows In Menu";
 
 	int y = 0, delta = 0;
-
+	
 	y = boundingRect().y();
-	y -= m_items.last()->boundingRect().height()/2;
+	
+	qCritical() << "Bounding Rect Y" << y;
 
 	// Layout all items, excluding deleted items
 	for (int i = m_items.count() - 1; i >= 0; i--) {
 		if (!m_pendingDeleteItems.contains(m_items[i])) {
-			y += m_items[i]->boundingRect().height() + m_menuSeparatorHeight;
+			qCritical() << "Layout Item Height" << m_items[i]->boundingRect().height();
+			y += m_items[i]->boundingRect().height()/2;
+			if(i < m_items.count() - 1)
+				y += m_items[i+1]->boundingRect().height()/2;
 			m_items[i]->setPos(m_items[i]->boundingRect().width()/2, y);
+			qCritical() << "Layout Item Y" << y;
 		}
 	}
+	
+	/*
+	// Initialize the starting position
+	int y = topCoord;
+	y += m_items.last()->boundingRect().height()/2;
+
+	DashboardWindow* w;
+
+	for (int i = m_items.count() - 1; i >= 0; i--) {
+		w = m_items[i];
+		if (m_pendingDeleteItems.contains(w))
+			continue;
+
+		QPropertyAnimation* a = new QPropertyAnimation(w, "pos");
+		a->setEndValue(QPointF(w->boundingRect().width()/2, y));
+		a->setEasingCurve(AS_CURVE(dashboardSnapCurve));
+		a->setDuration(AS(dashboardSnapDuration));
+		m_anim.addAnimation(a);
+		y += m_items[i]->boundingRect().height() + m_menuSeparatorHeight;
+		qCritical() << "Animate Windows Y " << y;
+	*/
 }
 
 
@@ -750,7 +780,6 @@ void DashboardWindowContainer::slotDeleteAnimationFinished()
 	calculateScrollProperties();
 
 	// calculateScrollProperties() changes the Y position of the container, causing the windows to get shifted and this causes the animation to shift up and then move downwards.
-	qCritical() << m_items.count();
 	if(m_isMenu && m_items.count() > 0) {
 		animateWindowsToFinalDestinationInMenu(boundingRect().y());
 	}
@@ -860,6 +889,8 @@ void DashboardWindowContainer::animateWindowsToFinalDestinationInMenu(int topCoo
 	if(!m_isMenu)
 		return;
 
+	qCritical() << "Animate Windows In Menu";
+
 	// clear any existing animation if in progress
 	m_anim.stop();
 	m_anim.clear();
@@ -881,6 +912,8 @@ void DashboardWindowContainer::animateWindowsToFinalDestinationInMenu(int topCoo
 		a->setDuration(AS(dashboardSnapDuration));
 		m_anim.addAnimation(a);
 		y += m_items[i]->boundingRect().height() + m_menuSeparatorHeight;
+			qCritical() << "Animate Item Height" << m_items[i]->boundingRect().height();
+			qCritical() << "Animate Item Y" << y;
 	}
 	
 	// start the animation
