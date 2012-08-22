@@ -149,7 +149,7 @@ DashboardWindowContainer::~DashboardWindowContainer()
 int DashboardWindowContainer::getMaximumHeightForMenu() const
 {
 	//return ((int)(kMaxWindowsToDisplay * (qreal)sDashboardWindowHeight)) + ((kMaxWindowsToDisplay - 1) * m_menuSeparatorHeight);
-	return 320;
+	return 480;
 }
 
 int DashboardWindowContainer::getTotalItemsHeight()
@@ -897,7 +897,6 @@ void DashboardWindowContainer::animateWindowsToFinalDestinationInMenu(int topCoo
 
 	// Initialize the starting position
 	int y = topCoord;
-	y += m_items.last()->boundingRect().height()/2;
 
 	DashboardWindow* w;
 
@@ -906,14 +905,15 @@ void DashboardWindowContainer::animateWindowsToFinalDestinationInMenu(int topCoo
 		if (m_pendingDeleteItems.contains(w))
 			continue;
 
+		y += m_items[i]->boundingRect().height()/2;
+		if(i < m_items.count() - 1)
+			y += m_items[i+1]->boundingRect().height()/2;
+				
 		QPropertyAnimation* a = new QPropertyAnimation(w, "pos");
 		a->setEndValue(QPointF(w->boundingRect().width()/2, y));
 		a->setEasingCurve(AS_CURVE(dashboardSnapCurve));
 		a->setDuration(AS(dashboardSnapDuration));
 		m_anim.addAnimation(a);
-		y += m_items[i]->boundingRect().height() + m_menuSeparatorHeight;
-			qCritical() << "Animate Item Height" << m_items[i]->boundingRect().height();
-			qCritical() << "Animate Item Y" << y;
 	}
 	
 	// start the animation
