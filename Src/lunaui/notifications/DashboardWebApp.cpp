@@ -45,7 +45,7 @@ DashboardWebApp::DashboardWebApp(PIpcChannel *channel)
 	: WindowedWebApp(0, 0, Window::Type_Dashboard, channel)
 {
 	m_width = WebAppManager::instance()->currentUiWidth();
-	m_height = 320;
+	m_height = kDashboardWindowHeight;
 	
 	m_windowWidth =  m_width;
 	m_windowHeight = m_height;
@@ -60,6 +60,7 @@ DashboardWebApp::~DashboardWebApp()
 
 void DashboardWebApp::attach(WebPage* page)
 {
+	WindowProperties prop;
 	WindowedWebApp::attach(page);
 
 	const StringVariantMap& stageArgs = page->stageArguments();
@@ -102,9 +103,28 @@ void DashboardWebApp::attach(WebPage* page)
 
 		QVariant v = it->second;
 		if (v.type() == QVariant::String && v.toString() == "manual") {
-			WindowProperties prop;
 			prop.setDashboardManualDragMode(true);
-			setWindowProperties(prop);
 		}
 	}
+
+	it = stageArgs.find("dashheight");
+	if (it != stageArgs.end()) {
+		g_warning("found dashheight argument");
+		QVariant v = it->second;
+		if(v.type() == QVariant::Int) {
+			g_warning("dashheight is unsigned int");
+			if(v.toUInt()) {
+				g_warning("read successful, setting variables");
+				prop.setDashHeight(v.toUInt());
+				resizeEvent(WebAppManager::instance()->currentUiWidth(), v.toUInt(), false);
+			}
+			else {
+				g_warning("dashheight not unsigned int, default height");
+				prop.setDashHeight(kDashboardWindowHeight);
+			}
+		}
+	}
+	
+	g_warning("setting window properties");
+	setWindowProperties(prop);
 }
