@@ -1272,6 +1272,9 @@ void WindowedWebApp::getWindowPropertiesString(WindowProperties &winProp, std::s
 	if (winProp.flags & WindowProperties::isSetDashboardManualDragMode)
 		json_object_object_add(json, (char*) "webosDragMode", json_object_new_boolean(winProp.dashboardManualDrag));
 
+	if (winProp.flags & WindowProperties::isSetDashHeight)
+		json_object_object_add(json, (char*) "dashHeight", json_object_new_int(winProp.dashHeight));
+
 	if (winProp.flags & WindowProperties::isSetStatusBarColor)
 		json_object_object_add(json, (char*) "statusBarColor", json_object_new_int(winProp.statusBarColor));
 

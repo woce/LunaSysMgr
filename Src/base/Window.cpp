@@ -211,6 +211,9 @@ void WindowProperties::merge(const WindowProperties& props)
 	if (props.flags & isSetDashboardManualDragMode)
 		setDashboardManualDragMode(props.dashboardManualDrag);
 
+	if (props.flags & isSetDashHeight)
+		setDashHeight(props.dashHeight);
+
 	if (props.flags & isSetStatusBarColor)
 		setStatusBarColor(props.statusBarColor);
 
