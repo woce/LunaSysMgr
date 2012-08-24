@@ -101,6 +101,8 @@ public:
 
   bool getInfiniteCardCyclingPreference() const { return m_infiniteCardCyclingEnabled; }
 
+	bool getShowReticleAnimationPreference() const { return m_showReticleAnimation; }
+
 Q_SIGNALS:
 
 	// Signals
@@ -173,6 +175,8 @@ private:
 
 	bool m_infiniteCardCyclingEnabled;
 	bool m_tabbedCardsEnabled;
+
+	bool m_showReticleAnimation;
 
 };
 	
