@@ -115,8 +115,14 @@ void DashboardWebApp::attach(WebPage* page)
 			g_warning("dashheight is unsigned int");
 			if(v.toUInt()) {
 				g_warning("read successful, setting variables");
-				prop.setDashHeight(v.toUInt());
-				resizeEvent(WebAppManager::instance()->currentUiWidth(), v.toUInt(), false);
+				if(v.toUInt() <= 320) {
+					prop.setDashHeight(v.toUInt());
+					resizeEvent(WebAppManager::instance()->currentUiWidth(), v.toUInt(), false);
+				}
+				else {
+					prop.setDashHeight(320);
+					resizeEvent(WebAppManager::instance()->currentUiWidth(), 320, false);
+				}
 			}
 			else {
 				g_warning("dashheight not unsigned int, default height");
