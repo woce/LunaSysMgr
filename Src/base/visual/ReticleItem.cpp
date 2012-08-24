@@ -32,6 +32,8 @@
 #include "AnimationSettings.h"
 #include "Settings.h"
 
+#include "Preferences.h"
+
 ReticleItem::ReticleItem()
 {
 	setVisible(false);
@@ -52,35 +54,37 @@ void ReticleItem::startAt(const QPoint& pos)
 {
 	if (m_animation)
 		m_animation->stop();
-	setPos(pos.x(), pos.y());
-	setVisible(true);
-	setOpacity(1);
-	setScale(1);
+	if (Preferences::instance()->getShowReticleAnimationPreference()) {
+		setPos(pos.x(), pos.y());
+		setVisible(true);
+		setOpacity(1);
+		setScale(1);
 
-	QPropertyAnimation* opacityAnimation = new QPropertyAnimation(this, "opacity");
-	opacityAnimation->setDuration(AS(reticleDuration));
-	opacityAnimation->setStartValue(1.0);
-	opacityAnimation->setEndValue(0.0);
-	opacityAnimation->setEasingCurve(AS_CURVE(reticleCurve));
+		QPropertyAnimation* opacityAnimation = new QPropertyAnimation(this, "opacity");
+		opacityAnimation->setDuration(AS(reticleDuration));
+		opacityAnimation->setStartValue(1.0);
+		opacityAnimation->setEndValue(0.0);
+		opacityAnimation->setEasingCurve(AS_CURVE(reticleCurve));
 
-	QPropertyAnimation* scaleAnimation = new QPropertyAnimation(this, "scale");
-	scaleAnimation->setDuration(AS(reticleDuration));
-	scaleAnimation->setStartValue(1.0);
-	scaleAnimation->setEndValue(1.5);
-	scaleAnimation->setEasingCurve(AS_CURVE(reticleCurve));
+		QPropertyAnimation* scaleAnimation = new QPropertyAnimation(this, "scale");
+		scaleAnimation->setDuration(AS(reticleDuration));
+		scaleAnimation->setStartValue(1.0);
+		scaleAnimation->setEndValue(1.5);
+		scaleAnimation->setEasingCurve(AS_CURVE(reticleCurve));
 
-	QParallelAnimationGroup* reticleAnimation = new QParallelAnimationGroup;
-	reticleAnimation->addAnimation(opacityAnimation);
-	reticleAnimation->addAnimation(scaleAnimation);
+		QParallelAnimationGroup* reticleAnimation = new QParallelAnimationGroup;
+		reticleAnimation->addAnimation(opacityAnimation);
+		reticleAnimation->addAnimation(scaleAnimation);
 
-	QPropertyAnimation* visibility = new QPropertyAnimation(this, "visible");
-	visibility->setEndValue(false);
-	visibility->setDuration(0);
+		QPropertyAnimation* visibility = new QPropertyAnimation(this, "visible");
+		visibility->setEndValue(false);
+		visibility->setDuration(0);
 
-	m_animation = new QSequentialAnimationGroup;
-	m_animation->addAnimation(reticleAnimation);
-	m_animation->addAnimation(visibility);
-	m_animation->start(QAbstractAnimation::DeleteWhenStopped);
+		m_animation = new QSequentialAnimationGroup;
+		m_animation->addAnimation(reticleAnimation);
+		m_animation->addAnimation(visibility);
+		m_animation->start(QAbstractAnimation::DeleteWhenStopped);
+	}
 }
 
 void ReticleItem::animationFinished()

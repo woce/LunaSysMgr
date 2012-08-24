@@ -1,0 +1,18 @@
+[
+  {
+    "category": "luna",
+    "prefs":
+	[
+		{
+			"group": "gestures",
+			"restart": "none",
+			"prefserv": "showReticleAnimation",
+			"label": "Show Tap Ripple",
+			"help": "Enable/Disable tap ripple. Disabling mitigates FPS lag when tapping, especially during 60fps PDK applications. This should be used instead of the 'Remove Tap Ripple' patch.",
+			"key": "reticleAnimation",
+			"type": "ToggleButton",
+			"value": true
+		}
+	]
+  }
+]
