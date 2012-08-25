@@ -63,6 +63,7 @@ class CardWindowManager : public WindowManagerBase
 	Q_OBJECT
 
 public:
+	static CardWindowManager* instance();
 
 	CardWindowManager(int maxWidth, int maxHeight);
 	virtual ~CardWindowManager();
