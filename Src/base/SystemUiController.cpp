@@ -2321,12 +2321,24 @@ void SystemUiController::handleCardSwitchGesture(QGestureEvent* event)
         m_switchCards = true;
     else
         m_switchCards = false;
+	
+	if (m_dashboardOpened)
+		Q_EMIT signalCloseDashboard(true);
+
+	if (m_menuVisible)
+		Q_EMIT signalHideMenu();
     
     Q_EMIT signalSwitchCardEvent(event);
 }
 
 void SystemUiController::handleCardViewGesture(QGestureEvent* event)
 {
+    //Exit dock mode
+	if (m_inDockMode) {
+		enterOrExitDockModeUi(false);
+		return;
+	}
+	
 	//No point continuing if the device is locked
 	if (m_deviceLocked)
 		return;
@@ -2353,6 +2365,11 @@ void SystemUiController::handleCardViewGesture(QGestureEvent* event)
 
 	if (m_menuVisible)
 		Q_EMIT signalHideMenu();
+	
+	if (m_universalSearchShown) {
+		Q_EMIT signalHideUniversalSearch(false, false);
+		return;
+	}
 	
     Q_EMIT signalCardViewGestureEvent(event);
 }
