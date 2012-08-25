@@ -57,6 +57,7 @@
 #include "webkitpalmsettings.h"
 #include "HostBase.h"
 #include "SystemUiController.h"
+#include "CardWindowManager.h"
 #include "HostWindow.h"
 #include "Logging.h"
 #include "Time.h"
@@ -219,6 +220,8 @@ OverlayWindowManager::OverlayWindowManager(int maxWidth, int maxHeight)
 
 	////////// LAUNCHER CONTROL SIGNALS
 	connect(SystemUiController::instance(),SIGNAL(signalToggleLauncher()),
+			this,SLOT(slotSystemAPIToggleLauncher()));
+	connect(CardWindowManager::instance(),SIGNAL(signalToggleLauncher()),
 			this,SLOT(slotSystemAPIToggleLauncher()));
 
 	grabGesture((Qt::GestureType) SysMgrGestureFlick);
