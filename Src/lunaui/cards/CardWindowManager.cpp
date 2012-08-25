@@ -75,7 +75,16 @@ static const int s_marginSlice = 5;
 
 int kAngryCardThreshold = 0;
 
+static CardWindowManager* c_instance = 0;
+
 // -------------------------------------------------------------------------------------------------------------
+CardWindowManager* CardWindowManager::instance()
+{
+	if(c_instance)
+		return c_instance;
+	else
+		return 0;
+}
 
 CardWindowManager::CardWindowManager(int maxWidth, int maxHeight)
 	: WindowManagerBase(maxWidth, maxHeight)
@@ -116,6 +125,8 @@ CardWindowManager::CardWindowManager(int maxWidth, int maxHeight)
 
 				  
 {
+    c_instance = this;
+    
 	setObjectName("CardWindowManager");
 
 	SystemUiController* sysui = SystemUiController::instance();
