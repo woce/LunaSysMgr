@@ -464,7 +464,6 @@ WindowServer::WindowServer()
 	viewportWidget->grabGesture(Qt::PinchGesture);
 	viewportWidget->grabGesture((Qt::GestureType) SysMgrGestureFlick);
 	viewportWidget->grabGesture((Qt::GestureType) SysMgrGestureSingleClick);
-	viewportWidget->grabGesture((Qt::GestureType) SysMgrGestureScreenEdgeFlick);
 	viewportWidget->grabGesture((Qt::GestureType) GestureScreenEdgeSlide);
 	viewportWidget->grabGesture((Qt::GestureType) GestureCardSwitch);
 	viewportWidget->grabGesture((Qt::GestureType) GestureCardView);

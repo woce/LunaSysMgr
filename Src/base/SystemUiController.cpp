@@ -47,7 +47,6 @@
 #include "OverlayWindowManager.h"
 #include "IMEController.h"
 #include "EmulatedCardWindow.h"
-#include "ScreenEdgeFlickGesture.h"
 #include "ScreenEdgeSlideGesture.h"
 #include "CardSwitchGesture.h"
 #include "CardViewGesture.h"
@@ -312,12 +311,6 @@ bool SystemUiController::handleGestureEvent (QGestureEvent* event)
 
 	if (!t && Preferences::instance()->sysUiEnableNextPrevGestures() == true) {
 		if (Settings::LunaSettings()->uiType != Settings::UI_MINIMAL && !m_emergencyMode) {
-			//Screen-edge Flick Gestures
-			t = event->gesture((Qt::GestureType) SysMgrGestureScreenEdgeFlick);
-			if (t && Preferences::instance()->sysUiGestureDetection() == 0)
-			{
-				handleScreenEdgeFlickGesture(t);
-			}
 			
 			//Screen-edge Slide Gestures
 			t = event->gesture((Qt::GestureType) GestureScreenEdgeSlide);
@@ -2112,108 +2105,6 @@ std::string SystemUiController::getMenuTitleForMaximizedWindow(Window* win)
 
 
 	return name;
-}
-
-bool SystemUiController::handleScreenEdgeFlickGesture(QGesture* gesture)
-{
-	ScreenEdgeFlickGesture* g = static_cast<ScreenEdgeFlickGesture*>(gesture);
-	if (g->state() != Qt::GestureFinished)
-		return false;
-
-	/*
-	switch(g->edge()) {
-		case ScreenEdgeFlickGesture::EdgeBottom:
-			g_warning("Flick From Bottom");
-			break;
-		case ScreenEdgeFlickGesture::EdgeTop:
-			g_warning("Flick From Top");
-			break;
-		case ScreenEdgeFlickGesture::EdgeLeft:
-			g_warning("Flick From Left");
-			break;
-		case ScreenEdgeFlickGesture::EdgeRight:
-			g_warning("Flick From Right");
-			break;
-		case ScreenEdgeFlickGesture::EdgeUnknown:
-			g_warning("Flick From Unknown");
-			break;
-	}
-	g_warning("Flick Gesture length: y=%d", g->yDistance());
-	*/
-
-    OrientationEvent::Orientation orientation = WindowServer::instance()->getUiOrientation();
-	// Up = Button Down, Right = Button Right, Left = Button Left, Down = Button Up (also called Forward)
-	// gesture: Right = button side, Left = camera side, Bottom = button-right bottom, Top = button-right Top
-	switch(WindowServer::instance()->getUiOrientation()) {
-		case OrientationEvent::Orientation_Up:
-			//g_warning("Orientation: Up");
-			switch(g->edge()) {
-				case ScreenEdgeFlickGesture::EdgeBottom: // Bottom
-					handleUpSwipe();
-					return true;
-				case ScreenEdgeFlickGesture::EdgeTop: // Top
-					break;
-				case ScreenEdgeFlickGesture::EdgeLeft: // Left - fall thru to Right
-				case ScreenEdgeFlickGesture::EdgeRight: // Right
-					handleSideSwipe(g->edge() != ScreenEdgeFlickGesture::EdgeRight);
-					return true;
-				case ScreenEdgeFlickGesture::EdgeUnknown:
-					break;
-			}
-			break;
-		case OrientationEvent::Orientation_Down: 
-			//g_warning("Orientation: Down");
-			switch(g->edge()) {
-				case ScreenEdgeFlickGesture::EdgeBottom: // Top
-					break;
-				case ScreenEdgeFlickGesture::EdgeTop: // Bottom
-					handleUpSwipe();
-					return true;
-				case ScreenEdgeFlickGesture::EdgeLeft: // Right - fall thru to Left
-				case ScreenEdgeFlickGesture::EdgeRight: // Left
-					handleSideSwipe(g->edge() != ScreenEdgeFlickGesture::EdgeLeft);
-					return true;
-				case ScreenEdgeFlickGesture::EdgeUnknown:
-					break;
-			}
-			break;
-		case OrientationEvent::Orientation_Left: 
-			//g_warning("Orientation: Left");
-			switch(g->edge()) {
-				case ScreenEdgeFlickGesture::EdgeBottom: // Right - fall thru to Left
-				case ScreenEdgeFlickGesture::EdgeTop: // Left
-					handleSideSwipe(g->edge() != ScreenEdgeFlickGesture::EdgeBottom);
-					return true;
-				case ScreenEdgeFlickGesture::EdgeLeft: // Bottom
-					handleUpSwipe();
-					return true;
-				case ScreenEdgeFlickGesture::EdgeRight: // Top
-					break;
-				case ScreenEdgeFlickGesture::EdgeUnknown:
-					break;
-			}
-			break;
-		case OrientationEvent::Orientation_Right: 
-			//g_warning("Orientation: Right");
-			switch(g->edge()) {
-				case ScreenEdgeFlickGesture::EdgeBottom: // Left - fall thru to Right
-				case ScreenEdgeFlickGesture::EdgeTop: // Right
-					handleSideSwipe(g->edge() != ScreenEdgeFlickGesture::EdgeTop);
-					return true;
-				case ScreenEdgeFlickGesture::EdgeLeft: // Top
-					break;
-				case ScreenEdgeFlickGesture::EdgeRight:
-					handleUpSwipe();
-					return true;
-				case ScreenEdgeFlickGesture::EdgeUnknown:
-					break;
-			}
-			break;
-		default: 
-			g_warning("Unknown UI orientation");
-			return false;
-	}	
-	return false;
 }
 
 void SystemUiController::handleScreenEdgeSlideGesture(QGesture* gesture)

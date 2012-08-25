@@ -37,7 +37,6 @@ public:
 	virtual void touchEvent(const QTouchEvent& te);
 	virtual void paint(QPainter& painter);
 	virtual void tapEvent(const QPoint& tapPt);
-	virtual void screenEdgeFlickEvent();
 
 	virtual void setComposingText(const std::string& text);
 	virtual void commitComposingText();

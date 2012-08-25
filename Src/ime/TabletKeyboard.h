@@ -156,7 +156,6 @@ public:
 	virtual void touchEvent(const QTouchEvent& te);
 	virtual void paint(QPainter& painter);
 	virtual void tapEvent(const QPoint& tapPt);
-	virtual void screenEdgeFlickEvent();
 
 protected:
 	void	updateTouch(int id, QPointF position);

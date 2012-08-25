@@ -933,14 +933,6 @@ void PhoneKeyboard::tapEvent(const QPoint& tapPt)
 	m_candidateBar.tapEvent(tapPt);
 }
 
-void PhoneKeyboard::screenEdgeFlickEvent()
-{
-	// Mark all touches as consumed
-	for (std::map<int, Touch>::iterator iter = m_touches.begin(); iter != m_touches.end(); ++iter) {
-		iter->second.m_consumed = true;
-	}
-}
-
 void PhoneKeyboard::repeatChar()
 {
 	if (PhoneKeymap::isValidLocation(m_repeatKey))

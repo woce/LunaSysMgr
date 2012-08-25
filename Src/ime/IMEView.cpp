@@ -32,7 +32,6 @@
 #include <QTapGesture>
 #include "SingleClickGesture.h"
 #include "FlickGesture.h"
-#include "ScreenEdgeFlickGesture.h"
 
 IMEView::IMEView(QGraphicsItem* parent)
 	: QGraphicsObject(parent)
@@ -47,7 +46,6 @@ IMEView::IMEView(QGraphicsItem* parent)
 	grabGesture(Qt::PinchGesture);
 	grabGesture((Qt::GestureType) SysMgrGestureFlick);
 	grabGesture((Qt::GestureType) SysMgrGestureSingleClick);
-	grabGesture((Qt::GestureType) SysMgrGestureScreenEdgeFlick);
 
     setVisible(false);
 }
@@ -149,13 +147,6 @@ bool IMEView::sceneEvent(QEvent* event)
 			tapEvent(static_cast<QTapGesture*>(g));
 			return true;
 		}
-		if (!g) {
-			QGesture* g = ge->gesture((Qt::GestureType) SysMgrGestureScreenEdgeFlick);
-			if (g && g->state() == Qt::GestureFinished) {
-				screenEdgeFlickEvent(static_cast<ScreenEdgeFlickGesture*>(g));
-				return true;
-			}
-		}
 		}
 		break;
 	case QEvent::TouchBegin:
@@ -223,42 +214,6 @@ void IMEView::tapEvent(QTapGesture* tap)
 
 	QPoint tapPt = mapFromScene(tap->position()).toPoint();
 	m_imeDataInterface->tapEvent(tapPt);
-}
-
-void IMEView::screenEdgeFlickEvent(ScreenEdgeFlickGesture* g)
-{
-	if (!m_acceptingInput || !m_imeDataInterface || !g)
-		return;
-
-    OrientationEvent::Orientation orientation = WindowServer::instance()->getUiOrientation();
-	switch (orientation) {
-    case OrientationEvent::Orientation_Up: {
-		if (g->edge() != ScreenEdgeFlickGesture::EdgeBottom)
-			return;
-		break;
-	}
-    case OrientationEvent::Orientation_Down: {
-		if (g->edge() != ScreenEdgeFlickGesture::EdgeTop)
-			return;
-		break;
-	}
-    case OrientationEvent::Orientation_Left: {
-		if (g->edge() != ScreenEdgeFlickGesture::EdgeLeft)
-			return;
-		break;
-	}
-    case OrientationEvent::Orientation_Right: {
-		if (g->edge() != ScreenEdgeFlickGesture::EdgeRight)
-			return;
-		break;
-	}
-	default: {
-		g_warning("Unknown UI orientation");
-		return;
-	}
-	}
-	
-	m_imeDataInterface->screenEdgeFlickEvent(); 
 }
 
 bool IMEView::acceptPoint(const QPointF& pt)

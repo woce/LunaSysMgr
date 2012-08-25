@@ -59,12 +59,6 @@ void SysmgrIMEModel::tapEvent(const QPoint& tapPt)
 		m_inputMethod->tapEvent(tapPt);
 }
 
-void SysmgrIMEModel::screenEdgeFlickEvent()
-{
-	if (m_inputMethod)
-		m_inputMethod->screenEdgeFlickEvent();
-}
-
 void SysmgrIMEModel::setComposingText(const std::string& text)
 {
 	IMEController::instance()->setComposingText(text);

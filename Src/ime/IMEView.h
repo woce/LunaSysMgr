@@ -28,7 +28,6 @@
 #include <stdint.h>
 
 class QTapGesture;
-class ScreenEdgeFlickGesture;
 
 class IMEView : public QGraphicsObject
 {
@@ -56,7 +55,6 @@ protected:
 	void touchEnd(QTouchEvent* te);
 
 	void tapEvent(QTapGesture* tap);
-	void screenEdgeFlickEvent(ScreenEdgeFlickGesture* gesture);
 
 public:
 	bool acceptPoint(const QPointF& pt);
