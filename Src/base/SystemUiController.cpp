@@ -2337,18 +2337,18 @@ void SystemUiController::handleCardSwitchGesture(QGestureEvent* event)
 
 void SystemUiController::handleCardViewGesture(QGestureEvent* event)
 {
+	QGesture* t = event->gesture((Qt::GestureType) GestureCardView);
+    CardViewGesture* gesture = static_cast<CardViewGesture*>(t);
+    
     //Exit dock mode
-	if (m_inDockMode) {
+	if (m_inDockMode && gesture->state() == Qt::GestureUpdated) {
 		enterOrExitDockModeUi(false);
 		return;
 	}
-	
+    
 	//No point continuing if the device is locked
 	if (m_deviceLocked)
 		return;
-
-	QGesture* t = event->gesture((Qt::GestureType) GestureCardView);
-    CardViewGesture* gesture = static_cast<CardViewGesture*>(t);
     
 	//Nor if the gesture hasn't fired
     if(gesture->fired() == false) return;
