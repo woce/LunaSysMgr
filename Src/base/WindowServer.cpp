@@ -89,7 +89,6 @@
 
 #include "NativeAlertManager.h"
 #include "SingleClickGestureRecognizer.h"
-#include "ScreenEdgeSlideGestureRecognizer.h"
 #include "CardSwitchGestureRecognizer.h"
 #include "CardViewGestureRecognizer.h"
 #include "QtUtils.h"
@@ -427,7 +426,6 @@ WindowServer::WindowServer()
 		viewportWidget = new QWidget;
 
 	QGestureRecognizer::registerRecognizer(new SingleClickGestureRecognizer);
-	QGestureRecognizer::registerRecognizer(new ScreenEdgeSlideGestureRecognizer);
 	QGestureRecognizer::registerRecognizer(new CardSwitchGestureRecognizer);
 	QGestureRecognizer::registerRecognizer(new CardViewGestureRecognizer);
 
@@ -464,7 +462,6 @@ WindowServer::WindowServer()
 	viewportWidget->grabGesture(Qt::PinchGesture);
 	viewportWidget->grabGesture((Qt::GestureType) SysMgrGestureFlick);
 	viewportWidget->grabGesture((Qt::GestureType) SysMgrGestureSingleClick);
-	viewportWidget->grabGesture((Qt::GestureType) GestureScreenEdgeSlide);
 	viewportWidget->grabGesture((Qt::GestureType) GestureCardSwitch);
 	viewportWidget->grabGesture((Qt::GestureType) GestureCardView);
 
