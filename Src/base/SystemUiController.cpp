@@ -2238,6 +2238,35 @@ void SystemUiController::handleScreenEdgeSlideGesture(QGesture* gesture)
 	}
 }
 
+void SystemUiController::handleSideSwipe(bool next)
+{
+	//Adhere to Enable App Switching Gestures
+	if (Preferences::instance()->sysUiEnableAppSwitchGestures() == false)
+		return;
+	
+	if (m_deviceLocked || m_inDockMode)
+		return;
+	
+	if (m_dashboardOpened) {
+		Q_EMIT signalCloseDashboard(true);
+	}
+	
+	if (m_menuVisible) {
+		Q_EMIT signalHideMenu();
+	}
+	
+	if (Preferences::instance()->getTabbedCardsPreference() == true)
+	{
+		Q_EMIT signalSideSwipe(!next);
+		return;
+	}
+	
+	//Switch to next/prev app based on next argument
+	if (!m_launcherShown) {
+		Q_EMIT signalChangeCardWindow(next);
+	}
+}
+
 void SystemUiController::handleUpSwipe() {
 	if (m_inDockMode) {
 		enterOrExitDockModeUi(false);
@@ -2276,39 +2305,14 @@ void SystemUiController::handleUpSwipe() {
 	Q_EMIT signalToggleLauncher();
 }
 
-void SystemUiController::handleSideSwipe(bool next)
+void SystemUiController::handleCardSwitchGesture(QGestureEvent* event)
 {
 	//Adhere to Enable App Switching Gestures
 	if (Preferences::instance()->sysUiEnableAppSwitchGestures() == false)
 		return;
-	
-	if (m_deviceLocked)
-		return;
-	
-	if (m_dashboardOpened) {
-		Q_EMIT signalCloseDashboard(true);
-	}
-	
-	if (m_menuVisible) {
-		Q_EMIT signalHideMenu();
-	}
-	
-	if (Preferences::instance()->getTabbedCardsPreference() == true)
-	{
-		Q_EMIT signalSideSwipe(!next);
-		return;
-	}
-	
-	//Switch to next/prev app based on next argument
-	if (!m_launcherShown) {
-		Q_EMIT signalChangeCardWindow(next);
-	}
-}
-
-void SystemUiController::handleCardSwitchGesture(QGestureEvent* event)
-{
-	//No point continuing if the device is locked
-	if (m_deviceLocked)
+		
+	//No point continuing if the device is locked, in dock mode or showing universal search
+	if (m_deviceLocked || m_inDockMode || m_universalSearchShown)
 		return;
 	
 	QGesture* t = event->gesture((Qt::GestureType) GestureCardSwitch);
@@ -2349,17 +2353,13 @@ void SystemUiController::handleCardViewGesture(QGestureEvent* event)
 	//Nor if the gesture hasn't fired
     if(gesture->fired() == false) return;
 	
-	//Toggle the launcher if minimized, i'd like to add fluid launcher functionality at some point
-	if (!m_cardViewGesture && !m_cardWindowMaximized && gesture->state() == Qt::GestureStarted)
-		Q_EMIT signalToggleLauncher();
-		
 	//Set the state variable
     if(gesture->state() == Qt::GestureUpdated)
         m_cardViewGesture = true;
     else
         m_cardViewGesture = false;
-    
-    //Hide the relevant stuff
+        
+	//Hide the relevant stuff
 	if (m_dashboardOpened)
 		Q_EMIT signalCloseDashboard(true);
 
