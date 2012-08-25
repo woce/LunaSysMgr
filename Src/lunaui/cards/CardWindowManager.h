@@ -152,6 +152,7 @@ Q_SIGNALS:
 	void signalEnterSwitch();
 	void signalCardViewGestureEvent(QGestureEvent* event);
 	void signalEnterCardViewGestureState();
+	void signalToggleLauncher();
     void signalFirstCardRun();
     void signalGroupWindow();
 

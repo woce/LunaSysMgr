@@ -3648,10 +3648,20 @@ void CardWindowManager::slotCardViewGestureEvent(QGestureEvent* event)
 	QGesture* t = event->gesture((Qt::GestureType) GestureCardView);
     CardViewGesture* s = static_cast<CardViewGesture*>(t);
 
+	static bool launcherToggled = false;
+
     if(m_curState == m_maximizeState && s->state() == Qt::GestureUpdated)
     {
         Q_EMIT signalEnterCardViewGestureState();
     }
+    else if(m_curState == m_minimizeState && s->state() == Qt::GestureUpdated && !launcherToggled)
+    {
+    	Q_EMIT signalToggleLauncher();
+    	launcherToggled = true;
+    }
+    
+    if(s->state() == Qt::GestureFinished)
+    	launcherToggled = false;
     
     if (m_curState)
         m_curState->cardViewGestureEvent(event);
