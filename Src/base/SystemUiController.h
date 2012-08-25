@@ -405,7 +405,6 @@ private:
 	void animValueChanged(const QVariant& value);
 	bool allowSuspend();
 	void setSuspended(bool);
-	void handleScreenEdgeSlideGesture(QGesture* gesture);
 	void handleSideSwipe(bool next);
 	void handleUpSwipe();
 	void handleCardSwitchGesture(QGestureEvent* event);

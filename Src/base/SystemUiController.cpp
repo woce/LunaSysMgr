@@ -47,7 +47,6 @@
 #include "OverlayWindowManager.h"
 #include "IMEController.h"
 #include "EmulatedCardWindow.h"
-#include "ScreenEdgeSlideGesture.h"
 #include "CardSwitchGesture.h"
 #include "CardViewGesture.h"
 #include "SoundPlayerPool.h"
@@ -311,14 +310,6 @@ bool SystemUiController::handleGestureEvent (QGestureEvent* event)
 
 	if (!t && Preferences::instance()->sysUiEnableNextPrevGestures() == true) {
 		if (Settings::LunaSettings()->uiType != Settings::UI_MINIMAL && !m_emergencyMode) {
-			
-			//Screen-edge Slide Gestures
-			t = event->gesture((Qt::GestureType) GestureScreenEdgeSlide);
-			if (t && Preferences::instance()->sysUiGestureDetection() == 1)
-			{
-				handleScreenEdgeSlideGesture(t);
-			}
-			
 			//Fluid Gestures
 			t = event->gesture((Qt::GestureType) GestureCardSwitch);
 			if (t && Preferences::instance()->sysUiGestureDetection() == 2)
@@ -2105,28 +2096,6 @@ std::string SystemUiController::getMenuTitleForMaximizedWindow(Window* win)
 
 
 	return name;
-}
-
-void SystemUiController::handleScreenEdgeSlideGesture(QGesture* gesture)
-{
-	ScreenEdgeSlideGesture* t = static_cast<ScreenEdgeSlideGesture*>(gesture);
-	
-	//Prevent double-firing with the keyboard open
-	if(t->state() != 1)
-		return;
-	
-	if(t->getEdge() == Left)
-	{
-		handleSideSwipe(true);
-	}
-	if(t->getEdge() == Right)
-	{
-		handleSideSwipe(false);
-	}
-	if(t->getEdge() == Bottom)
-	{
-		handleUpSwipe();
-	}
 }
 
 void SystemUiController::handleSideSwipe(bool next)
