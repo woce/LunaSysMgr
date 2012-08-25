@@ -1023,14 +1023,6 @@ void TabletKeyboard::tapEvent(const QPoint& tapPt)
 	m_candidateBar.tapEvent(tapPt);
 }
 
-void TabletKeyboard::screenEdgeFlickEvent()
-{
-	// Mark all touches as consumed
-	for (std::map<int, Touch>::iterator iter = m_touches.begin(); iter != m_touches.end(); ++iter) {
-		iter->second.m_consumed = true;
-	}
-}
-
 void TabletKeyboard::repeatChar()
 {
 	if (TabletKeymap::isValidLocation(m_repeatKey))

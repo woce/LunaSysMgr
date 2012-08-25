@@ -1,7 +1,6 @@
 #include "Common.h"
 
 #include "WindowServer.h"
-#include "ScreenEdgeFlickGesture.h"
 #include "ScreenEdgeSlideGestureRecognizer.h"
 
 #include <QEvent>

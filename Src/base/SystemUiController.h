@@ -40,7 +40,6 @@
 #include "Window.h"
 #include "CustomEvents.h"
 #include "StatusBar.h"
-#include "ScreenEdgeFlickGesture.h"
 
 class CardWindow;
 class SysMgrKeyEvent;
@@ -406,7 +405,6 @@ private:
 	void animValueChanged(const QVariant& value);
 	bool allowSuspend();
 	void setSuspended(bool);
-	bool handleScreenEdgeFlickGesture(QGesture* gesture);
 	void handleScreenEdgeSlideGesture(QGesture* gesture);
 	void handleSideSwipe(bool next);
 	void handleUpSwipe();
