@@ -40,6 +40,7 @@
 #include "Window.h"
 #include "CustomEvents.h"
 #include "StatusBar.h"
+#include "BezelGesture.h"
 
 class CardWindow;
 class SysMgrKeyEvent;
@@ -312,8 +313,8 @@ Q_SIGNALS:
 	void signalCardWindowMaximized();
 	void signalCardWindowMinimized();
 	void signalChangeCardWindow(bool next);
-    void signalSwitchCardEvent(QGestureEvent* event);
-    void signalCardViewGestureEvent(QGestureEvent* event);
+    void signalSwitchCardEvent(BezelGesture* gesture);
+    void signalCardViewGestureEvent(BezelGesture* gesture);
 
 	void signalHideMenu();
 
@@ -407,8 +408,8 @@ private:
 	void setSuspended(bool);
 	void handleSideSwipe(bool next);
 	void handleUpSwipe();
-	void handleCardSwitchGesture(QGestureEvent* event);
-	void handleCardViewGesture(QGestureEvent* event);
+	void handleCardSwitchGesture(BezelGesture* gesture);
+	void handleCardViewGesture(BezelGesture* gesture);
 
 	Window* m_parentOfModalWindow;
 	Window* m_activeCardWindow;

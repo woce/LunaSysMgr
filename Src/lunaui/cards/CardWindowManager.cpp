@@ -152,11 +152,11 @@ CardWindowManager::CardWindowManager(int maxWidth, int maxHeight)
 	connect(sysui, SIGNAL(signalFocusMaximizedCardWindow(bool)),
 			SLOT(slotFocusMaximizedCardWindow(bool)));
     
-	connect(sysui, SIGNAL(signalSwitchCardEvent(QGestureEvent*)),
-			SLOT(slotSwitchCardEvent(QGestureEvent*)));
+	connect(sysui, SIGNAL(signalSwitchCardEvent(BezelGesture*)),
+			SLOT(slotSwitchCardEvent(BezelGesture*)));
     
-	connect(sysui, SIGNAL(signalCardViewGestureEvent(QGestureEvent*)),
-			SLOT(slotCardViewGestureEvent(QGestureEvent*)));
+	connect(sysui, SIGNAL(signalCardViewGestureEvent(BezelGesture*)),
+			SLOT(slotCardViewGestureEvent(BezelGesture*)));
 
 	connect(sysui, SIGNAL(signalSideSwipe(bool)),
 		SLOT(slotSideSwipe(bool)));
@@ -2036,11 +2036,8 @@ void CardWindowManager::handleMouseReleaseReorder(QGraphicsSceneMouseEvent* even
 	slideAllGroups();
 }
 
-void CardWindowManager::handleSwitchCard(QGestureEvent* event)
+void CardWindowManager::handleSwitchCard(BezelGesture* gesture)
 {
-	QGesture* t = event->gesture((Qt::GestureType) BezelGestureType);
-    BezelGesture* gesture = static_cast<BezelGesture*>(t);
-    
     switch(gesture->state())
     {
         case Qt::GestureUpdated:
@@ -2098,11 +2095,8 @@ void CardWindowManager::handleSwitchCard(QGestureEvent* event)
     }
 }
 
-void CardWindowManager::handleCardViewGesture(QGestureEvent* event)
+void CardWindowManager::handleCardViewGesture(BezelGesture* gesture)
 {
-	QGesture* t = event->gesture((Qt::GestureType) BezelGestureType);
-    BezelGesture* gesture = static_cast<BezelGesture*>(t);
-	
     //Calculate the total distance traveled
 	int delta = gesture->pos().y() - gesture->lastPos().y();
 	
@@ -3598,66 +3592,63 @@ void CardWindowManager::slotFocusMaximizedCardWindow(bool focus)
 		m_curState->focusMaximizedCardWindow(focus);
 }
 
-void CardWindowManager::slotSwitchCardEvent(QGestureEvent* event)
+void CardWindowManager::slotSwitchCardEvent(BezelGesture* gesture)
 {
-	QGesture* t = event->gesture((Qt::GestureType) BezelGestureType);
-    BezelGesture* s = static_cast<BezelGesture*>(t);
-    
     if(!m_activeGroup)
     	return;
 
     if(!Preferences::instance()->getTabbedCardsPreference())
     {
-		if(m_curState == m_maximizeState && s->state() == Qt::GestureUpdated)
+		if(m_curState == m_maximizeState && gesture->state() == Qt::GestureUpdated)
 		{
 			Q_EMIT signalEnterSwitch();
 		}
 		
 		if (m_curState)
-			m_curState->switchCardEvent(event);
+			m_curState->switchCardEvent(gesture);
     }
     else
     {
     	if(m_activeGroup->size() == 1)
     	{
-			if(m_curState == m_maximizeState && s->state() == Qt::GestureUpdated && m_movement == MovementUnlocked)
+			if(m_curState == m_maximizeState && gesture->state() == Qt::GestureUpdated && m_movement == MovementUnlocked)
 			{
 				Q_EMIT signalEnterSwitch();
 			}
 			
 			if (m_curState)
 			{
-				m_curState->switchCardEvent(event);
+				m_curState->switchCardEvent(gesture);
 			}
 		}
 		else
 		{
 			if(m_movement == MovementUnlocked)
 			{
-				slotSideSwipe(s->edge());
+				if(gesture->edge() == Edge(Left))
+					slotSideSwipe(false);
+				else if(gesture->edge() == Edge(Right))
+					slotSideSwipe(true);
 				m_movement = MovementHLocked;
 			}
 		}
 			
-		if(t->state() == Qt::GestureFinished)
+		if(gesture->state() == Qt::GestureFinished)
 		{
 			m_movement = MovementUnlocked;
 		}
     }
 }
 
-void CardWindowManager::slotCardViewGestureEvent(QGestureEvent* event)
+void CardWindowManager::slotCardViewGestureEvent(BezelGesture* gesture)
 {
-	QGesture* t = event->gesture((Qt::GestureType) BezelGestureType);
-    BezelGesture* s = static_cast<BezelGesture*>(t);
-
-    if(m_curState == m_maximizeState && s->state() == Qt::GestureUpdated)
+    if(m_curState == m_maximizeState && gesture->state() == Qt::GestureUpdated)
     {
         Q_EMIT signalEnterCardViewGestureState();
     }
     
     if (m_curState)
-        m_curState->cardViewGestureEvent(event);
+        m_curState->cardViewGestureEvent(gesture);
 }
 
 void CardWindowManager::slotTouchToShareAppUrlTransfered(const std::string& appId)
