@@ -24,9 +24,6 @@
 
 #include "Common.h"
 
-#include "CardSwitchGesture.h"
-#include "CardViewGesture.h"
-
 #include <QState>
 #include <QGraphicsSceneMouseEvent>
 #include <QRect>
