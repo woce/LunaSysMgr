@@ -326,6 +326,10 @@ bool CardWindowManager::okToResize() {
 	return true;
 }
 
+bool CardWindowManager::isMinimized() {
+	return (m_curState == m_minimizeState);
+}
+
 void CardWindowManager::updateAngryCardThreshold()
 {
     kAngryCardThreshold = ((boundingRect().height() / 2) * 0.30);
