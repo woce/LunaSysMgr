@@ -86,6 +86,7 @@ public:
 	void setModalDismissed(bool val) { m_modalDimissed = val; }
 	void stopMoveGroupTimer() {m_groupMoveTimer->stop();}
 	virtual bool okToResize();
+	virtual bool isMinimized();
 
 	CardWindow* modalParent() const { return m_parentOfModalCard; }
 
