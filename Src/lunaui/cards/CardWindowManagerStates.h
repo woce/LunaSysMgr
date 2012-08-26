@@ -23,6 +23,7 @@
 #define CARDWINDOWMANAGERSTATES_H
 
 #include "Common.h"
+#include "BezelGesture.h"
 
 #include <QState>
 #include <QGraphicsSceneMouseEvent>
@@ -53,8 +54,8 @@ public:
 	virtual void flickGestureEvent(QGestureEvent* event) {}
 	virtual void tapGestureEvent(QTapGesture* event) {}
 	virtual void tapAndHoldGestureEvent(QTapAndHoldGesture* event) {}
-	virtual void switchCardEvent(QGestureEvent* event) {}
-	virtual void cardViewGestureEvent(QGestureEvent* event) {}
+	virtual void switchCardEvent(BezelGesture* gesture) {}
+	virtual void cardViewGestureEvent(BezelGesture* gesture) {}
 
 	virtual void windowAdded(CardWindow* win);
 	virtual void windowRemoved(CardWindow* win);
@@ -307,7 +308,7 @@ public:
 	SwitchState(CardWindowManager* wm) 
 				: CardWindowManagerState(wm) { setObjectName("Switch"); }
 
-	virtual void switchCardEvent(QGestureEvent* event);
+	virtual void switchCardEvent(BezelGesture* gesture);
 
 protected:
 	virtual void onExit(QEvent* event);
@@ -324,7 +325,7 @@ public:
 	CardViewGestureState(CardWindowManager* wm) 
 				: CardWindowManagerState(wm) { setObjectName("CardViewGesture"); }
 
-	virtual void cardViewGestureEvent(QGestureEvent* event);
+	virtual void cardViewGestureEvent(BezelGesture* gesture);
 };
 
 #endif /* CARDWINDOWMANAGERSTATES_H */

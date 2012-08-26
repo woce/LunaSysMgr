@@ -47,7 +47,6 @@
 #include "OverlayWindowManager.h"
 #include "IMEController.h"
 #include "EmulatedCardWindow.h"
-#include "BezelGesture.h"
 #include "SoundPlayerPool.h"
 #include "DashboardWindowManager.h"
 #include "StatusBarServicesConnector.h"
@@ -365,11 +364,11 @@ bool SystemUiController::handleGestureEvent (QGestureEvent* event)
    				{
 					if(gesture->edge() == Edge(Left) || gesture->edge() == Edge(Right))
 					{
-						handleCardSwitchGesture(event);
+						handleCardSwitchGesture(gesture);
 					}
 					else if(gesture->edge() == Edge(Bottom))
 					{
-						handleCardViewGesture(event);
+						handleCardViewGesture(gesture);
 					}
 				}
 			}
@@ -2216,7 +2215,7 @@ void SystemUiController::handleUpSwipe() {
 	Q_EMIT signalToggleLauncher();
 }
 
-void SystemUiController::handleCardSwitchGesture(QGestureEvent* event)
+void SystemUiController::handleCardSwitchGesture(BezelGesture* gesture)
 {
 	//Adhere to Enable App Switching Gestures
 	if (Preferences::instance()->sysUiEnableAppSwitchGestures() == false)
@@ -2225,9 +2224,6 @@ void SystemUiController::handleCardSwitchGesture(QGestureEvent* event)
 	//No point continuing if the device is locked, in dock mode or showing universal search
 	if (m_deviceLocked || m_inDockMode || m_universalSearchShown)
 		return;
-	
-	QGesture* t = event->gesture((Qt::GestureType) BezelGestureType);
-    BezelGesture* gesture = static_cast<BezelGesture*>(t);
     
     if(gesture->state() == Qt::GestureStarted || gesture->state() == Qt::GestureUpdated)
         m_switchCards = true;
@@ -2240,14 +2236,11 @@ void SystemUiController::handleCardSwitchGesture(QGestureEvent* event)
 	if (m_menuVisible)
 		Q_EMIT signalHideMenu();
     
-    Q_EMIT signalSwitchCardEvent(event);
+    Q_EMIT signalSwitchCardEvent(gesture);
 }
 
-void SystemUiController::handleCardViewGesture(QGestureEvent* event)
+void SystemUiController::handleCardViewGesture(BezelGesture* gesture)
 {
-	QGesture* t = event->gesture((Qt::GestureType) BezelGestureType);
-    BezelGesture* gesture = static_cast<BezelGesture*>(t);
-	
     static bool fired = false;
     
 	if (m_inDockMode) {
@@ -2283,5 +2276,5 @@ void SystemUiController::handleCardViewGesture(QGestureEvent* event)
     if (gesture->state() == Qt::GestureFinished)
     	fired = false;
 	
-	Q_EMIT signalCardViewGestureEvent(event);
+	Q_EMIT signalCardViewGestureEvent(gesture);
 }

@@ -26,6 +26,7 @@
 
 #include "WindowManagerBase.h"
 #include "Preferences.h"
+#include "BezelGesture.h"
 
 #include <QStateMachine>
 #include <QGraphicsSceneMouseEvent>
@@ -126,9 +127,9 @@ private Q_SLOTS:
 
 	void slotFocusMaximizedCardWindow(bool focus);
     
-	void slotSwitchCardEvent(QGestureEvent* event);
+	void slotSwitchCardEvent(BezelGesture* gesture);
     
-	void slotCardViewGestureEvent(QGestureEvent* event);
+	void slotCardViewGestureEvent(BezelGesture* gesture);
 
     void slotTouchToShareAppUrlTransfered(const std::string& appId);
     void slotOpacityAnimationFinished();
@@ -149,9 +150,9 @@ Q_SIGNALS:
 	void signalMinimizeActiveWindow();
 	void signalEnterReorder(QPoint pt, int slice);
 	void signalExitReorder(bool canceled = true);
-	void signalSwitchCardEvent(QGestureEvent* event);
+	void signalSwitchCardEvent(BezelGesture* gesture);
 	void signalEnterSwitch();
-	void signalCardViewGestureEvent(QGestureEvent* event);
+	void signalCardViewGestureEvent(BezelGesture* gesture);
 	void signalEnterCardViewGestureState();
     void signalFirstCardRun();
     void signalGroupWindow();
@@ -169,9 +170,9 @@ private:
 	void handleMouseReleaseMinimized(QGraphicsSceneMouseEvent* event);
 	void handleMouseReleaseReorder(QGraphicsSceneMouseEvent* event);
     
-    void handleSwitchCard(QGestureEvent* event);
+    void handleSwitchCard(BezelGesture* gesture);
     
-    void handleCardViewGesture(QGestureEvent* event);
+    void handleCardViewGesture(BezelGesture* gesture);
 
 	void handleFlickGestureMinimized(QGestureEvent* event);
 
