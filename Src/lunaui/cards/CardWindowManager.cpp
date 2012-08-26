@@ -43,8 +43,7 @@
 #include "CardWindowManagerStates.h"
 #include "CardGroup.h"
 #include "FlickGesture.h"
-#include "CardSwitchGesture.h"
-#include "CardViewGesture.h"
+#include "BezelGesture.h"
 #include "GhostCard.h"
 #include "IMEController.h"
 
@@ -2035,15 +2034,15 @@ void CardWindowManager::handleMouseReleaseReorder(QGraphicsSceneMouseEvent* even
 
 void CardWindowManager::handleSwitchCard(QGestureEvent* event)
 {
-	QGesture* t = event->gesture((Qt::GestureType) GestureCardSwitch);
-    CardSwitchGesture* gesture = static_cast<CardSwitchGesture*>(t);
+	QGesture* t = event->gesture((Qt::GestureType) BezelGestureType);
+    BezelGesture* gesture = static_cast<BezelGesture*>(t);
     
     switch(gesture->state())
     {
         case Qt::GestureUpdated:
         {
         	//Calculate the distance since the last frame
-            QPoint diff = (gesture->pos() - gesture->lastPos()).toPoint();
+            QPoint diff = gesture->pos() - gesture->lastPos();
             
             //If the movement is unlocked, lock it and reset the pivot
             if (m_movement == MovementUnlocked) {
@@ -2097,8 +2096,8 @@ void CardWindowManager::handleSwitchCard(QGestureEvent* event)
 
 void CardWindowManager::handleCardViewGesture(QGestureEvent* event)
 {
-	QGesture* t = event->gesture((Qt::GestureType) GestureCardView);
-    CardViewGesture* gesture = static_cast<CardViewGesture*>(t);
+	QGesture* t = event->gesture((Qt::GestureType) BezelGestureType);
+    BezelGesture* gesture = static_cast<BezelGesture*>(t);
 	
     //Calculate the total distance traveled
 	int delta = gesture->pos().y() - gesture->lastPos().y();
@@ -3597,8 +3596,8 @@ void CardWindowManager::slotFocusMaximizedCardWindow(bool focus)
 
 void CardWindowManager::slotSwitchCardEvent(QGestureEvent* event)
 {
-	QGesture* t = event->gesture((Qt::GestureType) GestureCardSwitch);
-    CardSwitchGesture* s = static_cast<CardSwitchGesture*>(t);
+	QGesture* t = event->gesture((Qt::GestureType) BezelGestureType);
+    BezelGesture* s = static_cast<BezelGesture*>(t);
     
     if(!m_activeGroup)
     	return;
@@ -3645,8 +3644,8 @@ void CardWindowManager::slotSwitchCardEvent(QGestureEvent* event)
 
 void CardWindowManager::slotCardViewGestureEvent(QGestureEvent* event)
 {
-	QGesture* t = event->gesture((Qt::GestureType) GestureCardView);
-    CardViewGesture* s = static_cast<CardViewGesture*>(t);
+	QGesture* t = event->gesture((Qt::GestureType) BezelGestureType);
+    BezelGesture* s = static_cast<BezelGesture*>(t);
 
 	static bool launcherToggled = false;
 
