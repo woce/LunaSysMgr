@@ -67,6 +67,7 @@ public:
 	void sendClickToDashboardWindow(int num, QPointF tap, bool whileLocked);
 	void resetLocalState(bool forceReset = false);
 	int  getMaximumHeightForMenu() const;
+	int  getTotalItemsHeight();
 
 	QRectF boundingRect() const;
 

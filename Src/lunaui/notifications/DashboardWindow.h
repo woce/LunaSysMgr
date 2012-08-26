@@ -53,6 +53,7 @@ public:
 	void setWindowProperties (const WindowProperties& props);
 
 	bool isManualDragWindow() { return m_manualDragMode; }
+	unsigned int dashHeight() { return m_dashHeight; }
 	virtual void inputEvent(Event* e);
 
 private:
@@ -64,6 +65,7 @@ private:
 	bool m_persistent;
 
 	bool m_manualDragMode;
+	unsigned int m_dashHeight;
 };	
 
 #endif /* DASHBOARDWINDOW_H */
