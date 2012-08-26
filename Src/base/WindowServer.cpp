@@ -91,6 +91,7 @@
 #include "SingleClickGestureRecognizer.h"
 #include "CardSwitchGestureRecognizer.h"
 #include "CardViewGestureRecognizer.h"
+#include "BezelGestureRecognizer.h"
 #include "QtUtils.h"
 
 
@@ -428,6 +429,7 @@ WindowServer::WindowServer()
 	QGestureRecognizer::registerRecognizer(new SingleClickGestureRecognizer);
 	QGestureRecognizer::registerRecognizer(new CardSwitchGestureRecognizer);
 	QGestureRecognizer::registerRecognizer(new CardViewGestureRecognizer);
+	QGestureRecognizer::registerRecognizer(new BezelGestureRecognizer);
 
 	viewportWidget->setAttribute(Qt::WA_AcceptTouchEvents);
 	viewportWidget->setAttribute(Qt::WA_OpaquePaintEvent, true);
@@ -464,6 +466,7 @@ WindowServer::WindowServer()
 	viewportWidget->grabGesture((Qt::GestureType) SysMgrGestureSingleClick);
 	viewportWidget->grabGesture((Qt::GestureType) GestureCardSwitch);
 	viewportWidget->grabGesture((Qt::GestureType) GestureCardView);
+	viewportWidget->grabGesture((Qt::GestureType) BezelGestureType);
 
 	m_uiRootItem.setBoundingRect(QRectF(-SystemUiController::instance()->currentUiWidth()/2, -SystemUiController::instance()->currentUiHeight()/2,
 						         SystemUiController::instance()->currentUiWidth(), SystemUiController::instance()->currentUiHeight()));
