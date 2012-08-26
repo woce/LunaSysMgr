@@ -254,6 +254,7 @@ SOURCES = \
 	SingleClickGestureRecognizer.cpp \
 	CardSwitchGestureRecognizer.cpp \
 	CardViewGestureRecognizer.cpp \
+	BezelGestureRecognizer.cpp \
 	BootupAnimation.cpp \
 	ProgressAnimation.cpp \
 	CardHostWindow.cpp \
@@ -447,9 +448,11 @@ HEADERS = \
 	SingleClickGestureRecognizer.h \
 	CardSwitchGestureRecognizer.h \
 	CardViewGestureRecognizer.h \
+	BezelGestureRecognizer.h \
 	SingleClickGesture.h \
 	CardSwitchGesture.h \
 	CardViewGesture.h \
+	BezelGesture.h \
 	BootupAnimation.h \
 	ProgressAnimation.h \
 	CardHostWindow.h \
