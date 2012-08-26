@@ -47,8 +47,7 @@
 #include "OverlayWindowManager.h"
 #include "IMEController.h"
 #include "EmulatedCardWindow.h"
-#include "CardSwitchGesture.h"
-#include "CardViewGesture.h"
+#include "BezelGesture.h"
 #include "SoundPlayerPool.h"
 #include "DashboardWindowManager.h"
 #include "StatusBarServicesConnector.h"
@@ -311,16 +310,67 @@ bool SystemUiController::handleGestureEvent (QGestureEvent* event)
 	if (!t && Preferences::instance()->sysUiEnableNextPrevGestures() == true) {
 		if (Settings::LunaSettings()->uiType != Settings::UI_MINIMAL && !m_emergencyMode) {
 			//Fluid Gestures
-			t = event->gesture((Qt::GestureType) GestureCardSwitch);
-			if (t && Preferences::instance()->sysUiGestureDetection() == 2)
+			t = event->gesture((Qt::GestureType) BezelGestureType);
+			if (t)
 			{
-				handleCardSwitchGesture(event);
-			}
-
-			t = event->gesture((Qt::GestureType) GestureCardView);
-			if (t && Preferences::instance()->sysUiGestureDetection() == 2)
-			{
-				handleCardViewGesture(event);
+   				BezelGesture* gesture = static_cast<BezelGesture*>(t);
+   				//Flick Gestures
+   				if(Preferences::instance()->sysUiGestureDetection() == 0
+   				&& gesture->state() == Qt::GestureFinished)
+   				{
+					if(gesture->edge() == Edge(Left) && gesture->flick() == 1)
+					{
+						handleSideSwipe(true);
+					}
+					else if(gesture->edge() == Edge(Right) && gesture->flick() == -1)
+					{
+						handleSideSwipe(false);
+					}
+					else if(gesture->edge() == Edge(Bottom) && gesture->flick() == -1)
+					{
+						handleUpSwipe();
+					}
+				}
+				
+   				//Slide Gestures
+   				if(Preferences::instance()->sysUiGestureDetection() == 1)
+   				{
+   					static bool fired = false;
+   					
+   					if(fired == false)
+   					{
+						if(gesture->edge() == Edge(Left))
+						{
+							handleSideSwipe(true);
+						}
+						else if(gesture->edge() == Edge(Right))
+						{
+							handleSideSwipe(false);
+						}
+						else if(gesture->edge() == Edge(Bottom))
+						{
+							handleUpSwipe();
+						}
+					}
+   					
+   					if(gesture->state() == Qt::GestureFinished)
+   						fired = false;
+   					else
+   						fired = true;
+				}
+				
+   				//Fluid Gestures
+   				if(Preferences::instance()->sysUiGestureDetection() == 2)
+   				{
+					if(gesture->edge() == Edge(Left) || gesture->edge() == Edge(Right))
+					{
+						handleCardSwitchGesture(event);
+					}
+					else if(gesture->edge() == Edge(Bottom))
+					{
+						handleCardViewGesture(event);
+					}
+				}
 			}
 		}
 	}
@@ -2175,11 +2225,8 @@ void SystemUiController::handleCardSwitchGesture(QGestureEvent* event)
 	if (m_deviceLocked || m_inDockMode || m_universalSearchShown)
 		return;
 	
-	QGesture* t = event->gesture((Qt::GestureType) GestureCardSwitch);
-    CardSwitchGesture* gesture = static_cast<CardSwitchGesture*>(t);
-    
-    //Nor if the gesture hasn't actually been fired
-    if(gesture->fired() == false) return;
+	QGesture* t = event->gesture((Qt::GestureType) BezelGestureType);
+    BezelGesture* gesture = static_cast<BezelGesture*>(t);
     
     if(gesture->state() == Qt::GestureStarted || gesture->state() == Qt::GestureUpdated)
         m_switchCards = true;
@@ -2197,8 +2244,8 @@ void SystemUiController::handleCardSwitchGesture(QGestureEvent* event)
 
 void SystemUiController::handleCardViewGesture(QGestureEvent* event)
 {
-	QGesture* t = event->gesture((Qt::GestureType) GestureCardView);
-    CardViewGesture* gesture = static_cast<CardViewGesture*>(t);
+	QGesture* t = event->gesture((Qt::GestureType) BezelGestureType);
+    BezelGesture* gesture = static_cast<BezelGesture*>(t);
     
     //Exit dock mode
 	if (m_inDockMode && gesture->state() == Qt::GestureUpdated) {
@@ -2209,9 +2256,6 @@ void SystemUiController::handleCardViewGesture(QGestureEvent* event)
 	//No point continuing if the device is locked
 	if (m_deviceLocked)
 		return;
-    
-	//Nor if the gesture hasn't fired
-    if(gesture->fired() == false) return;
 	
 	//Set the state variable
     if(gesture->state() == Qt::GestureUpdated)
