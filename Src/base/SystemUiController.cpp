@@ -51,6 +51,7 @@
 #include "SoundPlayerPool.h"
 #include "DashboardWindowManager.h"
 #include "StatusBarServicesConnector.h"
+#include "CardWindowManager.h"
 
 #define MESSAGES_INTERNAL_FILE "SysMgrMessagesInternal.h"
 #include <PIpcMessageMacros.h>
@@ -2246,34 +2247,41 @@ void SystemUiController::handleCardViewGesture(QGestureEvent* event)
 {
 	QGesture* t = event->gesture((Qt::GestureType) BezelGestureType);
     BezelGesture* gesture = static_cast<BezelGesture*>(t);
+	
+    static bool fired = false;
     
-    //Exit dock mode
-	if (m_inDockMode && gesture->state() == Qt::GestureUpdated) {
+	if (m_inDockMode) {
 		enterOrExitDockModeUi(false);
+		fired = true;
 		return;
 	}
-    
-	//No point continuing if the device is locked
+	
 	if (m_deviceLocked)
 		return;
 	
-	//Set the state variable
-    if(gesture->state() == Qt::GestureUpdated)
-        m_cardViewGesture = true;
-    else
-        m_cardViewGesture = false;
-        
-	//Hide the relevant stuff
 	if (m_dashboardOpened)
 		Q_EMIT signalCloseDashboard(true);
-
+	
 	if (m_menuVisible)
 		Q_EMIT signalHideMenu();
 	
 	if (m_universalSearchShown) {
 		Q_EMIT signalHideUniversalSearch(false, false);
+		fired = true;
 		return;
 	}
 	
-    Q_EMIT signalCardViewGestureEvent(event);
+	if (m_launcherShown || (!m_launcherShown && CardWindowManager::instance()->isMinimized())) {
+		if(!fired)
+		{
+			Q_EMIT signalToggleLauncher();
+			fired = true;
+			return;
+		}
+	}
+    
+    if (gesture->state() == Qt::GestureFinished)
+    	fired = false;
+	
+	Q_EMIT signalCardViewGestureEvent(event);
 }
