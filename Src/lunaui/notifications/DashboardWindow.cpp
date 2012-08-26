@@ -39,6 +39,7 @@ DashboardWindow::DashboardWindow(HostWindowData* data, IpcClientHost* clientHost
 	, m_clickableWhenLocked(false)
 	, m_persistent(false)
 	, m_manualDragMode(false)
+	, m_dashHeight(52)
 {
     
 }
@@ -104,8 +105,9 @@ QPixmap DashboardWindow::icon()
 
 void DashboardWindow::setWindowProperties(const WindowProperties& props)
 {
-	// we only care about the manual drag mode for Dashboard windows
 	m_manualDragMode = props.dashboardManualDrag;
+	m_dashHeight = props.dashHeight;
+	g_warning("DashboardWindow::setWindowProperties %s %s", m_manualDragMode ? "true" : "false", m_dashHeight ? "true" : "false");
 }
 
 void DashboardWindow::inputEvent(Event* e)

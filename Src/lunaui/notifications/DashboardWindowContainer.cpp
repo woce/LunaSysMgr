@@ -29,6 +29,7 @@
 #include <QTapGesture>
 #include <SysMgrDefs.h>
 #include <QPropertyAnimation>
+#include <QDebug>
 
 #include "DashboardWindow.h"
 #include "DashboardWindowManager.h"
@@ -147,7 +148,28 @@ DashboardWindowContainer::~DashboardWindowContainer()
 
 int DashboardWindowContainer::getMaximumHeightForMenu() const
 {
-	return ((int)(kMaxWindowsToDisplay * (qreal)sDashboardWindowHeight)) + ((kMaxWindowsToDisplay - 1) * m_menuSeparatorHeight);
+	//return ((int)(kMaxWindowsToDisplay * (qreal)sDashboardWindowHeight)) + ((kMaxWindowsToDisplay - 1) * m_menuSeparatorHeight);
+	return 480;
+}
+
+int DashboardWindowContainer::getTotalItemsHeight()
+{
+	if(m_items.count() == 0)
+		return 0;
+		
+	int height = 0;
+	
+	height -= m_menuSeparatorHeight;
+	
+	for (int i = m_items.count() - 1; i >= 0; i--) {
+		if (!m_pendingDeleteItems.contains(m_items[i])) {
+			height += m_items[i]->dashHeight();
+			qCritical() << m_items[i]->dashHeight();
+			height += m_menuSeparatorHeight;
+		}
+	}
+	
+	return height;
 }
 
 void DashboardWindowContainer::resetLocalState(bool forceReset)
@@ -487,7 +509,7 @@ QVariant DashboardWindowContainer::itemChange(GraphicsItemChange change, const Q
 
 				if(m_isMenu) {
 					if(m_itemsDeleted > 0) {
-						animateResize(m_contentWidth, (m_items.size() * sDashboardWindowHeight + (m_items.size()-1) * m_menuSeparatorHeight));
+						animateResize(m_contentWidth, getTotalItemsHeight());
 					}
 				}
 
@@ -519,15 +541,17 @@ void DashboardWindowContainer::layoutAllWindowsInMenu()
 		return;
 
 	int y = 0, delta = 0;
-
+	
 	y = boundingRect().y();
-	y += sDashboardWindowHeight / 2;
 
 	// Layout all items, excluding deleted items
 	for (int i = m_items.count() - 1; i >= 0; i--) {
 		if (!m_pendingDeleteItems.contains(m_items[i])) {
+			y += m_items[i]->dashHeight()/2;
+			if(i < m_items.count() - 1)
+				y += m_items[i+1]->dashHeight()/2;
+			y += m_menuSeparatorHeight;
 			m_items[i]->setPos(m_items[i]->boundingRect().width()/2, y);
-			y += sDashboardWindowHeight + m_menuSeparatorHeight;
 		}
 	}
 }
@@ -560,7 +584,7 @@ void DashboardWindowContainer::resizeWindowsEventSync(int w)
 	for (int i = 0; i < m_items.size(); ++i) {
 		dw = m_items.at(i);
 		if (dw) {
-			dw->resizeEventSync(w, dw->initialHeight());
+			dw->resizeEventSync(w, dw->dashHeight());
 			setPosTopLeft(dw, 0, 0);
 		}
 	}
@@ -581,11 +605,11 @@ QRectF DashboardWindowContainer::boundingRect() const
 void DashboardWindowContainer::addWindow(DashboardWindow* win)
 {
 	if(!m_isMenu) {
-		win->resizeEventSync(SystemUiController::instance()->currentUiWidth(), sDashboardWindowHeight);
+		win->resizeEventSync(SystemUiController::instance()->currentUiWidth(), win->dashHeight());
 	}
 	else {
 		// $$$ remove resize for menu
-		win->resizeEventSync(m_contentWidth, sDashboardWindowHeight);
+		win->resizeEventSync(m_contentWidth, win->dashHeight());
 	}
 
 	update();
@@ -597,7 +621,7 @@ void DashboardWindowContainer::addWindow(DashboardWindow* win)
 
 	// if we are running on a tablet, update the height
 	if(m_isMenu) {
-		animateResize(m_contentWidth, (m_items.size() * sDashboardWindowHeight + (m_items.size()-1) * m_menuSeparatorHeight));
+		animateResize(m_contentWidth, getTotalItemsHeight());
 		m_operation = SingleWindowAdded;
 	}
 
@@ -611,7 +635,7 @@ void DashboardWindowContainer::addWindow(DashboardWindow* win)
 	if(!m_isMenu)
 		win->setPos(0, m_scrollBottom + sDashboardWindowHeight);
 	else {
-		win->setPos(win->boundingRect().width()/2, m_scrollBottom - sDashboardWindowHeight);
+		win->setPos(win->boundingRect().width()/2, m_scrollBottom - win->boundingRect().height());
 	}
 
 	restoreNonDeletedItems(false);
@@ -647,7 +671,7 @@ void DashboardWindowContainer::removeWindow(DashboardWindow* w)
 		Q_EMIT signalWindowsRemoved(w);
 
 		if(m_isMenu) {
-			animateResize(m_contentWidth, (m_items.size() * sDashboardWindowHeight + (m_items.size()-1) * m_menuSeparatorHeight));
+			animateResize(m_contentWidth, getTotalItemsHeight());
 			m_operation = SingleWindowRemoved;
 		}
 
@@ -719,7 +743,7 @@ void DashboardWindowContainer::slotDeleteAnimationFinished()
 	// Recalculate the scroll props
 	if(m_isMenu) {
 		if(0 != m_itemsDeleted) {
-			animateResize(m_contentWidth, (m_items.size() * sDashboardWindowHeight + (m_items.size()-1) * m_menuSeparatorHeight));
+			animateResize(m_contentWidth, getTotalItemsHeight());
 			if(m_itemsDeleted > 1) {
 				m_operation = MultipleWindowsRemoved;
 			}
@@ -732,9 +756,10 @@ void DashboardWindowContainer::slotDeleteAnimationFinished()
 	calculateScrollProperties();
 
 	// calculateScrollProperties() changes the Y position of the container, causing the windows to get shifted and this causes the animation to shift up and then move downwards.
-	if(m_isMenu) {
+	if(m_isMenu && m_items.count() > 0) {
 		animateWindowsToFinalDestinationInMenu(boundingRect().y());
 	}
+
 
 	if (m_items.empty()) {
 		Q_EMIT signalEmpty();
@@ -846,7 +871,6 @@ void DashboardWindowContainer::animateWindowsToFinalDestinationInMenu(int topCoo
 
 	// Initialize the starting position
 	int y = topCoord;
-	y += sDashboardWindowHeight / 2;
 
 	DashboardWindow* w;
 
@@ -855,14 +879,18 @@ void DashboardWindowContainer::animateWindowsToFinalDestinationInMenu(int topCoo
 		if (m_pendingDeleteItems.contains(w))
 			continue;
 
+		y += m_items[i]->dashHeight()/2;
+		if(i < m_items.count() - 1)
+			y += m_items[i+1]->dashHeight()/2;
+		y += m_menuSeparatorHeight;
+				
 		QPropertyAnimation* a = new QPropertyAnimation(w, "pos");
 		a->setEndValue(QPointF(w->boundingRect().width()/2, y));
 		a->setEasingCurve(AS_CURVE(dashboardSnapCurve));
 		a->setDuration(AS(dashboardSnapDuration));
 		m_anim.addAnimation(a);
-		y += sDashboardWindowHeight + m_menuSeparatorHeight;
 	}
-
+	
 	// start the animation
 	m_anim.start();
 }
@@ -950,13 +978,13 @@ void DashboardWindowContainer::calculateScrollProperties()
 
 		itemCount = m_items.size();
 
-		actualDisplayHeight = itemCount * DashboardWindowContainer::sDashboardWindowHeight  + (itemCount-1) * m_menuSeparatorHeight;
+		actualDisplayHeight = getTotalItemsHeight();
 
 		m_itemsDeleted = 0;
 		m_operation = Invalid;
 	}
 
-	m_contentsHeight = (m_items.size() * sDashboardWindowHeight + (m_items.size()-1) * m_menuSeparatorHeight);
+	m_contentsHeight = getTotalItemsHeight();
 
 	if (!m_items.isEmpty())
 		m_contentsHeight += m_DashboardTopPadding;
@@ -1395,7 +1423,7 @@ void DashboardWindowContainer::paintInsideMenu(QPainter* painter)
 			// check if there is a gap between the current item and the next one, and fill the gap with a shade
 
 			int endThis = (w->pos().y() + wRect.height()/2);
-			int startNext = m_items.at(i)->pos().y() - m_items.at(i)->boundingRect().height()/2 - m_menuSeparatorHeight;
+			int startNext = m_items.at(i)->pos().y() - m_items.at(i)->dashHeight()/2 - m_menuSeparatorHeight;
 			if(startNext > endThis) {
 				// fill the gap with a shadow
 				paintHoriz3Tile(painter, m_menuSwipeBkg,
