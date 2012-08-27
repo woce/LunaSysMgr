@@ -1,6 +1,7 @@
 /* @@@LICENSE
 *
 *      Copyright (c) 2010-2012 Hewlett-Packard Development Company, L.P.
+*                    2012 Måns Andersson <mail@mansandersson.se>
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -53,7 +54,7 @@ inline bool KeyCap_TwoHorizontal(const QPoint & keyCoord, UKey key)
 
 inline bool KeyCap_TwoVertical(const QPoint & keyCoord, UKey key)
 {
-	return !UKeyIsFunctionKey(key) && keyCoord.y() > 0 && (key < Qt::Key_A || key > Qt::Key_Z);
+	return !UKeyIsFunctionKey(key) && keyCoord.y() > 0 && !UKeyIsCharacter(key);
 }
 
 const int cFirstRepeatDelay = 350;
@@ -243,22 +244,23 @@ void TabletKeyboard::setSymbolMode(TabletKeymap::ESymbolMode symbolMode)
 		keyboardLayoutChanged();
 }
 
-void TabletKeyboard::setKeyboardCombo(const std::string & layoutName, const std::string & languageName, bool showLanguageKey)
+void TabletKeyboard::setKeyboardCombo(const std::string & keyboardLanguage, const std::string & keymap, const std::string & autoCorrectLanguage, bool hasMoreThanOneKeyboardLayout)
 {
-	const TabletKeymap::LayoutFamily * layoutFamily = TabletKeymap::LayoutFamily::findLayoutFamily(layoutName.c_str(), false);	// get default if not found
+	const TabletKeymap::LayoutFamily * layoutFamily = TabletKeymap::LayoutFamily::findLayoutFamily(keyboardLanguage.c_str(), false);	// get default if not found
 	bool changed = false;
 
-	if (m_keymap.setLayoutFamily(layoutFamily))
+	bool layoutFamilyChanged = m_keymap.setLayoutFamily(layoutFamily);
+	bool keymapChanged = m_keymap.setKeymap(keymap);
+	if (layoutFamilyChanged || keymapChanged)
 	{
 		changed = true;
 		KeyLocationRecorder::instance().keyboardSizeChanged(m_keymap.layoutName(), m_keymap.rect());
 	}
 	syncKeymap();
+	
+	m_keymap.setHasMoreThanOneLayoutFamily(hasMoreThanOneKeyboardLayout);
 
-	if (m_keymap.setLanguageName(showLanguageKey ? languageName : ""))
-		changed = true;
-
-	m_candidateBar.setLanguage(languageName);
+	m_candidateBar.setLanguage(autoCorrectLanguage);
 
 	if (changed)
 		keyboardLayoutChanged();
@@ -276,7 +278,7 @@ void TabletKeyboard::syncKeymap()
 	}
 	if (m_candidateBarLayoutOutdated && m_generatedKeymapLayout)
 	{
-		if (m_candidateBar.loadKeyboardLayoutFile(IME_KDB_XML_FILENAME, m_generatedKeymapLayout->m_primaryID, m_generatedKeymapLayout->m_secondaryID))
+		if (m_candidateBar.loadKeyboardLayoutFile(IME_KDB_XML_FILENAME, m_generatedKeymapLayout->m_currentKeymap->m_primaryID, m_generatedKeymapLayout->m_currentKeymap->m_secondaryID))
 			m_candidateBarLayoutOutdated = false;
 	}
 }
@@ -742,8 +744,8 @@ void TabletKeyboard::handleKey(UKey key, QPointF where)
 	}
 	else if (UKeyIsKeyboardComboKey(key))
 	{
-		int index = key - cKey_KeyboardComboChoice_First;
-		VirtualKeyboardPreferences::instance().selectKeyboardCombo(index);
+		QString keymap = m_keymap.getKeyDisplayString(key, false);
+		VirtualKeyboardPreferences::instance().selectKeymap(keymap.toStdString());
 	}
 	else
 	{
@@ -1061,7 +1063,7 @@ void TabletKeyboard::repeatChar()
 bool TabletKeyboard::setExtendedKeys(QPoint keyCoord, bool cancelIfSame)
 {
 	const UKey * newExtended = m_keymap.getExtendedChars(keyCoord);
-	if (cancelIfSame && newExtended == m_extendedKeys)
+	if ((cancelIfSame && newExtended == m_extendedKeys) || newExtended == NULL || newExtended[0] == cKey_None)
 		return false;
 	m_extendedKeys = newExtended;
 	if (m_extendedKeys)
@@ -1722,7 +1724,7 @@ bool TabletKeyboard::idle()
 		}
 		uint64_t timeLimit = CURRENT_TIME + 10;	// process 10ms max
 		do {
-			if (extendedChars)
+			if (extendedChars && extendedChars[0] != cKey_None)
 			{
 				UKey key = extendedChars[extendedIndex];
 				if (UKeyIsUnicodeQtKey(key))

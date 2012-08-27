@@ -1,6 +1,7 @@
 /* @@@LICENSE
 *
 *      Copyright (c) 2010-2012 Hewlett-Packard Development Company, L.P.
+*                    2012 Måns Andersson <mail@mansandersson.se>
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -929,7 +930,7 @@ QString PhoneKeymap::getKeyDisplayString(UKey key, bool logging)
 			int index = key - cKey_KeyboardComboChoice_First;
 			VirtualKeyboardPreferences & prefs = VirtualKeyboardPreferences::instance();
 			if (VERIFY(index >= 0 && index < prefs.getKeyboardComboCount()))
-				return prefs.getkeyboardCombo(index).language.c_str();
+				return prefs.getkeyboardCombo(index).autoCorrectLanguage.c_str();
 			return NULL;
 		}
 
