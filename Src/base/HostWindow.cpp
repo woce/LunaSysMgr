@@ -308,7 +308,7 @@ void HostWindow::onEditorFocusChanged(bool focused, const PalmIME::EditorState& 
 			 appId().c_str(), focused, state.type, state.actions);
 
 	// cache input focus state for this window
-	//setInputFocus(focused); //Causes focus bug when uncommented, breaks smilies when commented
+	setInputFocus(focused);
 	setInputState(state);
 
 	IMEController::instance()->notifyInputFocusChange(this, focused);
@@ -323,7 +323,7 @@ void HostWindow::onAutoCapChanged(bool enabled)
 
 void HostWindow::setComposingText(const std::string& text)
 {
-	if (!inputFocus())
+	if (inputFocus())
 		return;
 
 	if (m_channel)
