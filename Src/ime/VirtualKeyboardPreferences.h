@@ -1,6 +1,7 @@
 /* @@@LICENSE
 *
 *      Copyright (c) 2010-2012 Hewlett-Packard Development Company, L.P.
+*                    2012 Måns Andersson <mail@mansandersson.se>
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -34,17 +35,23 @@ class VirtualKeyboardPreferences : public QObject
 
 	struct SKeyboardCombo
 	{
-		void	clear()										{ layout.clear(); language.clear(); }
-		void	set(const std::string & layout_)			{ layout = layout_; language.clear(); }
-		void	set(const std::string & layout_, const std::string & language_)
-															{ layout = layout_; language = language_; }
+		void	clear()										{ keyboardLanguage.clear(); keymap.clear(); autoCorrectLanguage.clear(); }
+		void	set(const std::string & keyboardLanguage_)	{ keyboardLanguage = keyboardLanguage_; keymap.clear(); autoCorrectLanguage.clear(); }
+		void	set(const std::string & keyboardLanguage_, const std::string & autoCorrectLanguage_)
+															{ keyboardLanguage = keyboardLanguage_; autoCorrectLanguage = autoCorrectLanguage_; }
+		void	set(const std::string & keyboardLanguage_, const std::string & keymap_, const std::string & autoCorrectLanguage_)
+															{ keyboardLanguage = keyboardLanguage_; keymap = keymap_; autoCorrectLanguage = autoCorrectLanguage_; }
+		void	setKeymap(const std::string & keymap_)      { keymap = keymap_; }
 
-		bool	empty() const								{ return layout.empty() && language.empty(); }
-		bool	operator==(const SKeyboardCombo & rhs)		{ return layout == rhs.layout && language == rhs.language; }
-		bool	operator!=(const SKeyboardCombo & rhs)		{ return layout != rhs.layout || language != rhs.language; }
+		bool	empty() const								{ return keyboardLanguage.empty() && keymap.empty() && autoCorrectLanguage.empty(); }
+		bool	operator==(SKeyboardCombo & rhs)			{ return keyboardLanguage == rhs.keyboardLanguage && autoCorrectLanguage == rhs.autoCorrectLanguage; }
+		bool	operator==(const SKeyboardCombo & rhs)		{ return keyboardLanguage == rhs.keyboardLanguage && autoCorrectLanguage == rhs.autoCorrectLanguage; }
+		bool	operator!=(SKeyboardCombo & rhs)			{ return keyboardLanguage != rhs.keyboardLanguage || autoCorrectLanguage != rhs.autoCorrectLanguage; }
+		bool	operator!=(const SKeyboardCombo & rhs)		{ return keyboardLanguage != rhs.keyboardLanguage || autoCorrectLanguage != rhs.autoCorrectLanguage; }
 
-		std::string	layout;
-		std::string language;
+		std::string keyboardLanguage;
+		std::string	keymap;
+		std::string autoCorrectLanguage;
 	};
 
 public Q_SLOTS:
@@ -65,7 +72,8 @@ public:
 
     void                        applyFirstUseSettings();
     void                        localeChanged();
-
+    
+	void						selectKeymap(const std::string keymap);
 	void						selectNextKeyboardCombo();
 	void						selectKeyboardCombo(int index);
 	void						selectLayoutCombo(const char * layoutName);
@@ -80,6 +88,7 @@ public:
 
 	void						virtualKeyboardPreferencesChanged(const char * prefs);
 	void						virtualKeyboardSettingsChanged(const char * settings);
+	void						virtualKeyboardSelectedKeymapsChanged(const char * selectedKeymaps);
 
 	bool						getTapSounds() const					{ return mTapSounds; }
 	bool						getSpaces2period() const				{ return mSpaces2period; }
@@ -95,6 +104,7 @@ private:
 
 	bool						mSettingsReceived;
 	bool						mPrefsReceived;
+	bool						mSelectedKeymapsReceived;
 
 	std::vector<SKeyboardCombo>	mCombos;
 	SKeyboardCombo				mActiveCombo;
@@ -102,8 +112,9 @@ private:
 	VirtualKeyboard *			mVirtualKeyboard;
 };
 
-#define PALM_VIRTUAL_KEYBOARD_PREFS		"x_palm_virtualkeyboard_prefs"
-#define PALM_VIRTUAL_KEYBOARD_SETTINGS	"x_palm_virtualkeyboard_settings"
-#define PALM_VIRTUAL_KEYBOARD_LAYOUTS	"x_palm_virtualkeyboard_layouts"
+#define PALM_VIRTUAL_KEYBOARD_PREFS				"x_palm_virtualkeyboard_prefs"
+#define PALM_VIRTUAL_KEYBOARD_SETTINGS			"x_palm_virtualkeyboard_settings"
+#define PALM_VIRTUAL_KEYBOARD_LAYOUTS			"x_palm_virtualkeyboard_layouts"
+#define PALM_VIRTUAL_KEYBOARD_SELECTED_KEYMAPS 	"x_palm_virtualkeyboard_selected_keymaps"
 
 #endif // VIRTUAL_KEYBOARD_PREFERENCES_H

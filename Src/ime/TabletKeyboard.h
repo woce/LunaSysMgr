@@ -1,6 +1,7 @@
 /* @@@LICENSE
 *
 *      Copyright (c) 2010-2012 Hewlett-Packard Development Company, L.P.
+*                    2012 Måns Andersson <mail@mansandersson.se>
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -115,7 +116,16 @@ class TabletKeyboard : public VirtualKeyboard
 
 	template <class T> T selectFromKeyType(UKey key, T letter, T functionKeys, T otherKeys)
 	{
-		return UKeyIsFunctionKey(key) && !UKeyIsTextShortcutKey(key) ? functionKeys : (((key >= Qt::Key_A && key <= Qt::Key_Z) || key == Qt::Key_Space) ? letter : otherKeys);
+		if (UKeyIsFunctionKey(key) && !UKeyIsTextShortcutKey(key))
+		{
+			return functionKeys;
+		}
+		if (UKeyIsCharacter(key) || key == Qt::Key_Space)
+		{
+			return letter;
+		}
+		
+		return otherKeys;
 	}
 
 public:
@@ -131,7 +141,7 @@ public:
 	bool	setBoolOption(const std::string & optionName, bool value);
 	bool	setIntOption(const std::string & optionName, int value);
 	bool	getValue(const std::string & name, std::string & outValue);
-	void	setKeyboardCombo(const std::string & layoutName, const std::string & languageName, bool showLanguageKey);
+	void	setKeyboardCombo(const std::string & keyboardLanguage, const std::string & keymap, const std::string & autoCorrectLanguage, bool hasMoreThanOneKeyboardLayout);
 	void	keyboardCombosChanged()					{ m_keymap.keyboardCombosChanged(); }	// called by VirtualKeyboardPreferences when combos change
 
 	QList<const char *>	getLayoutNameList()			{ return m_keymap.getLayoutList(); }

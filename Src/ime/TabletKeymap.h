@@ -1,6 +1,7 @@
 /* @@@LICENSE
 *
 *      Copyright (c) 2010-2012 Hewlett-Packard Development Company, L.P.
+*                    2012 Måns Andersson <mail@mansandersson.se>
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,7 +17,46 @@
 *
 * LICENSE@@@ */
 
-
+/*
+ * Tablet Keyboard - Keymaps - Layout Families and more...
+ * --The guide--
+ * 
+ * This is a somewhat complete guide into how to set up a new keyboard
+ * layout for Luna Sys Manager. Please help out and fill out the guide if
+ * something is missing.
+ * 
+ * --Wordlist
+ * Autocorrect Language - the language used by the autocorrection service. An
+ *                        autocorrect language does not imply that the keyboard
+ *                        language is the same.
+ *                        autocorrect language != keyboard language
+ * Layout Family        - a specific keyboard language, e.g. English, French
+ * Keymap               - a keyboard layout for a layout family. One layout
+ *                        family can have many keymaps but not the other way
+ *                        around.
+ * Keyboard Language    - see layout family
+ * 
+ * --Files and their responsibilities
+ * TabletKeymap.cpp/.h holds the actual keyboard layouts and keyboard languages
+ * TabletKeyboard.cpp/.h handles drawing the keyboard and interfacing with other components
+ * VirtualKeyboard.cpp/.h parent class of TabletKeyboard, more or less just an interface
+ * VirtualKeyboardPreferences.cpp/.h handles storage of keyboard preferences, reading them and knowing which layout to display when
+ * 
+ * --Creating your own keyboard layout
+ * 1. All layout files are stored in the tabletkeymaps folder
+ * 2. If your layout is part of a new layout family, copy any of the current
+ *    keymap files.
+ * 3. Open the file and edit the keymap (will not go into details about this
+ *    step since it's quite straight forward). Make sure you always keep 12
+ *    keys per row. Add and remove NOKEY-definitions as needed.
+ * 4. Register your new layout family by including the file you've created
+ *    in TabletKeymap.cpp. Make sure to add the layouts in alphabetical
+ *    descending order, otherwise they won't appear in ascending order
+ *    in the regional settings app.
+ * 5. If you are using some obscure character that is not recognize yet,
+ *    you may add it to the function UKeyIsCharacter in this file.
+ * 5. Compile and happy typing! :-)
+ */
 
 #ifndef TABLET_KEYMAP_H
 #define TABLET_KEYMAP_H
@@ -89,6 +129,7 @@ const UKey cKey_Emoticon_Wink = UKey(0x0120030F);
 const UKey cKey_Emoticon_Yuck = UKey(0x01200310);
 const UKey cKey_Emoticon_Gasp = UKey(0x01200311);
 const UKey cKey_Emoticon_Heart = UKey(0x01200312);
+const UKey cKey_DotSe = UKey(0x01200313);
 
 // Keys used for keyboard/language selections
 const UKey cKey_KeyboardComboChoice_First = UKey(0x01200400);
@@ -101,6 +142,10 @@ inline bool UKeyIsTextShortcutKey(UKey ukey)	{ return ukey >= 0x01200300 && ukey
 inline bool UKeyIsKeyboardComboKey(UKey ukey)	{ return ukey >= cKey_KeyboardComboChoice_First && ukey <= cKey_KeyboardComboChoice_Last;}
 inline bool UKeyIsKeyboardSizeKey(UKey ukey)	{ return ukey >= cKey_Resize_First && ukey <= cKey_Resize_Last;}
 inline bool UKeyIsEmoticonKey(UKey ukey)		{ return ukey >= cKey_Emoticon_Frown && ukey <= cKey_Emoticon_Heart; }
+inline bool UKeyIsCharacter(UKey ukey)          { return (ukey >= Qt::Key_A && ukey <= Qt::Key_Z) // A-Z
+                                                         || (ukey >= UKey(0x0410) && ukey <= UKey(0x42F)) || ukey == UKey(0x0401) // Russian keys
+                                                         || (ukey >= Qt::Key_Agrave && ukey <= Qt::Key_ydiaeresis && ukey != Qt::Key_multiply && ukey != Qt::Key_division); } // the rest ;-)
+inline bool UKeyIsNumber(UKey ukey)             { return (ukey >= Qt::Key_0 && ukey <= Qt::Key_9); }
 
 const QPoint cOutside(-1, -1);		// special value meaning representing "outside of keyboard", or "no key".
 
@@ -109,7 +154,7 @@ class TabletKeymap : public Mapper_IF
 public:
 	enum {
 		cKeymapRows = 5,
-		cKeymapColumns = 12,
+		cKeymapColumns = 14,
 	};
 
 	enum EShiftMode
@@ -172,20 +217,40 @@ public:
 	typedef LayoutRow	Layout[cKeymapRows];
 	typedef float		HLimits[cKeymapRows][cKeymapColumns];
 	typedef float		VLimits[cKeymapRows];
-
+	
+	struct Keymap;
 	struct LayoutFamily {
+		LayoutFamily(const char * name, const char * language);
+		
+		const char *                m_name;
+		const char *                m_language;
+		
+		// registration of key layouts
+		Keymap *                  m_currentKeymap;
+		Keymap *                  m_firstKeymap;
+		unsigned int              m_numKeymaps;
+		Keymap *                  findKeymap(const char * name, bool returnNullNotDefaultIfNotFound = true);
+		bool                      setCurrentKeymap(const char * keymap) { Keymap* kmap = findKeymap(keymap); if (kmap != NULL) m_currentKeymap = kmap; else return false; return true; }
+				
+		// self registration of layout families. Start with first, iterate until nextFamily is null.
+		const LayoutFamily *		m_nextFamily;
 
-		LayoutFamily(const char * name, const char * defaultLanguage, uint16_t primaryID, uint16_t secondaryID,
+		static const LayoutFamily * findLayoutFamily(const char * name, bool returnNullNotDefaultIfNotFound = true);
+		static const LayoutFamily * s_firstFamily ;
+	};
+	struct Keymap {
+		Keymap(LayoutFamily * layoutFamily, const char * name, uint16_t primaryID, uint16_t secondaryID,
 						const char * symbolKeyLabel, const char * noLanguageKeyLabel,
 						int tabX, int symbolX, int returnX, int returnY, bool needNumbLock, Layout & layout,
 						LayoutRow & defaultBottomRow, LayoutRow & urlBottomRow, LayoutRow & emailBottomRow);
+
+		Keymap *        m_nextKeymap;
 
 		const WKey &	wkey(int x, int y) const						{ return m_layout[y][x]; }
 		UKey			key(int x, int y, ELayoutPage page) const		{ return (page == eLayoutPage_plain) ? wkey(x, y).m_key : wkey(x, y).m_altkey; }
 		float			weight(int x, int y) const						{ return wkey(x, y).m_weight; }
 
 		const char *	m_name;
-		const char *	m_defaultLanguage;
 
 		uint16_t		m_primaryID;
 		uint16_t		m_secondaryID;
@@ -206,14 +271,6 @@ public:
 		LayoutRow &		m_defaultBottomRow;
 		LayoutRow &		m_urlBottomRow;
 		LayoutRow &		m_emailBottomRow;
-
-		// self registration of layout families. Start with first, iterate until nextFamily is null.
-		const LayoutFamily *		m_nextFamily;
-
-		static const LayoutFamily * findLayoutFamily(const char * name, bool returnNullNotDefaultIfNotFound = true);
-
-		static const LayoutFamily * s_firstFamily;
-
 	};
 
 	TabletKeymap();
@@ -227,11 +284,12 @@ public:
 
 	// The following functions that return a bool return true when the layout effectively changed (and you probably need to update your display)
 	bool				setLayoutFamily(const LayoutFamily * layoutFamily);
+	bool				setKeymap(const std::string & keymap);
 	const LayoutFamily*	layoutFamily() const					{ return m_layoutFamily; }
-	bool				setLanguageName(const std::string & name);		// if empty string, hide language key, otherwise show it.
 	void				keyboardCombosChanged();						// called when available keyboard combos change
 	QList<const char *>	getLayoutList();
 	const char *		getLayoutDefaultLanguage(const char * layoutName);
+	void                setHasMoreThanOneLayoutFamily(bool has);
 
 	bool				setShiftMode(EShiftMode shiftMode);
 	EShiftMode			shiftMode() const						{ return m_shiftMode; }
@@ -255,22 +313,22 @@ public:
 	UKey				map(QPoint p)							{ return map(p.x(), p.y()); }
 	UKey				map(int x, int y);
 	UKey				map(QPoint p, ELayoutPage page)			{ return map(p.x(), p.y(), page); }
-	UKey				map(int x, int y, ELayoutPage page)		{ return isValidLocation(x, y) ? m_layoutFamily->key(x, y, page) : cKey_None; }
+	UKey				map(int x, int y, ELayoutPage page)		{ return isValidLocation(x, y) ? m_layoutFamily->m_currentKeymap->key(x, y, page) : cKey_None; }
 	quint32				getPage() const							{ return m_layoutPage; }
 
 	ETabAction			tabAction() const;
 
 	const char *		layoutName()							{ return m_layoutFamily->m_name; }
 
-	uint16_t			primaryKeyboardID()						{ return m_layoutFamily->m_primaryID; }
-	uint16_t			secondaryKeyboardID()					{ return m_layoutFamily->m_secondaryID; }
+	uint16_t			primaryKeyboardID()						{ return m_layoutFamily->m_currentKeymap->m_primaryID; }
+	uint16_t			secondaryKeyboardID()					{ return m_layoutFamily->m_currentKeymap->m_secondaryID; }
 
 	bool				generateKeyboardLayout(const char * fullPath);
 	std::string			getKeyboardLayoutAsJson();
 
-	int					getCachedGlyphsCount() const			{ return m_layoutFamily->m_cachedGlyphsCount; }
-	void				incCachedGlyphs()						{ const_cast<LayoutFamily *>(m_layoutFamily)->m_cachedGlyphsCount++; }
-	void				resetCachedGlyphsCount()				{ if (m_layoutFamily->m_cachedGlyphsCount > 1) const_cast<LayoutFamily *>(m_layoutFamily)->m_cachedGlyphsCount = 1; }
+	int					getCachedGlyphsCount() const			{ return m_layoutFamily->m_currentKeymap->m_cachedGlyphsCount; }
+	void				incCachedGlyphs()						{ const_cast<Keymap *>(m_layoutFamily->m_currentKeymap)->m_cachedGlyphsCount++; }
+	void				resetCachedGlyphsCount()				{ if (m_layoutFamily->m_currentKeymap->m_cachedGlyphsCount > 1) const_cast<Keymap *>(m_layoutFamily->m_currentKeymap)->m_cachedGlyphsCount = 1; }
 
 	static inline bool	isValidLocation(int x, int y)			{ return x >= 0 && x < cKeymapColumns && y >= 0 && y < cKeymapRows; }
 	static inline bool	isValidLocation(QPoint location)		{ return isValidLocation(location.x(), location.y()); }
@@ -292,7 +350,7 @@ private:
 	bool				m_autoCap;
 	bool				m_numLock;							// in number & phone fields, when numbers need shift.
 	PalmIME::EditorState m_editorState;
-	const LayoutFamily * m_layoutFamily;
+	LayoutFamily *      m_layoutFamily;
 	ELayoutPage			m_layoutPage;
 	QRect				m_rect;
 	int					m_rowHeight[cKeymapRows];
@@ -300,6 +358,7 @@ private:
 	VLimits				m_vlimits;
 	bool				m_limitsDirty;
 	int					m_limitsVersion;
+	bool                m_hasMoreThanOneLayoutFamily;
 
 	QString				m_languageName;
 
@@ -311,7 +370,7 @@ private:
 
 	bool				updateMapping();					// true if layout changed
 	bool				updateLanguageKey(LayoutRow * bottomRow = NULL);
-	QString				getLanguageDisplayName(const std::string & languageName, const LayoutFamily * layoutFamily);
+	QString				getLanguageDisplayName(const LayoutFamily * layoutFamily);
 
 	int					xCenterOfKey(int touchX, int x, int y, float weight);
 	int					yCenterOfRow(int y, UKey key);

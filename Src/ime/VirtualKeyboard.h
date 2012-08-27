@@ -1,6 +1,7 @@
 /* @@@LICENSE
 *
 *      Copyright (c) 2011-2012 Hewlett-Packard Development Company, L.P.
+*                    2012 Måns Andersson <mail@mansandersson.se>
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -68,7 +69,7 @@ public:
 	virtual bool	getValue(const std::string & name, std::string & outValue) = 0;
 
 	// Set keyboard & language pair.
-	virtual	void	setKeyboardCombo(const std::string & layoutName, const std::string & languageName, bool showLanguageKey) = 0;
+	virtual	void	setKeyboardCombo(const std::string & keyboardLanguage, const std::string & keymap, const std::string & autoCorrectLanguage, bool hasMoreThanOneKeyboardLayout) = 0;
 	// Notification that language settings where changed (by the user?)
 	virtual	void	keyboardCombosChanged() = 0;
 
