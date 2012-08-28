@@ -97,4 +97,6 @@ std::string string_printf(const char *format, ...) G_GNUC_PRINTF(1, 2);
 // Append a printf-style string to an existing std::string
 std::string & append_format(std::string & str, const char * format, ...) G_GNUC_PRINTF(2, 3);
 
+volatile void *secure_memset(volatile void* dst, int c, size_t len);
+
 #endif /* UTILS_H */
