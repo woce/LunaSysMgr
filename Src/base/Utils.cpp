@@ -723,3 +723,9 @@ std::string & append_format(std::string & str, const char * format, ...)
 	delete[] buffer;
 	return str;
 }
+
+volatile void *secure_memset(volatile void* dst, int c, size_t len) {
+    volatile char *buf;
+    for (buf = (volatile char*) dst;  len;  buf[--len] = c);
+    return dst;
+}

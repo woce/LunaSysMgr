@@ -16,6 +16,7 @@
 *
 * LICENSE@@@ */
 
+// this file was modified by "pcworld", 0188801@gmail.com
 
 
 
@@ -1490,23 +1491,34 @@ bool JsSysObject::methodEncrypt(const NPVariant* args, uint32_t argCount, NPVari
         return false;
     char* str = npStringToString(NPVARIANT_TO_STRING(args[1]));
     if( !str ) {
+        secure_memset(&key[0], 0, sizeof(key));
         free(key);
         return false;
     }
 
-    char* encryptedString=0;
+    unsigned int strLen = strlen(str);
+    unsigned char encrypted[strLen];
+    unsigned char ivec[] = {0, 0, 0, 0, 0, 0, 0, 0};
+    int num = 0;
+    BF_KEY keyStruct;
+    BF_set_key(&keyStruct, strlen(key), (const unsigned char*) key);
+    BF_cfb64_encrypt((unsigned char*) str, encrypted, strLen, &keyStruct, ivec, &num, BF_ENCRYPT);
+    char* b64 = g_base64_encode((const unsigned char*) encrypted, strLen);
 
-    bool r = false;//encryptString( str, key, &encryptedString );
-
+    // This is just pseudo-security. There WILL be still secret strings in memory.
+    // E.g. we don't know what BF_cfb64_encrypt actually does, and the "result" variable
+    // is never overwritten.
+    // And considering that JavaScript apps don't have a way to zero-fill
+    // variables, we cannot provide real security here.
+    secure_memset(&key[0], 0, sizeof(key));
     free(key);
+    secure_memset(&str[0], 0, sizeof(str));
     free(str);
+    secure_memset(&keyStruct.P[0], 0, sizeof(keyStruct.P));  // TODO not tested
+    secure_memset(&keyStruct.S[0], 0, sizeof(keyStruct.S));
 
-    if( !r ) {
-        return false;
-    }
-
-    stringToNPString(encryptedString, result);
-    delete[] encryptedString;
+    stringToNPString(b64, result);
+    g_free(b64);
 
     return true;
 }
@@ -1528,22 +1540,36 @@ bool JsSysObject::methodDecrypt(const NPVariant* args, uint32_t argCount, NPVari
     }
     char* b64 = npStringToString(NPVARIANT_TO_STRING(args[1]));
     if( !b64 ) {
+        secure_memset(&key[0], 0, sizeof(key));
         free(key);
         return false;
     }
 
-    char* cleartextString=0;
-
-    bool r = false;//decryptString( (const char*)b64, key, &cleartextString );
+    unsigned int encryptedLenInt;
+    unsigned char* encrypted = g_base64_decode(b64, &encryptedLenInt);
+    unsigned long encryptedLen = encryptedLenInt;
+    unsigned char decrypted[encryptedLen + 1];
+    decrypted[encryptedLen] = '\0';
+    unsigned char ivec[] = {0, 0, 0, 0, 0, 0, 0, 0};
+    int num = 0;
+    BF_KEY keyStruct;
+    BF_set_key(&keyStruct, strlen(key), (const unsigned char*) key);
+    BF_cfb64_encrypt(encrypted, decrypted, encryptedLen, &keyStruct, ivec, &num, BF_DECRYPT);
 
     free(b64);
+    g_free(encrypted);
+
+    // This is just pseudo-security. There WILL be still secret strings in memory.
+    // E.g. we don't know what BF_cfb64_encrypt actually does, and the "result" variable
+    // is never overwritten.
+    // And considering that JavaScript apps don't have a way to zero-fill
+    // variables, we cannot provide real security here.
+    stringToNPString((const char*) decrypted, result);
+    secure_memset(&decrypted[0], 0, sizeof(decrypted));
+    secure_memset(&key[0], 0, sizeof(key));
     free(key);
-
-    if( !r )
-        return false;
-
-    stringToNPString(cleartextString, result);
-    delete[] cleartextString;
+    secure_memset(&keyStruct.P[0], 0, sizeof(keyStruct.P)); // TODO not tested
+    secure_memset(&keyStruct.S[0], 0, sizeof(keyStruct.S));
 
     return true;
 }
