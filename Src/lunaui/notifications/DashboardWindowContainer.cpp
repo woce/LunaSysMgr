@@ -164,7 +164,6 @@ int DashboardWindowContainer::getTotalItemsHeight()
 	for (int i = m_items.count() - 1; i >= 0; i--) {
 		if (!m_pendingDeleteItems.contains(m_items[i])) {
 			height += m_items[i]->dashHeight();
-			qCritical() << m_items[i]->dashHeight();
 			height += m_menuSeparatorHeight;
 		}
 	}

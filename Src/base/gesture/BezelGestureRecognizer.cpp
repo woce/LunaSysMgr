@@ -42,7 +42,6 @@ QGestureRecognizer::Result BezelGestureRecognizer::recognize(QGesture *state,
 			//Cancel if there are more than 1 fingers onscreen
 			if (ev->touchPoints().size() > 1)
 			{
-				qCritical() << "Bezel Gesture: Canceled (Too Many Fingers)";
 				return QGestureRecognizer::CancelGesture;
 			}
 
@@ -75,12 +74,10 @@ QGestureRecognizer::Result BezelGestureRecognizer::recognize(QGesture *state,
 			&& startPos.x() < displayBounds.x() - kGestureBorderSize
 			&& startPos.y() < displayBounds.y() - kGestureBorderSize)
 			{
-				qCritical() << "Bezel Gesture: Canceled (Outside Gesture Border)";
 				return QGestureRecognizer::CancelGesture;
 			}
 			else
 			{
-				qCritical() << "Bezel Gesture: Maybe";
 				result = QGestureRecognizer::MayBeGesture;
 			}
 
@@ -108,7 +105,6 @@ QGestureRecognizer::Result BezelGestureRecognizer::recognize(QGesture *state,
 						//Set variables and trigger gesture
 						q->setEdge(Left);
 						result = QGestureRecognizer::TriggerGesture;
-						qCritical() << "Bezel Gesture: Left Edge Triggered";
 					}
 				}
 				
@@ -121,7 +117,6 @@ QGestureRecognizer::Result BezelGestureRecognizer::recognize(QGesture *state,
 						//Set variables and trigger gesture
 						q->setEdge(Right);
 						result = QGestureRecognizer::TriggerGesture;
-						qCritical() << "Bezel Gesture: Right Edge Triggered";
 					}
 				}
 				
@@ -134,7 +129,6 @@ QGestureRecognizer::Result BezelGestureRecognizer::recognize(QGesture *state,
 						//Set variables and trigger gesture
 						q->setEdge(Bottom);
 						result = QGestureRecognizer::TriggerGesture;
-						qCritical() << "Bezel Gesture: Bottom Edge Triggered";
 					}
 				}
 				
@@ -164,12 +158,9 @@ QGestureRecognizer::Result BezelGestureRecognizer::recognize(QGesture *state,
 			{
 				if(abs(delta.x()) >= kGestureTriggerDistance || abs(delta.y()) >= kGestureTriggerDistance)
 				{
-					qCritical() << "Bezel Gesture: Finished";
 					result = QGestureRecognizer::FinishGesture;
 				}
 			}
-			
-			qCritical() << "Bezel Gesture: Flick?" << q->flick();
 		}
 		default: break;
     }
@@ -178,7 +169,6 @@ QGestureRecognizer::Result BezelGestureRecognizer::recognize(QGesture *state,
 
 void BezelGestureRecognizer::reset(BezelGesture *gesture)
 {
-	qCritical() << "Bezel Gesture: Resetting";
 	gesture->setPos(QPoint(0,0));
 	gesture->setLastPos(QPoint(0,0));
 	gesture->setFlick(0);
