@@ -2040,6 +2040,7 @@ void CardWindowManager::handleSwitchGesture(BezelGesture* gesture)
 {
     switch(gesture->state())
     {
+    	case Qt::GestureStarted:
         case Qt::GestureUpdated:
         {
         	//Calculate the distance since the last frame
@@ -2080,10 +2081,7 @@ void CardWindowManager::handleSwitchGesture(BezelGesture* gesture)
                 default:
                     break;
             }
-            //Restore the windows to maximized and reset the movement lock
-            maximizeActiveWindow();
-            m_movement = MovementUnlocked;
-            break;
+            //Fall-through intentional
         }
         case Qt::GestureCanceled:
             //Restore the windows to maximized and reset the movement lock
@@ -2106,6 +2104,7 @@ void CardWindowManager::handleMinimizeGesture(BezelGesture* gesture)
 	
     switch(gesture->state())
     {
+    	case Qt::GestureStarted:
         case Qt::GestureUpdated:
         {
 			//Put the groups in fluid sizing mode
