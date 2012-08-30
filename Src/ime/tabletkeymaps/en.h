@@ -78,8 +78,9 @@ static TabletKeymap::constUKeyArray sUsDvorak0_extended = { Qt::Key_0, Qt::Key_P
 										{ w, Qt::Key_X,			cKey_Emoticon_Cry,						sOptions },\
 										{ w, Qt::Key_B,			cKey_Emoticon_Yuck,						sToggleLanguage_extended },\
 										{ w, Qt::Key_M,			cKey_Emoticon_Gasp,						sM_extended },\
-										{ w, Qt::Key_W,			Qt::Key_Plus,							NULL },\
-										{ w, Qt::Key_V,			Qt::Key_Equal,							NULL }
+										{ w, Qt::Key_W,			cKey_Emoticon_Heart,					NULL },\
+										{ w, Qt::Key_V,			Qt::Key_Plus,							NULL },\
+										{ w, Qt::Key_Z,			Qt::Key_Equal,							NULL }
 
 #define US_DVORAK_BOTTOM_ROW_DEFAULT \
 									KEY_1(1, Qt::Key_Tab),\
@@ -121,7 +122,7 @@ static TabletKeymap::Layout sUsDvorakLayout = {
 	{ KEY_2(-0.5, Qt::Key_Q, Qt::Key_BracketLeft), US_DVORAK_NUMBERS_10(1), KEY_1(-0.5, Qt::Key_Backspace) },
 	{ US_DVORAK_TOP_9(1), KEY_1(1, Qt::Key_Backspace), NOKEY_1 },
 	{ KEY_2(-0.5, Qt::Key_A, Qt::Key_Less), US_DVORAK_MID_10(1), KEY_1(1.5, Qt::Key_Return) },
-	{ NOKEY_1, KEY_1(1.7, Qt::Key_Shift), US_DVORAK_LOW_8(1), KEY_1(1.7, Qt::Key_Shift), NOKEY_1 },
+	{ NOKEY_1, KEY_1(1, Qt::Key_Shift), US_DVORAK_LOW_8(1), KEY_1(1, Qt::Key_Shift), NOKEY_1 },
 	{ US_DVORAK_BOTTOM_ROW_DEFAULT },
 };
 
