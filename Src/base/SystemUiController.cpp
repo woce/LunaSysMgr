@@ -85,7 +85,7 @@ SystemUiController::SystemUiController()
 	m_cardWindowAboutToMaximize = false;
 	m_cardWindowMaximized = false;
     m_switchCards = false;
-    m_cardViewGesture = false;
+    m_minimizeGesture = false;
 	m_dashboardOpened = false;
 	m_dashboardSoftDismissable = true;
 	m_dashboardHasContent = false;
@@ -364,11 +364,11 @@ bool SystemUiController::handleGestureEvent (QGestureEvent* event)
    				{
 					if(gesture->edge() == Edge(Left) || gesture->edge() == Edge(Right))
 					{
-						handleCardSwitchGesture(gesture);
+						handleSwitchGesture(gesture);
 					}
 					else if(gesture->edge() == Edge(Bottom))
 					{
-						handleCardViewGesture(gesture);
+						handleMinimizeGesture(gesture);
 					}
 				}
 			}
@@ -666,7 +666,7 @@ bool SystemUiController::handleKeyEvent(QKeyEvent *event)
                 Q_EMIT signalMaximizeActiveCardWindow();
             }
             
-            if (m_cardViewGesture) {
+            if (m_minimizeGesture) {
                 Q_EMIT signalMaximizeActiveCardWindow();
             }
 
@@ -2215,7 +2215,7 @@ void SystemUiController::handleUpSwipe() {
 	Q_EMIT signalToggleLauncher();
 }
 
-void SystemUiController::handleCardSwitchGesture(BezelGesture* gesture)
+void SystemUiController::handleSwitchGesture(BezelGesture* gesture)
 {
 	//Adhere to Enable App Switching Gestures
 	if (Preferences::instance()->sysUiEnableAppSwitchGestures() == false)
@@ -2236,10 +2236,10 @@ void SystemUiController::handleCardSwitchGesture(BezelGesture* gesture)
 	if (m_menuVisible)
 		Q_EMIT signalHideMenu();
     
-    Q_EMIT signalSwitchCardEvent(gesture);
+    Q_EMIT signalSwitchGesture(gesture);
 }
 
-void SystemUiController::handleCardViewGesture(BezelGesture* gesture)
+void SystemUiController::handleMinimizeGesture(BezelGesture* gesture)
 {
     static bool fired = false;
     
@@ -2276,5 +2276,5 @@ void SystemUiController::handleCardViewGesture(BezelGesture* gesture)
     if (gesture->state() == Qt::GestureFinished)
     	fired = false;
 	
-	Q_EMIT signalCardViewGestureEvent(gesture);
+	Q_EMIT signalMinimizeGesture(gesture);
 }

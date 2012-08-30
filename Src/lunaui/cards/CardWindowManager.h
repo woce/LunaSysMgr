@@ -47,7 +47,7 @@ class LoadingState;
 class FocusState;
 class ReorderState;
 class SwitchState;
-class CardViewGestureState;
+class MinimizeGestureState;
 
 QT_BEGIN_NAMESPACE
 class QTapGesture;
@@ -127,9 +127,9 @@ private Q_SLOTS:
 
 	void slotFocusMaximizedCardWindow(bool focus);
     
-	void slotSwitchCardEvent(BezelGesture* gesture);
+	void slotSwitchGesture(BezelGesture* gesture);
     
-	void slotCardViewGestureEvent(BezelGesture* gesture);
+	void slotMinimizeGesture(BezelGesture* gesture);
 
     void slotTouchToShareAppUrlTransfered(const std::string& appId);
     void slotOpacityAnimationFinished();
@@ -150,10 +150,10 @@ Q_SIGNALS:
 	void signalMinimizeActiveWindow();
 	void signalEnterReorder(QPoint pt, int slice);
 	void signalExitReorder(bool canceled = true);
-	void signalSwitchCardEvent(BezelGesture* gesture);
+	void signalSwitchGesture(BezelGesture* gesture);
 	void signalEnterSwitch();
-	void signalCardViewGestureEvent(BezelGesture* gesture);
-	void signalEnterCardViewGestureState();
+	void signalMinimizeGesture(BezelGesture* gesture);
+	void signalEnterMinimizeGestureState();
     void signalFirstCardRun();
     void signalGroupWindow();
 
@@ -170,9 +170,9 @@ private:
 	void handleMouseReleaseMinimized(QGraphicsSceneMouseEvent* event);
 	void handleMouseReleaseReorder(QGraphicsSceneMouseEvent* event);
     
-    void handleSwitchCard(BezelGesture* gesture);
+    void handleSwitchGesture(BezelGesture* gesture);
     
-    void handleCardViewGesture(BezelGesture* gesture);
+    void handleMinimizeGesture(BezelGesture* gesture);
 
 	void handleFlickGestureMinimized(QGestureEvent* event);
 
@@ -258,9 +258,9 @@ private:
 
 	void setActiveGroup(CardGroup* group);
     
-    void setGroupSwitchMode(bool enable);
+    void setGroupSwitchGesture(bool enable);
     
-    void setGroupsCardViewGesture(bool enable);
+    void setGroupsMinimizeGesture(bool enable);
 
 	void disableCardRestoreToMaximized();
 	void restoreCardToMaximized();
@@ -372,7 +372,7 @@ private:
 	FocusState* m_focusState;
 	ReorderState* m_reorderState;
 	SwitchState* m_switchState;
-	CardViewGestureState* m_cardViewGestureState;
+	MinimizeGestureState* m_minimizeGestureState;
 
 	CardWindowManagerState* m_curState;
 
@@ -407,7 +407,7 @@ private:
 	friend class FocusState;
 	friend class ReorderState;
 	friend class SwitchState;
-	friend class CardViewGestureState;
+	friend class MinimizeGestureState;
 };
 
 #endif /* CARDWINDOWMANAGER_H */

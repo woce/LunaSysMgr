@@ -869,7 +869,7 @@ void ReorderState::onEntry(QEvent* event)
 
 void SwitchState::switchCardEvent(BezelGesture* gesture)
 {
-	m_wm->handleSwitchCard(gesture);
+	m_wm->handleSwitchGesture(gesture);
 }
 
 void SwitchState::onExit(QEvent* event)
@@ -887,7 +887,7 @@ void SwitchState::onEntry(QEvent* event)
 
 // --------------------------------------------------------------------------------------------------
 
-void CardViewGestureState::cardViewGestureEvent(BezelGesture* gesture)
+void MinimizeGestureState::minimizeGestureEvent(BezelGesture* gesture)
 {
-	m_wm->handleCardViewGesture(gesture);
+	m_wm->handleMinimizeGesture(gesture);
 }

@@ -43,8 +43,8 @@ CardGroup::CardGroup(qreal curScale, qreal nonCurScale)
 	, m_rightWidth(0)
 	, m_activeCard(0)
 	, m_currentPosition(0)
-	, m_switchMode(false)
-	, m_cardViewGesture(false)
+	, m_switchGesture(false)
+	, m_minimizeGesture(false)
 {
 	m_cardGroupRotFactor = Settings::LunaSettings()->cardGroupRotFactor;
 	m_cardGroupXDistanceFactor = Settings::LunaSettings()->cardGroupingXDistanceFactor;
@@ -738,7 +738,7 @@ QVector<CardWindow::Position> CardGroup::calculateOpenedPositions(qreal xOffset)
 	for (int i=0; i<m_cards.size(); i++) {
 		
 		qreal x;
-        if(!m_switchMode)
+        if(!m_switchGesture)
         {
             x = ((i - m_currentPosition) / 3.0) * activeCardWidth * m_cardGroupXDistanceFactor;
         
@@ -756,13 +756,13 @@ QVector<CardWindow::Position> CardGroup::calculateOpenedPositions(qreal xOffset)
         }
 
 		positions[i].trans.setX(x);
-        if(!m_switchMode)
+        if(!m_switchGesture)
         {
             positions[i].trans.setY(x > 0 ? x/15 : 0);
             positions[i].trans.setZ(m_curScale);
             positions[i].zRot = x/rot;
         }
-        else if(m_cardViewGesture)
+        else if(m_minimizeGesture)
         {
             if(m_cards[0]->boundingRect().width() > m_cards[0]->boundingRect().height())
                 positions[i].trans.setY(46 * (m_curScale - 0.5) * 2); //Landscape
@@ -784,7 +784,7 @@ QVector<CardWindow::Position> CardGroup::calculateOpenedPositions(qreal xOffset)
             positions[i].trans.setZ(1.0);
         }
 
-		if (xOffset != 0 && !m_switchMode) {
+		if (xOffset != 0 && !m_switchGesture) {
 			qreal maxDistUngrouped = activeCardWidth;
 			qreal amtToCollapse = qMax((qreal)1.0, maxDistUngrouped - qAbs(xOffset)) / maxDistUngrouped;
             
@@ -817,7 +817,7 @@ QVector<CardWindow::Position> CardGroup::calculateClosedPositions()
 	for (int i=m_cards.size()-1; i>=0; i--) {
 
 		positions[i].trans.setX(xOff);
-        if(!m_switchMode && !m_cardViewGesture)
+        if(!m_switchGesture && !m_minimizeGesture)
         {
             positions[i].trans.setZ(m_nonCurScale);
         }

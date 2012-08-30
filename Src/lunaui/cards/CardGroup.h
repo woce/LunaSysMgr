@@ -161,11 +161,11 @@ public:
 	qreal nonCurScale() const { return m_nonCurScale; }
 	void setNonCurScale(const qreal& nonCurScale) { m_nonCurScale = nonCurScale; }
     
-    bool switchMode() const { return m_switchMode; }
-    void setSwitchMode(bool switchMode) { m_switchMode = switchMode; }
+    bool switchGesture() const { return m_switchGesture; }
+    void setSwitchGesture(bool switchGesture) { m_switchGesture = switchGesture; }
     
-    bool cardViewGesture() const { return m_cardViewGesture; }
-    void setCardViewGesture(bool cardViewGesture) { m_cardViewGesture = cardViewGesture; }
+    bool minimizeGesture() const { return m_minimizeGesture; }
+    void setMinimizeGesture(bool minimizeGesture) { m_minimizeGesture = minimizeGesture; }
 	
 	bool shouldMaximizeOrScroll(QPointF scenePt);
 	bool testHit(QPointF scenePt);
@@ -196,8 +196,8 @@ private:
 	// 1: 	3-4 cards with the second card being the center of the group
 	// N:	>4 cards where valid positions are between 1.0 and N - 4 + 1
 	qreal m_currentPosition;
-    bool m_switchMode;
-    bool m_cardViewGesture;
+    bool m_switchGesture;
+    bool m_minimizeGesture;
 };
 
 Q_DECLARE_METATYPE(CardWindow::Position)

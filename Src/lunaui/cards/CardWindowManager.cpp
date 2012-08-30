@@ -105,7 +105,7 @@ CardWindowManager::CardWindowManager(int maxWidth, int maxHeight)
 	, m_focusState(0)
 	, m_reorderState(0)
 	, m_switchState(0)
-	, m_cardViewGestureState(0)
+	, m_minimizeGestureState(0)
 	, m_curState(0)
 	, m_addingModalWindow(false)
 	, m_initModalMaximizing(false)
@@ -152,11 +152,11 @@ CardWindowManager::CardWindowManager(int maxWidth, int maxHeight)
 	connect(sysui, SIGNAL(signalFocusMaximizedCardWindow(bool)),
 			SLOT(slotFocusMaximizedCardWindow(bool)));
     
-	connect(sysui, SIGNAL(signalSwitchCardEvent(BezelGesture*)),
-			SLOT(slotSwitchCardEvent(BezelGesture*)));
+	connect(sysui, SIGNAL(signalSwitchGesture(BezelGesture*)),
+			SLOT(slotSwitchGesture(BezelGesture*)));
     
-	connect(sysui, SIGNAL(signalCardViewGestureEvent(BezelGesture*)),
-			SLOT(slotCardViewGestureEvent(BezelGesture*)));
+	connect(sysui, SIGNAL(signalMinimizeGesture(BezelGesture*)),
+			SLOT(slotMinimizeGesture(BezelGesture*)));
 
 	connect(sysui, SIGNAL(signalSideSwipe(bool)),
 		SLOT(slotSideSwipe(bool)));
@@ -212,7 +212,7 @@ void CardWindowManager::init()
 	m_focusState = new FocusState(this);
 	m_reorderState = new ReorderState(this);
 	m_switchState = new SwitchState(this);
-	m_cardViewGestureState = new CardViewGestureState(this);
+	m_minimizeGestureState = new MinimizeGestureState(this);
 
 	m_stateMachine->addState(m_minimizeState);
 	m_stateMachine->addState(m_groupState);
@@ -222,7 +222,7 @@ void CardWindowManager::init()
 	m_stateMachine->addState(m_focusState);
 	m_stateMachine->addState(m_reorderState);
 	m_stateMachine->addState(m_switchState);
-	m_stateMachine->addState(m_cardViewGestureState);
+	m_stateMachine->addState(m_minimizeGestureState);
 
 	// connect allowed state transitions
 	m_minimizeState->addTransition(this,
@@ -257,7 +257,7 @@ void CardWindowManager::init()
 	m_maximizeState->addTransition(this,
 		SIGNAL(signalEnterSwitch()), m_switchState);
 	m_maximizeState->addTransition(this,
-		SIGNAL(signalEnterCardViewGestureState()), m_cardViewGestureState);
+		SIGNAL(signalEnterMinimizeGestureState()), m_minimizeGestureState);
 
 	m_focusState->addTransition(this,
 		SIGNAL(signalMaximizeActiveWindow()), m_maximizeState);
@@ -293,9 +293,9 @@ void CardWindowManager::init()
 	m_reorderState->addTransition(this,
 		SIGNAL(signalExitReorder(bool)), m_minimizeState);
 	
-	m_cardViewGestureState->addTransition(this,
+	m_minimizeGestureState->addTransition(this,
 		SIGNAL(signalMinimizeActiveWindow()), m_minimizeState);
-	m_cardViewGestureState->addTransition(this,
+	m_minimizeGestureState->addTransition(this,
 		SIGNAL(signalMaximizeActiveWindow()), m_maximizeState);
 
 	m_switchState->addTransition(this,
@@ -2036,7 +2036,7 @@ void CardWindowManager::handleMouseReleaseReorder(QGraphicsSceneMouseEvent* even
 	slideAllGroups();
 }
 
-void CardWindowManager::handleSwitchCard(BezelGesture* gesture)
+void CardWindowManager::handleSwitchGesture(BezelGesture* gesture)
 {
     switch(gesture->state())
     {
@@ -2068,9 +2068,9 @@ void CardWindowManager::handleSwitchCard(BezelGesture* gesture)
                     break;
                 //No, decide which card to switch to based on position
                 case 0:
-                    if(gesture->edge() == false && gesture->pos().x() > SystemUiController::instance()->currentUiWidth()/2) //Left Edge
+                    if(gesture->edge() == Edge(Left) && gesture->pos().x() > SystemUiController::instance()->currentUiWidth()/2) //Left Edge
                         switchToPrevApp();
-                    if(gesture->edge() == true && gesture->pos().x() < SystemUiController::instance()->currentUiWidth()/2) //Right Edge
+                    if(gesture->edge() == Edge(Right) && gesture->pos().x() < SystemUiController::instance()->currentUiWidth()/2) //Right Edge
                         switchToNextApp();
                     break;
                 //Left, switch to next app
@@ -2095,7 +2095,7 @@ void CardWindowManager::handleSwitchCard(BezelGesture* gesture)
     }
 }
 
-void CardWindowManager::handleCardViewGesture(BezelGesture* gesture)
+void CardWindowManager::handleMinimizeGesture(BezelGesture* gesture)
 {
     //Calculate the total distance traveled
 	int delta = gesture->pos().y() - gesture->lastPos().y();
@@ -2109,7 +2109,7 @@ void CardWindowManager::handleCardViewGesture(BezelGesture* gesture)
         case Qt::GestureUpdated:
         {
 			//Put the groups in fluid sizing mode
-			setGroupsCardViewGesture(true);
+			setGroupsMinimizeGesture(true);
 			
 			//If the movement isn't locked
             if (m_movement == MovementUnlocked) {
@@ -2141,7 +2141,7 @@ void CardWindowManager::handleCardViewGesture(BezelGesture* gesture)
         }
         case Qt::GestureFinished:
 			//Reset the fluid sizing mode
-			setGroupsCardViewGesture(false);
+			setGroupsMinimizeGesture(false);
 			//Is there a flick?
             switch(gesture->flick())
 			{
@@ -2373,17 +2373,17 @@ void CardWindowManager::setActiveGroup(CardGroup* group)
 	SystemUiController::instance()->setActiveCardWindow(m_activeGroup ? m_activeGroup->activeCard() : 0);
 }
 
-void CardWindowManager::setGroupSwitchMode(bool enable)
+void CardWindowManager::setGroupSwitchGesture(bool enable)
 {
 	for (int i=0; i<m_groups.size();i++) {
-        m_groups[i]->setSwitchMode(enable);
+        m_groups[i]->setSwitchGesture(enable);
     }
 }
 
-void CardWindowManager::setGroupsCardViewGesture(bool enable)
+void CardWindowManager::setGroupsMinimizeGesture(bool enable)
 {
 	for (int i=0; i<m_groups.size();i++) {
-        m_groups[i]->setCardViewGesture(enable);
+        m_groups[i]->setMinimizeGesture(enable);
     }
 }
 
@@ -3592,7 +3592,7 @@ void CardWindowManager::slotFocusMaximizedCardWindow(bool focus)
 		m_curState->focusMaximizedCardWindow(focus);
 }
 
-void CardWindowManager::slotSwitchCardEvent(BezelGesture* gesture)
+void CardWindowManager::slotSwitchGesture(BezelGesture* gesture)
 {
     if(!m_activeGroup)
     	return;
@@ -3640,15 +3640,15 @@ void CardWindowManager::slotSwitchCardEvent(BezelGesture* gesture)
     }
 }
 
-void CardWindowManager::slotCardViewGestureEvent(BezelGesture* gesture)
+void CardWindowManager::slotMinimizeGesture(BezelGesture* gesture)
 {
     if(m_curState == m_maximizeState && gesture->state() == Qt::GestureUpdated)
     {
-        Q_EMIT signalEnterCardViewGestureState();
+        Q_EMIT signalEnterMinimizeGestureState();
     }
     
     if (m_curState)
-        m_curState->cardViewGestureEvent(gesture);
+        m_curState->minimizeGestureEvent(gesture);
 }
 
 void CardWindowManager::slotTouchToShareAppUrlTransfered(const std::string& appId)

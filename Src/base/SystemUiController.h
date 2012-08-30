@@ -313,8 +313,8 @@ Q_SIGNALS:
 	void signalCardWindowMaximized();
 	void signalCardWindowMinimized();
 	void signalChangeCardWindow(bool next);
-    void signalSwitchCardEvent(BezelGesture* gesture);
-    void signalCardViewGestureEvent(BezelGesture* gesture);
+    void signalSwitchGesture(BezelGesture* gesture);
+    void signalMinimizeGesture(BezelGesture* gesture);
 
 	void signalHideMenu();
 
@@ -408,8 +408,8 @@ private:
 	void setSuspended(bool);
 	void handleSideSwipe(bool next);
 	void handleUpSwipe();
-	void handleCardSwitchGesture(BezelGesture* gesture);
-	void handleCardViewGesture(BezelGesture* gesture);
+	void handleSwitchGesture(BezelGesture* gesture);
+	void handleMinimizeGesture(BezelGesture* gesture);
 
 	Window* m_parentOfModalWindow;
 	Window* m_activeCardWindow;
@@ -420,7 +420,7 @@ private:
 	bool m_cardWindowAboutToMaximize;
 	bool m_cardWindowMaximized;
     bool m_switchCards;
-    bool m_cardViewGesture;
+    bool m_minimizeGesture;
 	bool m_dashboardOpened;
 	bool m_dashboardSoftDismissable;
 	bool m_dashboardHasContent;
