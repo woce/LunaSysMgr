@@ -17,6 +17,8 @@
 *
 * LICENSE@@@ */
 
+// this file was modified by "pcworld", 0188801@gmail.com
+
 #ifndef KEYBOARD_FR_H
 #define KEYBOARD_FR_H
 #include "../TabletKeymap.h"
@@ -127,7 +129,7 @@ static TabletKeymap::constUKeyArray sExclamAsterisk_extended = { Qt::Key_Exclam,
 									NOKEY_3
 
 static TabletKeymap::Layout sFrAzerty = {
-	{ KEY_2(-0.5, Qt::Key_Ampersand, Qt::Key_1), FR_AZERTY_NUMBERS_10(1), KEY_1(-1, Qt::Key_Backspace) },
+	{ FR_AZERTY_NUMBERS_10(1) },
 	{ FR_AZERTY_TOP_10(1), KEY_1(1.5, Qt::Key_Backspace), NOKEY_1 },
 	{ KEY_2(-0.5, Qt::Key_Q, Qt::Key_Less), FR_AZERTY_MID_10(1), KEY_1(1, Qt::Key_Return) },
 	{ KEY_1(1, Qt::Key_Shift), FR_AZERTY_LOW_9(1), KEY_1(1.5, Qt::Key_Shift), NOKEY_1 },
