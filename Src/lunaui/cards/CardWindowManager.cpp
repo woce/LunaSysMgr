@@ -1196,8 +1196,6 @@ void CardWindowManager::maximizeActiveWindow(bool animate)
 
 		setActiveGroup(m_activeGroup);
         
-        setGroupSwitchMode(true);
-        
 		if(animate)
 			slideAllGroups(false);
 		else

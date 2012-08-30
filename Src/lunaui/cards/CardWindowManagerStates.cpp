@@ -172,10 +172,6 @@ void MinimizeState::onEntry(QEvent* event)
 	}
 	SystemUiController::instance()->setCardWindowMaximized(false);
 	SystemUiController::instance()->setMaximizedCardWindow(0);
-    
-    //Stop Group Switch Mode
-    m_wm->setGroupSwitchMode(false);
-    m_wm->slideAllGroups();
 }
 
 //---------------------------------------------------------------------------------------------------
@@ -875,14 +871,15 @@ void SwitchGestureState::switchCardEvent(BezelGesture* gesture)
 void SwitchGestureState::onEntry(QEvent* event)
 {
 	CardWindowManagerState::onEntry(event);
+	
+	m_wm->setGroupsSwitchGesture(true);
 }
 
 void SwitchGestureState::onExit(QEvent* event)
 {
-	CardWindowManagerState::onEntry(event);
-    
-    //Make sure the quicklaunch bar doesn't appear during switch
-	SystemUiController::instance()->setCardWindowMaximized(true);
+	CardWindowManagerState::onExit(event);
+	
+	m_wm->setGroupsSwitchGesture(false);
 }
 
 // --------------------------------------------------------------------------------------------------
@@ -890,4 +887,18 @@ void SwitchGestureState::onExit(QEvent* event)
 void MinimizeGestureState::minimizeGestureEvent(BezelGesture* gesture)
 {
 	m_wm->handleMinimizeGesture(gesture);
+}
+
+void MinimizeGestureState::onEntry(QEvent* event)
+{
+	CardWindowManagerState::onEntry(event);
+	
+	m_wm->setGroupsMinimizeGesture(true);
+}
+
+void MinimizeGestureState::onExit(QEvent* event)
+{
+	CardWindowManagerState::onExit(event);
+	
+	m_wm->setGroupsMinimizeGesture(false);
 }

@@ -326,6 +326,10 @@ public:
 				: CardWindowManagerState(wm) { setObjectName("MinimizeGesture"); }
 
 	virtual void minimizeGestureEvent(BezelGesture* gesture);
+
+protected:
+	virtual void onExit(QEvent* event);
+	virtual void onEntry(QEvent* event);
 };
 
 #endif /* CARDWINDOWMANAGERSTATES_H */
