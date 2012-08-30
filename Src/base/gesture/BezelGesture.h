@@ -39,14 +39,8 @@ class BezelGesture : public QGesture
 public:
 	BezelGesture(QObject* parent = 0) : QGesture(parent, (Qt::GestureType) BezelGestureType) {}
 
-	QPoint pos() const { return m_pos; }
-	void setPos(QPoint pos) { m_pos = pos; }
 	QPoint lastPos() const { return m_lastPos; }
 	void setLastPos(QPoint lastPos) { m_lastPos = lastPos; }
-	QPoint delta() const { return m_delta; }
-	void setDelta(QPoint delta) { m_delta = delta; }
-	QPoint diff() const { return m_diff; }
-	void setDiff(QPoint diff) { m_diff = diff; }
 	
 	int flick() const { return m_flick; }
 	void setFlick(int flick) { m_flick = flick; }
@@ -54,10 +48,7 @@ public:
 	void setEdge(Edge edge) { m_edge = edge; }
 
 private:
-	QPoint m_pos;
 	QPoint m_lastPos;
-	QPoint m_delta;
-	QPoint m_diff;
 	
 	int m_flick;
 	Edge m_edge;

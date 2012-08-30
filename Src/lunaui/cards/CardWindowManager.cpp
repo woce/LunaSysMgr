@@ -2044,7 +2044,7 @@ void CardWindowManager::handleSwitchGesture(BezelGesture* gesture)
         case Qt::GestureUpdated:
         {
         	//Calculate the distance since the last frame
-            QPoint diff = gesture->pos() - gesture->lastPos();
+            QPoint diff = gesture->hotSpot().toPoint() - gesture->lastPos();
             
             //If the movement is unlocked, lock it and reset the pivot
             if (m_movement == MovementUnlocked) {
@@ -2069,9 +2069,9 @@ void CardWindowManager::handleSwitchGesture(BezelGesture* gesture)
                     break;
                 //No, decide which card to switch to based on position
                 case 0:
-                    if(gesture->edge() == Edge(Left) && gesture->pos().x() > SystemUiController::instance()->currentUiWidth()/2) //Left Edge
+                    if(gesture->edge() == Edge(Left) && gesture->hotSpot().x() > SystemUiController::instance()->currentUiWidth()/2) //Left Edge
                         switchToPrevApp();
-                    if(gesture->edge() == Edge(Right) && gesture->pos().x() < SystemUiController::instance()->currentUiWidth()/2) //Right Edge
+                    if(gesture->edge() == Edge(Right) && gesture->hotSpot().x() < SystemUiController::instance()->currentUiWidth()/2) //Right Edge
                         switchToNextApp();
                     break;
                 //Left, switch to next app
@@ -2096,7 +2096,7 @@ void CardWindowManager::handleSwitchGesture(BezelGesture* gesture)
 void CardWindowManager::handleMinimizeGesture(BezelGesture* gesture)
 {
     //Calculate the total distance traveled
-	int delta = gesture->pos().y() - gesture->lastPos().y();
+	int delta = gesture->hotSpot().y() - gesture->lastPos().y();
 	
 	//Card size to use
 	qreal nonCurScale;
