@@ -38,9 +38,11 @@ namespace Tablet_Keyboard {
 #include "tabletkeymaps/uk.h" // Ukrainian
 #include "tabletkeymaps/se.h" // Swedish
 #include "tabletkeymaps/ru.h" // Russian
+#include "tabletkeymaps/no.h" // Norwegian
 #include "tabletkeymaps/de.h" // German
 #include "tabletkeymaps/fr.h" // French
 #include "tabletkeymaps/en.h" // English
+#include "tabletkeymaps/dk.h" // Danish
 
 /* --- Layout Family --- */
 const TabletKeymap::LayoutFamily * TabletKeymap::LayoutFamily::s_firstFamily = NULL;
@@ -872,6 +874,8 @@ QString TabletKeymap::getKeyDisplayString(UKey key, bool logging)
 		case cKey_DotNet:								return ".net";
 		case cKey_DotUs:								return ".us";
 		case cKey_DotSe:								return ".se";
+		case cKey_DotDk:								return ".dk";
+		case cKey_DotNo:								return ".no";
 		case cKey_WWW:									return "www.";
 		case cKey_HTTPColonSlashSlash:					return "http://";
 		case cKey_HTTPSColonSlashSlash:					return "https://";
