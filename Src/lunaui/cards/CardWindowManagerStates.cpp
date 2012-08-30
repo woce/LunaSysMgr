@@ -612,10 +612,6 @@ void MaximizeState::onExit(QEvent* event)
 			activeWin->setAttachedToGroup(true);
 		}
 
-		// notify the system that we are no longer maximized
-		SystemUiController::instance()->setCardWindowMaximized(false);
-		SystemUiController::instance()->setMaximizedCardWindow(0);
-
 		m_exiting = false;
 		m_disableDirectRendering = 0;
 	}
@@ -892,6 +888,9 @@ void MinimizeGestureState::minimizeGestureEvent(BezelGesture* gesture)
 void MinimizeGestureState::onEntry(QEvent* event)
 {
 	CardWindowManagerState::onEntry(event);
+	
+	SystemUiController::instance()->setCardWindowMaximized(false);
+	SystemUiController::instance()->setMaximizedCardWindow(0);
 	
 	m_wm->setGroupsMinimizeGesture(true);
 }
