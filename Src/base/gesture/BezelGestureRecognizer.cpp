@@ -150,11 +150,13 @@ QGestureRecognizer::Result BezelGestureRecognizer::recognize(QGesture *state,
 						q->setFlick(0);
 					else if(diff.y() <= -25 && diff.y() >= -100)
 						q->setFlick(-1);
-				}	
+				}
 			}
 			else if (event->type() == QEvent::TouchEnd)
 			{
-				if(abs(delta.x()) >= kGestureTriggerDistance || abs(delta.y()) >= kGestureTriggerDistance)
+				if(q->state() == Qt::GestureUpdated
+				|| abs(delta.x()) >= kGestureTriggerDistance
+				|| abs(delta.y()) >= kGestureTriggerDistance)
 				{
 					result = QGestureRecognizer::FinishGesture;
 				}
