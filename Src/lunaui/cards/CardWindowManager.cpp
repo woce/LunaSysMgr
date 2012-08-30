@@ -1195,6 +1195,8 @@ void CardWindowManager::maximizeActiveWindow(bool animate)
 		m_activeGroup->raiseCards();
 
 		setActiveGroup(m_activeGroup);
+	
+		setGroupsMaximized(true);
         
 		if(animate)
 			slideAllGroups(false);
@@ -2370,7 +2372,7 @@ void CardWindowManager::setActiveGroup(CardGroup* group)
 	SystemUiController::instance()->setActiveCardWindow(m_activeGroup ? m_activeGroup->activeCard() : 0);
 }
 
-void CardWindowManager::setGroupsSwitchGesture(bool enable)
+void CardWindowManager::setGroupsMaximized(bool enable)
 {
 	for (int i=0; i<m_groups.size();i++) {
         m_groups[i]->setSwitchGesture(enable);

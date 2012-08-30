@@ -258,7 +258,7 @@ private:
 
 	void setActiveGroup(CardGroup* group);
     
-    void setGroupsSwitchGesture(bool enable);
+    void setGroupsMaximized(bool enable);
     
     void setGroupsMinimizeGesture(bool enable);
 

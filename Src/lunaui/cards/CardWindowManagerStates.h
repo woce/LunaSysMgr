@@ -309,10 +309,6 @@ public:
 				: CardWindowManagerState(wm) { setObjectName("Switch"); }
 
 	virtual void switchCardEvent(BezelGesture* gesture);
-
-protected:
-	virtual void onExit(QEvent* event);
-	virtual void onEntry(QEvent* event);
 };
 
 // -----------------------------------------------------------------------------------

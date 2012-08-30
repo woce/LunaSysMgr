@@ -170,6 +170,7 @@ void MinimizeState::onEntry(QEvent* event)
 		activeWin->setBoundingRect(boundingRect.width(), boundingRect.height());
 		m_wm->firstCardAlert();
 	}
+	m_wm->setGroupsMaximized(false);
 	SystemUiController::instance()->setCardWindowMaximized(false);
 	SystemUiController::instance()->setMaximizedCardWindow(0);
 }
@@ -862,20 +863,6 @@ void ReorderState::onEntry(QEvent* event)
 void SwitchGestureState::switchCardEvent(BezelGesture* gesture)
 {
 	m_wm->handleSwitchGesture(gesture);
-}
-
-void SwitchGestureState::onEntry(QEvent* event)
-{
-	CardWindowManagerState::onEntry(event);
-	
-	m_wm->setGroupsSwitchGesture(true);
-}
-
-void SwitchGestureState::onExit(QEvent* event)
-{
-	CardWindowManagerState::onExit(event);
-	
-	m_wm->setGroupsSwitchGesture(false);
 }
 
 // --------------------------------------------------------------------------------------------------
