@@ -867,17 +867,17 @@ void ReorderState::onEntry(QEvent* event)
 
 // --------------------------------------------------------------------------------------------------
 
-void SwitchState::switchCardEvent(BezelGesture* gesture)
+void SwitchGestureState::switchCardEvent(BezelGesture* gesture)
 {
 	m_wm->handleSwitchGesture(gesture);
 }
 
-void SwitchState::onExit(QEvent* event)
+void SwitchGestureState::onEntry(QEvent* event)
 {
-	CardWindowManagerState::onExit(event);
+	CardWindowManagerState::onEntry(event);
 }
 
-void SwitchState::onEntry(QEvent* event)
+void SwitchGestureState::onExit(QEvent* event)
 {
 	CardWindowManagerState::onEntry(event);
     

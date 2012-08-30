@@ -104,7 +104,7 @@ CardWindowManager::CardWindowManager(int maxWidth, int maxHeight)
 	, m_loadingState(0)
 	, m_focusState(0)
 	, m_reorderState(0)
-	, m_switchState(0)
+	, m_switchGestureState(0)
 	, m_minimizeGestureState(0)
 	, m_curState(0)
 	, m_addingModalWindow(false)
@@ -211,7 +211,7 @@ void CardWindowManager::init()
 	m_loadingState = new LoadingState(this);
 	m_focusState = new FocusState(this);
 	m_reorderState = new ReorderState(this);
-	m_switchState = new SwitchState(this);
+	m_switchGestureState = new SwitchGestureState(this);
 	m_minimizeGestureState = new MinimizeGestureState(this);
 
 	m_stateMachine->addState(m_minimizeState);
@@ -221,7 +221,7 @@ void CardWindowManager::init()
 	m_stateMachine->addState(m_loadingState);
 	m_stateMachine->addState(m_focusState);
 	m_stateMachine->addState(m_reorderState);
-	m_stateMachine->addState(m_switchState);
+	m_stateMachine->addState(m_switchGestureState);
 	m_stateMachine->addState(m_minimizeGestureState);
 
 	// connect allowed state transitions
@@ -255,7 +255,7 @@ void CardWindowManager::init()
 	m_maximizeState->addTransition(this,
 		SIGNAL(signalGroupWindow()), m_groupState);
 	m_maximizeState->addTransition(this,
-		SIGNAL(signalEnterSwitch()), m_switchState);
+		SIGNAL(signalEnterSwitch()), m_switchGestureState);
 	m_maximizeState->addTransition(this,
 		SIGNAL(signalEnterMinimizeGestureState()), m_minimizeGestureState);
 
@@ -298,7 +298,7 @@ void CardWindowManager::init()
 	m_minimizeGestureState->addTransition(this,
 		SIGNAL(signalMaximizeActiveWindow()), m_maximizeState);
 
-	m_switchState->addTransition(this,
+	m_switchGestureState->addTransition(this,
 		SIGNAL(signalMaximizeActiveWindow()), m_maximizeState);
 
 	// start off minimized
@@ -2372,7 +2372,7 @@ void CardWindowManager::setActiveGroup(CardGroup* group)
 	SystemUiController::instance()->setActiveCardWindow(m_activeGroup ? m_activeGroup->activeCard() : 0);
 }
 
-void CardWindowManager::setGroupSwitchGesture(bool enable)
+void CardWindowManager::setGroupsSwitchGesture(bool enable)
 {
 	for (int i=0; i<m_groups.size();i++) {
         m_groups[i]->setSwitchGesture(enable);

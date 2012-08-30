@@ -300,12 +300,12 @@ private:
 
 // -----------------------------------------------------------------------------------
 
-class SwitchState : public CardWindowManagerState
+class SwitchGestureState : public CardWindowManagerState
 {
 	Q_OBJECT
 
 public:
-	SwitchState(CardWindowManager* wm) 
+	SwitchGestureState(CardWindowManager* wm) 
 				: CardWindowManagerState(wm) { setObjectName("Switch"); }
 
 	virtual void switchCardEvent(BezelGesture* gesture);

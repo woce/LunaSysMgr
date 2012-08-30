@@ -46,7 +46,7 @@ class PreparingState;
 class LoadingState;
 class FocusState;
 class ReorderState;
-class SwitchState;
+class SwitchGestureState;
 class MinimizeGestureState;
 
 QT_BEGIN_NAMESPACE
@@ -258,7 +258,7 @@ private:
 
 	void setActiveGroup(CardGroup* group);
     
-    void setGroupSwitchGesture(bool enable);
+    void setGroupsSwitchGesture(bool enable);
     
     void setGroupsMinimizeGesture(bool enable);
 
@@ -371,7 +371,7 @@ private:
 	LoadingState* m_loadingState;
 	FocusState* m_focusState;
 	ReorderState* m_reorderState;
-	SwitchState* m_switchState;
+	SwitchGestureState* m_switchGestureState;
 	MinimizeGestureState* m_minimizeGestureState;
 
 	CardWindowManagerState* m_curState;
@@ -406,7 +406,7 @@ private:
 	friend class LoadingState;
 	friend class FocusState;
 	friend class ReorderState;
-	friend class SwitchState;
+	friend class SwitchGestureState;
 	friend class MinimizeGestureState;
 };
 
