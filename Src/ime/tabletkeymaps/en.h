@@ -17,6 +17,8 @@
 *
 * LICENSE@@@ */
 
+// this file was modified by "pcworld", 0188801@gmail.com
+
 #ifndef KEYBOARD_EN_H
 #define KEYBOARD_EN_H
 #include "../TabletKeymap.h"
@@ -119,7 +121,7 @@ static TabletKeymap::constUKeyArray sUsDvorak0_extended = { Qt::Key_0, Qt::Key_P
 									NOKEY_3
 
 static TabletKeymap::Layout sUsDvorakLayout = {
-	{ KEY_2(-0.5, Qt::Key_Q, Qt::Key_BracketLeft), US_DVORAK_NUMBERS_10(1), KEY_1(-0.5, Qt::Key_Backspace) },
+	{ US_DVORAK_NUMBERS_10(1) },
 	{ US_DVORAK_TOP_9(1), KEY_1(1, Qt::Key_Backspace), NOKEY_1 },
 	{ KEY_2(-0.5, Qt::Key_A, Qt::Key_Less), US_DVORAK_MID_10(1), KEY_1(1.5, Qt::Key_Return) },
 	{ NOKEY_1, KEY_1(1, Qt::Key_Shift), US_DVORAK_LOW_8(1), KEY_1(1, Qt::Key_Shift), NOKEY_1 },
@@ -228,7 +230,7 @@ static TabletKeymap::constUKeyArray sUsQwerty0_extended = { Qt::Key_0, Qt::Key_P
 									NOKEY_3
 
 static TabletKeymap::Layout sUsQwertyLayout = {
-	{ KEY_2(-0.5, Qt::Key_Q, Qt::Key_BracketLeft), US_QWERTY_NUMBERS_10(1), KEY_1(-0.5, Qt::Key_Backspace) },
+	{ US_QWERTY_NUMBERS_10(1) },
 	{ US_QWERTY_TOP_10(1), KEY_1(1, Qt::Key_Backspace), NOKEY_1 },
 	{ KEY_2(-0.5, Qt::Key_A, Qt::Key_Less), US_QWERTY_MID_9(1), KEY_1(1.5, Qt::Key_Return), NOKEY_1 },
 	{ KEY_1(1, Qt::Key_Shift), US_QWERTY_LOW_9(1), KEY_1(1, Qt::Key_Shift), NOKEY_1 },
