@@ -130,6 +130,8 @@ const UKey cKey_Emoticon_Yuck = UKey(0x01200310);
 const UKey cKey_Emoticon_Gasp = UKey(0x01200311);
 const UKey cKey_Emoticon_Heart = UKey(0x01200312);
 const UKey cKey_DotSe = UKey(0x01200313);
+const UKey cKey_DotDk = UKey(0x01200314);
+const UKey cKey_DotNo = UKey(0x01200315);
 
 // Keys used for keyboard/language selections
 const UKey cKey_KeyboardComboChoice_First = UKey(0x01200400);
