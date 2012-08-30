@@ -29,6 +29,9 @@ QGestureRecognizer::Result BezelGestureRecognizer::recognize(QGesture *state,
 	QPoint startPos;
 	QPoint pos;
 	QPoint displayBounds;
+	
+	//Fired check to make sure FinishGesture triggers correctly
+	static bool fired = false;
 
 	//Result to return
 	QGestureRecognizer::Result result;
@@ -102,6 +105,7 @@ QGestureRecognizer::Result BezelGestureRecognizer::recognize(QGesture *state,
 					{
 						//Set variables and trigger gesture
 						q->setEdge(Left);
+						fired = true;
 						result = QGestureRecognizer::TriggerGesture;
 					}
 				}
@@ -114,6 +118,7 @@ QGestureRecognizer::Result BezelGestureRecognizer::recognize(QGesture *state,
 					{
 						//Set variables and trigger gesture
 						q->setEdge(Right);
+						fired = true;
 						result = QGestureRecognizer::TriggerGesture;
 					}
 				}
@@ -126,6 +131,7 @@ QGestureRecognizer::Result BezelGestureRecognizer::recognize(QGesture *state,
 					{
 						//Set variables and trigger gesture
 						q->setEdge(Bottom);
+						fired = true;
 						result = QGestureRecognizer::TriggerGesture;
 					}
 				}
@@ -154,11 +160,12 @@ QGestureRecognizer::Result BezelGestureRecognizer::recognize(QGesture *state,
 			}
 			else if (event->type() == QEvent::TouchEnd)
 			{
-				if(q->state() == Qt::GestureUpdated
+				if(fired == true
 				|| abs(delta.x()) >= kGestureTriggerDistance
 				|| abs(delta.y()) >= kGestureTriggerDistance)
 				{
 					result = QGestureRecognizer::FinishGesture;
+					fired = false;
 				}
 			}
 		}
