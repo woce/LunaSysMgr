@@ -2859,7 +2859,10 @@ void CardWindowManager::slideAllGroups(bool includeActiveCard, int flyback)
 
 	QPropertyAnimation* anim = new QPropertyAnimation(m_activeGroup, "x");
 	anim->setEasingCurve(AS_CURVE(cardSlideCurve));
-	anim->setDuration(AS(cardSlideDuration));
+	if(m_curState != m_switchGestureState && m_curState != m_minimizeGestureState)
+		anim->setDuration(AS(cardSlideDuration));
+	else
+		anim->setDuration(100);
 	anim->setEndValue(animationTargetEnd);
 	setAnimationForGroup(m_activeGroup, anim);
 	if (flyback != 0)
@@ -2880,7 +2883,10 @@ void CardWindowManager::slideAllGroups(bool includeActiveCard, int flyback)
 
 		anim = new QPropertyAnimation(m_groups[i], "x");
 		anim->setEasingCurve(AS_CURVE(cardSlideCurve));
-		anim->setDuration(AS(cardSlideDuration));
+		if(m_curState != m_switchGestureState && m_curState != m_minimizeGestureState)
+			anim->setDuration(AS(cardSlideDuration));
+		else
+			anim->setDuration(100);
 		anim->setEndValue(centerX);
 		setAnimationForGroup(m_groups[i], anim);
 		Q_FOREACH(QPropertyAnimation* anim, cardAnims) {
@@ -2899,7 +2905,10 @@ void CardWindowManager::slideAllGroups(bool includeActiveCard, int flyback)
 
 		anim = new QPropertyAnimation(m_groups[i], "x");
 		anim->setEasingCurve(AS_CURVE(cardSlideCurve));
-		anim->setDuration(AS(cardSlideDuration));
+		if(m_curState != m_switchGestureState && m_curState != m_minimizeGestureState)
+			anim->setDuration(AS(cardSlideDuration));
+		else
+			anim->setDuration(100);
 		anim->setEndValue(centerX);
 		setAnimationForGroup(m_groups[i], anim);
 		Q_FOREACH(QPropertyAnimation* anim, cardAnims) {

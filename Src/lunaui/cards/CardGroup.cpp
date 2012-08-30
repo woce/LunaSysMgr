@@ -245,7 +245,10 @@ QList<QPropertyAnimation*> CardGroup::animateOpen(int duration,
 		QPropertyAnimation* anim = new QPropertyAnimation(m_cards[i], "position");
 
 		QVariant end; end.setValue(positions[i]);
-		anim->setDuration(duration);
+		if(!m_minimizeGesture)
+			anim->setDuration(duration);
+		else
+			anim->setDuration(100);
 		anim->setEasingCurve(curve);
 		anim->setEndValue(end);
 
@@ -277,7 +280,10 @@ QList<QPropertyAnimation*> CardGroup::animateClose(int duration, QEasingCurve::T
 		QPropertyAnimation* anim = new QPropertyAnimation(m_cards[i], "position");
 
 		QVariant end; end.setValue(positions[i]);
-		anim->setDuration(duration);
+		if(!m_minimizeGesture && !m_switchGesture)
+			anim->setDuration(duration);
+		else
+			anim->setDuration(100);
 		anim->setEasingCurve(curve);
 		anim->setEndValue(end);
 
