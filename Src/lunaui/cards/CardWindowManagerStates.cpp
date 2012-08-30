@@ -876,9 +876,6 @@ void MinimizeGestureState::onEntry(QEvent* event)
 {
 	CardWindowManagerState::onEntry(event);
 	
-	SystemUiController::instance()->setCardWindowMaximized(false);
-	SystemUiController::instance()->setMaximizedCardWindow(0);
-	
 	m_wm->setGroupsMinimizeGesture(true);
 }
 
