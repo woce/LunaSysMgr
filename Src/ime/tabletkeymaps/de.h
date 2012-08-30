@@ -17,6 +17,8 @@
 *
 * LICENSE@@@ */
 
+// this file was modified by "pcworld", 0188801@gmail.com
+
 #ifndef KEYBOARD_DE_H
 #define KEYBOARD_DE_H
 #include "../TabletKeymap.h"
@@ -122,7 +124,7 @@ static TabletKeymap::constUKeyArray sMinusApostrophe_extended = { Qt::Key_Minus,
 									NOKEY_3
 
 static TabletKeymap::Layout sDeQwertz = {
-	{ KEY_2(-0.5, Qt::Key_Q, Qt::Key_BracketLeft), DE_QWERTZ_NUMBERS_10(1), KEY_1(-0.5, Qt::Key_Backspace) },
+	{ DE_QWERTZ_NUMBERS_10(1) },
 	{ DE_QWERTZ_TOP_10(1), KEY_1(1, Qt::Key_Backspace), NOKEY_1 },
 	{ KEY_2(-0.5, Qt::Key_A, Qt::Key_Less), DE_QWERTZ_MID_9(1), KEY_1(1.5, Qt::Key_Return), NOKEY_1 },
 	{ KEY_1(1, Qt::Key_Shift), DE_QWERTZ_LOW_9(1), KEY_1(1, Qt::Key_Shift), NOKEY_1 },
