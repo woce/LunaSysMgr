@@ -89,11 +89,11 @@ QGestureRecognizer::Result BezelGestureRecognizer::recognize(QGesture *state,
 			QPoint delta = pos - startPos;
 			
 			//Set the variables we already know
-			q->setLastPos(q->hotSpot().toPoint());
-			q->setHotSpot(pos);
+			q->setLastPos(q->pos());
+			q->setPos(pos);
 			
 			//Work out the distance traveled since the last frame
-			QPoint diff = q->hotSpot().toPoint() - q->lastPos();
+			QPoint diff = q->pos() - q->lastPos();
 				
 			if (event->type() == QEvent::TouchUpdate) {
 				//GESTURE TRIGGERING
@@ -176,7 +176,7 @@ QGestureRecognizer::Result BezelGestureRecognizer::recognize(QGesture *state,
 
 void BezelGestureRecognizer::reset(BezelGesture *gesture)
 {
-	gesture->setHotSpot(QPoint(0,0));
+	gesture->setPos(QPoint(0,0));
 	gesture->setLastPos(QPoint(0,0));
 	gesture->setFlick(0);
 	gesture->setEdge(None);
