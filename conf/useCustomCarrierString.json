@@ -1,0 +1,28 @@
+[
+	{
+		"category": "luna",
+		"prefs": [
+			{
+				"group": "status bar",
+				"restart": "none",
+				"prefserv": "sysUiUseCustomCarrierString",
+				"label": "Use custom carrier string",
+				"help": "Enables the use of your own text as the carrier string.",
+				"key": "useCustomCarrierString",
+				"type": "ToggleButton",
+				"value": false
+			},
+			{
+				"group": "status bar",
+				"restart": "none",
+				"prefserv": "sysUiCarrierString",
+				"label": "Carrier string",
+				"help": "The text used as your custom carrier string.",
+				"key": "carrierString",
+				"type": "TextField",
+				"value": "HP webOS",
+				"input": "text"
+			}
+		]
+	}
+]
