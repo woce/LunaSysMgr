@@ -65,7 +65,8 @@ static TabletKeymap::constUKeyArray sMinusApostrophe_extended = { Qt::Key_Minus,
 										{ w, Qt::Key_U,			Qt::Key_BraceLeft,						sU_extended },\
 										{ w, Qt::Key_I,			Qt::Key_BraceRight,						sI_extended },\
 										{ w, Qt::Key_O,			Qt::Key_BracketLeft,					sO_extended },\
-										{ w, Qt::Key_P,			Qt::Key_BracketRight,					sP_extended }
+										{ w, Qt::Key_P,			Qt::Key_BracketRight,					sP_extended },\
+										{ w, Qt::Key_Udiaeresis,cKey_None,								NULL }
 
 #define DE_QWERTZ_MID_9(w)				{ w, Qt::Key_A,			Qt::Key_Less,							sA_extended },\
 										{ w, Qt::Key_S,			Qt::Key_Greater,						sS_extended },\
@@ -75,7 +76,9 @@ static TabletKeymap::constUKeyArray sMinusApostrophe_extended = { Qt::Key_Minus,
 										{ w, Qt::Key_H,			UKey(0x00F7) /* division sign */,		NULL },\
 										{ w, Qt::Key_J,			Qt::Key_degree,							NULL },\
 										{ w, Qt::Key_K,			Qt::Key_Asterisk,						NULL },\
-										{ w, Qt::Key_L,			Qt::Key_NumberSign,						sL_extended }
+										{ w, Qt::Key_L,			Qt::Key_NumberSign,						sL_extended },\
+										{ w, Qt::Key_Odiaeresis,cKey_None,								NULL },\
+										{ w, Qt::Key_Adiaeresis,cKey_None,								NULL }
 
 #define DE_QWERTZ_LOW_9(w)				{ w, Qt::Key_Y,			cKey_Emoticon_Smile,					sY_extended },\
 										{ w, Qt::Key_X,			cKey_Emoticon_Wink,						sOptions },\
@@ -126,8 +129,8 @@ static TabletKeymap::constUKeyArray sMinusApostrophe_extended = { Qt::Key_Minus,
 static TabletKeymap::Layout sDeQwertz = {
 	{ DE_QWERTZ_NUMBERS_10(1) },
 	{ DE_QWERTZ_TOP_10(1), KEY_1(1, Qt::Key_Backspace), NOKEY_1 },
-	{ KEY_2(-0.5, Qt::Key_A, Qt::Key_Less), DE_QWERTZ_MID_9(1), KEY_1(1.5, Qt::Key_Return), NOKEY_1 },
-	{ KEY_1(1, Qt::Key_Shift), DE_QWERTZ_LOW_9(1), KEY_1(1, Qt::Key_Shift), NOKEY_1 },
+	{ KEY_2(-0.2, Qt::Key_A, Qt::Key_Less), DE_QWERTZ_MID_9(1), KEY_1(0.8, Qt::Key_Return), NOKEY_1 },
+	{ KEY_1(0.8, Qt::Key_Shift), DE_QWERTZ_LOW_9(1), KEY_1(2, Qt::Key_Shift), NOKEY_1 },
 	{ DE_QWERTZ_BOTTOM_ROW_DEFAULT },
 };
 
