@@ -72,6 +72,8 @@ Preferences::Preferences()
 	, m_sysUiEnableStatusBarSearch(false)
 	, m_sysUiEnableMaximizeEdges(false)
 	, m_sysUiShowDeviceNameAsCarrierText(false)
+	, m_sysUiUseCustomCarrierString(false)
+	, m_sysUiCarrierString("HP webOS")
 	, m_lockTimeout(0)
 	, m_lsHandle(0)
 	, m_imeEnabled(false)
@@ -588,6 +590,8 @@ bool Preferences::serverConnectCallback(LSHandle *sh, LSMessage *message, void *
 													   \"sysUiEnableStatusBarSearch\", \
 													   \"sysUiEnableMaximizeEdges\", \
 													   \"sysUiShowDeviceNameAsCarrierText\", \
+													   \"sysUiUseCustomCarrierString\", \
+													   \"sysUiCarrierString\", \
 													   \"airplaneMode\", \
 													   \"hideWANAlert\", \
 													   \"roamingIndicator\", \
@@ -916,6 +920,20 @@ bool Preferences::getPreferencesCallback(LSHandle *sh, LSMessage *message, void 
 
 		if (prefObjPtr) {
 			prefObjPtr->m_sysUiShowDeviceNameAsCarrierText = json_object_get_boolean(label);
+		}
+	}
+
+	label = json_object_object_get(json, "sysUiUseCustomCarrierString");
+	if (label && !is_error(label)) {
+		if (prefObjPtr) {
+			prefObjPtr->m_sysUiUseCustomCarrierString = json_object_get_boolean(label);
+		}
+	}
+
+	label = json_object_object_get(json, "sysUiCarrierString");
+	if (label && !is_error(label)) {
+		if (prefObjPtr) {
+			prefObjPtr->m_sysUiCarrierString = json_object_get_string(label);
 		}
 	}
 
