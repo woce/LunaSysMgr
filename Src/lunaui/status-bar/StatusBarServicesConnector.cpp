@@ -924,6 +924,8 @@ void StatusBarServicesConnector::handlePowerStatus(const char* radioState, bool 
 		if (m_phoneType == PHONE_TYPE_NONE) {
 			if (Preferences::instance()->sysUiShowDeviceNameAsCarrierText())
 				sprintf(m_carrierText, Preferences::instance()->deviceName().c_str());
+			else if (Preferences::instance()->sysUiUseCustomCarrierString())
+				sprintf(m_carrierText, Preferences::instance()->sysUiCarrierString().c_str());
 			else
 				sprintf(m_carrierText, "HP webOS");
 		}
@@ -1059,6 +1061,8 @@ void StatusBarServicesConnector::handleNetworkStatus(const char* networkState, s
 	if (m_phoneType == PHONE_TYPE_NONE) {
 		if (Preferences::instance()->sysUiShowDeviceNameAsCarrierText())
 			sprintf(m_carrierText, Preferences::instance()->deviceName().c_str());
+		else if (Preferences::instance()->sysUiUseCustomCarrierString())
+			sprintf(m_carrierText, Preferences::instance()->sysUiCarrierString().c_str());
 		else
 			sprintf(m_carrierText, "HP webOS");
 		Q_EMIT signalCarrierTextChanged(m_carrierText);

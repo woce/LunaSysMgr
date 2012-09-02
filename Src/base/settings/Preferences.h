@@ -67,6 +67,8 @@ public:
 	bool sysUiEnableStatusBarSearch() const { return m_sysUiEnableStatusBarSearch; }
 	bool sysUiEnableMaximizeEdges() const { return m_sysUiEnableMaximizeEdges; }
 	bool sysUiShowDeviceNameAsCarrierText() const { return m_sysUiShowDeviceNameAsCarrierText; }
+	bool sysUiUseCustomCarrierString() const { return m_sysUiUseCustomCarrierString; }
+	std::string sysUiCarrierString() { return m_sysUiCarrierString; }
 
 	bool imeEnabled() const { return m_imeEnabled; }
 	bool pinyinEnabled() const { return m_pinyinEnabled; }
@@ -150,6 +152,8 @@ private:
 	bool m_sysUiEnableStatusBarSearch;
 	bool m_sysUiEnableMaximizeEdges;
 	bool m_sysUiShowDeviceNameAsCarrierText;
+	bool m_sysUiUseCustomCarrierString;
+	std::string m_sysUiCarrierString;
 
 	bool m_imeEnabled;
 	bool m_pinyinEnabled;

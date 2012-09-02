@@ -86,6 +86,10 @@ StatusBar::StatusBar(StatusBarType type, int width, int height)
 		m_carrierText = Preferences::instance()->deviceName();
 		m_deviceNameAsAppTitle = true;
 	}
+	else if (Preferences::instance()->sysUiUseCustomCarrierString())
+	{
+		m_carrierText = Preferences::instance()->sysUiCarrierString();
+	}
 	else
 		m_carrierText = kDefaultCarrierName;
     connect(Preferences::instance(), SIGNAL(signalDeviceNameChanged(std::string)), this, SLOT(slotDeviceNameChanged(std::string)));
@@ -623,6 +627,10 @@ void StatusBar::setMaximizedAppTitle(bool appMaximized, const char* title, const
 						m_title->setTitleString(Preferences::instance()->deviceName(), false);
 						m_deviceNameAsAppTitle = true;
 					}
+					else if (Preferences::instance()->sysUiUseCustomCarrierString())
+					{
+						m_title->setTitleString(Preferences::instance()->sysUiCarrierString(), false);
+					}
 					else
 						m_title->setTitleString(kDefaultCarrierName, false);
 				}
@@ -662,6 +670,10 @@ void StatusBar::setMaximizedAppTitle(bool appMaximized, const char* title, const
 			{
 				m_title->setTitleString(Preferences::instance()->deviceName(), false);
 				m_deviceNameAsAppTitle = true;
+			}
+			else if (Preferences::instance()->sysUiUseCustomCarrierString())
+			{
+				m_title->setTitleString(Preferences::instance()->sysUiCarrierString(), false);
 			}
 			else
 				m_title->setTitleString(kDefaultCarrierName, false);
