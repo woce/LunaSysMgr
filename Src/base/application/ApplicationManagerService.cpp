@@ -1,6 +1,7 @@
 /* @@@LICENSE
 *
 *      Copyright (c) 2008-2012 Hewlett-Packard Development Company, L.P.
+*							2012 Eric Blade <blade.eric@gmail.com>
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -884,7 +885,7 @@ static bool servicecallback_launch( LSHandle* lshandle, LSMessage *message,
 
     VALIDATE_SCHEMA_AND_RETURN(lshandle,
                                message,
-                               SCHEMA_2(OBJECT_REQUIRED_1(id, label, string), REQUIRED_UNION_2(params, object, string)));
+                               SCHEMA_2(NAKED_OBJECT_REQUIRED_1(id, label, string), REQUIRED_UNION_2(params, object, string)));
 	const char* str = LSMessageGetPayload( message );
 	if (!str) {
 		errMsg = "No payload provided";
