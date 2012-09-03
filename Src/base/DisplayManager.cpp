@@ -1,6 +1,7 @@
 /* @@@LICENSE
 *
 *      Copyright (c) 2008-2012 Hewlett-Packard Development Company, L.P.
+*							2012 Eric Blade <blade.eric@gmail.com>
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -2139,163 +2140,168 @@ void DisplayManager::slotBluetoothKeyboardActive(bool active)
 
 bool DisplayManager::updateState (int eventType)
 {
-    switch (eventType)
-    {
-        case DISPLAY_EVENT_SLIDER_UNLOCKED:
-            {
-                m_sliderOpen = true;
-                m_currentState->handleEvent (DisplayEventSliderOpen);
-            }
-            break;
-        case DISPLAY_EVENT_SLIDER_LOCKED:
-            {
-                m_sliderOpen = false;
-                m_currentState->handleEvent (DisplayEventSliderClose);
-                updateBrightness();
-            }
-            break;
-        case DISPLAY_EVENT_POWER_BUTTON_UP:
-            {
-                if (m_power->running())
-                    m_power->stop ();
+	switch (eventType)
+	{
+		case DISPLAY_EVENT_SLIDER_UNLOCKED:
+			{
+				m_sliderOpen = true;
+				m_currentState->handleEvent (DisplayEventSliderOpen);
+			}
+			break;
+		case DISPLAY_EVENT_SLIDER_LOCKED:
+			{
+				m_sliderOpen = false;
+				m_currentState->handleEvent (DisplayEventSliderClose);
+				updateBrightness();
+			}
+			break;
+		case DISPLAY_EVENT_POWER_BUTTON_UP:
+			{
+				if (m_power->running())
+					m_power->stop ();
 
-                // Disabling this for now in Dartfish, as we for now are using Emergency Mode for the Full Screen FLASH player
+				// Disabling this for now in Dartfish, as we for now are using Emergency Mode for the Full Screen FLASH player
 //                if (SystemUiController::instance()->isInEmergencyMode ()) {
 //                    g_warning ("%s: in emergency mode, ignoring power button up", __PRETTY_FUNCTION__);
 //                    break;
 //                }
 
-                if (m_blockedPowerKey > 0)
-                {
-                    // special mode. Do not do anything. Let the subscirbers know bout powerbutton but drop it.
-                    g_warning ("%s: block power key is set, forwarding this to subscribers but ignoring it internally.", __PRETTY_FUNCTION__);
-                    LSError lserror;
-                    LSErrorInit(&lserror);
-                    bool result = LSSubscriptionReply (m_service, POWER_KEY_BLOCK_SUBSCRIPTION_KEY, "{\"powerKey\":\"released\"}", &lserror);
-                    if (!result)
-                    {
-                        g_message ("%s: failed at %s with message %s", __FUNCTION__, lserror.func, lserror.message);
-                        LSErrorFree(&lserror);
-                    }
-                }
-                else
-                {
-                    // disable power key if the user is on a call on the puck
-                    // this is so that the user never sees a lock screen when on a call
-                    if (!(m_onCall && currentState() == DisplayStateOnPuck))
-                    {
-                        g_message ("%s: power key press", __PRETTY_FUNCTION__);
-                        m_currentState->handleEvent (DisplayEventPowerKeyPress);
-                    }
-                }
-            }
-            break;
-        case DISPLAY_EVENT_POWER_BUTTON_DOWN:
-            {
-                m_dropPowerKey = false;
-                // start the timer
-		if ((currentState() == DisplayStateOn 
-					|| currentState() == DisplayStateOnPuck
-					|| currentState() == DisplayStateDockMode
-					|| currentState() == DisplayStateDim)
-				&& !m_power->running()) {
-                    m_power->start (m_powerKeyTimeout);
-		}
-            }
-            break;
-        case DISPLAY_EVENT_INDUCTIVE_CHARGER_DISCONNECTED:
-            {
-                g_message ("%s: off the puck", __PRETTY_FUNCTION__);
-                m_currentState->handleEvent (DisplayEventOffPuck);
-		Q_EMIT signalPuckConnected (false);
-            }
-            break;
-        case DISPLAY_EVENT_INDUCTIVE_CHARGER_CONNECTED:
-            {
-                g_message ("%s: on the puck", __PRETTY_FUNCTION__);
-		Q_EMIT signalPuckConnected (true);
-                m_currentState->handleEvent (DisplayEventOnPuck);
-            }
-            break;
-        case DISPLAY_EVENT_USB_CHARGER_DISCONNECTED:
-            {
-                if (m_onWhenConnected)
-                {
-                    gchar *report = g_strdup_printf ("%s-dm-usb-charger-connected", __FUNCTION__);
-                    popDNAST (report);
-                    g_free (report);
-                }
-                m_currentState->handleEvent (DisplayEventUsbOut);
-            }
-            break;
-        case DISPLAY_EVENT_USB_CHARGER_CONNECTED:
-            {
-                if (m_onWhenConnected)
-                {
-                    gchar *report = g_strdup_printf ("%s-dm-usb-charger-connected", __FUNCTION__);
-                    pushDNAST (report);
-                    g_free (report);
-                }
-                m_currentState->handleEvent (DisplayEventUsbIn);
-            }
-            break;
-        case DISPLAY_EVENT_ALS_REGION_CHANGED:
-            {
-                m_currentState->handleEvent (DisplayEventAlsChange);
-            }
-            break;
-        case DISPLAY_EVENT_ENTER_EMERGENCY_MODE:
-            {
-		if (SystemUiController::instance()->isInEmergencyMode()) {
-		    g_message ("%s: entering emergency mode, pushing DNAST\n", __PRETTY_FUNCTION__);
-		    gchar *report = g_strdup_printf ("%s-dm-in-emergency-mode", __FUNCTION__);
-		    pushDNAST (report);
-		    g_free (report);
-		}
-            }
-            break;
-        case DISPLAY_EVENT_EXIT_EMERGENCY_MODE:
-            {
-		if (!SystemUiController::instance()->isInEmergencyMode()) {
-		    g_message ("%s: exiting emergency mode, popping DNAST\n", __PRETTY_FUNCTION__);
-		    gchar *report = g_strdup_printf ("%s-dm-in-emergency-mode", __FUNCTION__);
-		    popDNAST (report);
-		    g_free (report);
-		}
-            }
-            break;
-        case DISPLAY_EVENT_PROXIMITY_ON:
-            {
-                m_currentState->handleEvent (DisplayEventProximityOn);
-            }
-            break;
-        case DISPLAY_EVENT_PROXIMITY_OFF:
-            {
-                m_currentState->handleEvent (DisplayEventProximityOff);
-            }
-            break;
-        case DISPLAY_EVENT_ON_CALL:
-            {
-                m_currentState->handleEvent (DisplayEventOnCall);
-            }
-            break;
-        case DISPLAY_EVENT_OFF_CALL:
-            {
-                m_currentState->handleEvent (DisplayEventOffCall);
-            }
-            break;
-	case DISPLAY_EVENT_HOME_BUTTON_UP:
-	    {
-		m_currentState->handleEvent (DisplayEventHomeKeyPress);
-	    }
-	    break;
-        default:
-            g_warning ("%s: unhandled eventType (%i)", __FUNCTION__, eventType);
-    }
+				if (m_blockedPowerKey > 0)
+				{
+					// special mode. Do not do anything. Let the subscirbers know bout powerbutton but drop it.
+					g_warning ("%s: block power key is set, forwarding this to subscribers but ignoring it internally.", __PRETTY_FUNCTION__);
+					LSError lserror;
+					LSErrorInit(&lserror);
+					bool result = LSSubscriptionReply (m_service, POWER_KEY_BLOCK_SUBSCRIPTION_KEY, "{\"powerKey\":\"released\"}", &lserror);
+					if (!result)
+					{
+						g_message ("%s: failed at %s with message %s", __FUNCTION__, lserror.func, lserror.message);
+						LSErrorFree(&lserror);
+					}
+				}
+				else
+				{
+					// disable power key if the user is on a call on the puck
+					// this is so that the user never sees a lock screen when on a call
+					if (!(m_onCall && currentState() == DisplayStateOnPuck))
+					{
+						g_message ("%s: power key press", __PRETTY_FUNCTION__);
+						m_currentState->handleEvent (DisplayEventPowerKeyPress);
+					}
+				}
+			}
+			break;
+		case DISPLAY_EVENT_POWER_BUTTON_DOWN:
+			{
+				m_dropPowerKey = false;
+				// start the timer
+				if ((currentState() == DisplayStateOn 
+							|| currentState() == DisplayStateOnPuck
+							|| currentState() == DisplayStateDockMode
+							|| currentState() == DisplayStateDim)
+						&& !m_power->running()) {
+							m_power->start (m_powerKeyTimeout);
+				}
+			}
+			break;
+		case DISPLAY_EVENT_INDUCTIVE_CHARGER_DISCONNECTED:
+			{
+				g_message ("%s: off the puck", __PRETTY_FUNCTION__);
+				m_currentState->handleEvent (DisplayEventOffPuck);
+				Q_EMIT signalPuckConnected (false);
+			}
+			break;
+		case DISPLAY_EVENT_INDUCTIVE_CHARGER_CONNECTED:
+			{
+				g_message ("%s: on the puck", __PRETTY_FUNCTION__);
+				Q_EMIT signalPuckConnected (true);
+				m_currentState->handleEvent (DisplayEventOnPuck);
+			}
+			break;
+		case DISPLAY_EVENT_USB_CHARGER_DISCONNECTED:
+			{
+				if (m_onWhenConnected)
+				{
+					gchar *report = g_strdup_printf ("%s-dm-usb-charger-connected", __FUNCTION__);
+					popDNAST (report);
+					g_free (report);
+				}
+				m_currentState->handleEvent (DisplayEventUsbOut);
+			}
+			break;
+		case DISPLAY_EVENT_USB_CHARGER_CONNECTED:
+			{
+				if (m_onWhenConnected)
+				{
+					gchar *report = g_strdup_printf ("%s-dm-usb-charger-connected", __FUNCTION__);
+					pushDNAST (report);
+					g_free (report);
+				}
+				m_currentState->handleEvent (DisplayEventUsbIn);
+			}
+			break;
+		case DISPLAY_EVENT_ALS_REGION_CHANGED:
+			{
+				m_currentState->handleEvent (DisplayEventAlsChange);
+			}
+			break;
+		case DISPLAY_EVENT_ENTER_EMERGENCY_MODE:
+			{
+				if (SystemUiController::instance()->isInEmergencyMode()) {
+					g_message ("%s: entering emergency mode, pushing DNAST\n", __PRETTY_FUNCTION__);
+					gchar *report = g_strdup_printf ("%s-dm-in-emergency-mode", __FUNCTION__);
+					pushDNAST (report);
+					g_free (report);
+				}
+			}
+			break;
+		case DISPLAY_EVENT_EXIT_EMERGENCY_MODE:
+			{
+				if (!SystemUiController::instance()->isInEmergencyMode()) {
+					g_message ("%s: exiting emergency mode, popping DNAST\n", __PRETTY_FUNCTION__);
+					gchar *report = g_strdup_printf ("%s-dm-in-emergency-mode", __FUNCTION__);
+					popDNAST (report);
+					g_free (report);
+				}
+			}
+			break;
+		case DISPLAY_EVENT_PROXIMITY_ON:
+			{
+				m_currentState->handleEvent (DisplayEventProximityOn);
+			}
+			break;
+		case DISPLAY_EVENT_PROXIMITY_OFF:
+			{
+				m_currentState->handleEvent (DisplayEventProximityOff);
+			}
+			break;
+		case DISPLAY_EVENT_ON_CALL:
+			{
+				m_currentState->handleEvent (DisplayEventOnCall);
+			}
+			break;
+		case DISPLAY_EVENT_OFF_CALL:
+			{
+				m_currentState->handleEvent (DisplayEventOffCall);
+			}
+			break;
+		case DISPLAY_EVENT_HOME_BUTTON_UP:
+			{
+				// No matter what, if the user presses home, we want the screen to remain on.
+				// This should fix http://issues.webos-ports.org/issues/113 as well as any other situations where 
+				// you press the Home button, and the screen mysteriously shuts off.
+				if(HostBase::instance()->homeButtonWakesUpScreen()) {
+					m_lastEvent = Time::curTimeMs();
+				}
+				m_currentState->handleEvent (DisplayEventHomeKeyPress);
+			}
+			break;
+		default:
+			g_warning ("%s: unhandled eventType (%i)", __FUNCTION__, eventType);
+	}
 
-    return true;
+	return true;
 }
-
 bool DisplayManager::activity()
 {
     uint32_t now = Time::curTimeMs();
