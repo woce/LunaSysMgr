@@ -160,6 +160,9 @@ public:
 	
 	qreal nonCurScale() const { return m_nonCurScale; }
 	void setNonCurScale(const qreal& nonCurScale) { m_nonCurScale = nonCurScale; }
+	
+	qreal xDistanceFactor() const { return m_cardGroupXDistanceFactor; }
+	void setXDistanceFactor(const qreal xDistanceFactor) { m_cardGroupXDistanceFactor = xDistanceFactor; }
     
     bool switchGesture() const { return m_switchGesture; }
     void setSwitchGesture(bool switchGesture) { m_switchGesture = switchGesture; }
