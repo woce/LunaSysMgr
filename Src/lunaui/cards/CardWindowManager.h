@@ -48,6 +48,7 @@ class FocusState;
 class ReorderState;
 class SwitchGestureState;
 class MinimizeGestureState;
+class SpreadGestureState;
 
 QT_BEGIN_NAMESPACE
 class QTapGesture;
@@ -130,6 +131,8 @@ private Q_SLOTS:
 	void slotSwitchGesture(BezelGesture* gesture);
     
 	void slotMinimizeGesture(BezelGesture* gesture);
+    
+	void slotSpreadGesture(QPinchGesture* gesture);
 
     void slotTouchToShareAppUrlTransfered(const std::string& appId);
     void slotOpacityAnimationFinished();
@@ -154,6 +157,8 @@ Q_SIGNALS:
 	void signalEnterSwitchGestureState();
 	void signalMinimizeGesture(BezelGesture* gesture);
 	void signalEnterMinimizeGestureState();
+	void signalSpreadGesture(QPinchGesture* gesture);
+	void signalEnterSpreadGestureState();
     void signalFirstCardRun();
     void signalGroupWindow();
 
@@ -173,6 +178,8 @@ private:
     void handleSwitchGesture(BezelGesture* gesture);
     
     void handleMinimizeGesture(BezelGesture* gesture);
+    
+    void handleSpreadGesture(QPinchGesture* gesture);
 
 	void handleFlickGestureMinimized(QGestureEvent* event);
 
@@ -261,6 +268,8 @@ private:
     void setGroupsMaximized(bool enable);
     
     void setGroupsMinimizeGesture(bool enable);
+    
+    void setGroupsSpreadGesture(bool enable);
 
 	void disableCardRestoreToMaximized();
 	void restoreCardToMaximized();
@@ -373,6 +382,7 @@ private:
 	ReorderState* m_reorderState;
 	SwitchGestureState* m_switchGestureState;
 	MinimizeGestureState* m_minimizeGestureState;
+	SpreadGestureState* m_spreadGestureState;
 
 	CardWindowManagerState* m_curState;
 
@@ -408,6 +418,7 @@ private:
 	friend class ReorderState;
 	friend class SwitchGestureState;
 	friend class MinimizeGestureState;
+	friend class SpreadGestureState;
 };
 
 #endif /* CARDWINDOWMANAGER_H */

@@ -106,6 +106,7 @@ CardWindowManager::CardWindowManager(int maxWidth, int maxHeight)
 	, m_reorderState(0)
 	, m_switchGestureState(0)
 	, m_minimizeGestureState(0)
+	, m_spreadGestureState(0)
 	, m_curState(0)
 	, m_addingModalWindow(false)
 	, m_initModalMaximizing(false)
@@ -157,6 +158,9 @@ CardWindowManager::CardWindowManager(int maxWidth, int maxHeight)
     
 	connect(sysui, SIGNAL(signalMinimizeGesture(BezelGesture*)),
 			SLOT(slotMinimizeGesture(BezelGesture*)));
+    
+	connect(sysui, SIGNAL(signalSpreadGesture(QPinchGesture*)),
+			SLOT(slotSpreadGesture(QPinchGesture*)));
 
 	connect(sysui, SIGNAL(signalSideSwipe(bool)),
 		SLOT(slotSideSwipe(bool)));
@@ -213,6 +217,7 @@ void CardWindowManager::init()
 	m_reorderState = new ReorderState(this);
 	m_switchGestureState = new SwitchGestureState(this);
 	m_minimizeGestureState = new MinimizeGestureState(this);
+	m_spreadGestureState = new SpreadGestureState(this);
 
 	m_stateMachine->addState(m_minimizeState);
 	m_stateMachine->addState(m_groupState);
@@ -223,6 +228,7 @@ void CardWindowManager::init()
 	m_stateMachine->addState(m_reorderState);
 	m_stateMachine->addState(m_switchGestureState);
 	m_stateMachine->addState(m_minimizeGestureState);
+	m_stateMachine->addState(m_spreadGestureState);
 
 	// connect allowed state transitions
 	m_minimizeState->addTransition(this,
@@ -235,6 +241,8 @@ void CardWindowManager::init()
 		SIGNAL(signalEnterReorder(QPoint, int)), m_reorderState);
 	m_minimizeState->addTransition(this,
 		SIGNAL(signalGroupWindow()), m_groupState);
+	m_minimizeState->addTransition(this,
+		SIGNAL(signalEnterSpreadGestureState()), m_spreadGestureState);
 
 	m_groupState->addTransition(this,
 		SIGNAL(signalMaximizeActiveWindow()), m_maximizeState);
@@ -300,6 +308,9 @@ void CardWindowManager::init()
 
 	m_switchGestureState->addTransition(this,
 		SIGNAL(signalMaximizeActiveWindow()), m_maximizeState);
+		
+	m_spreadGestureState->addTransition(this,
+		SIGNAL(signalMinimizeActiveWindow()), m_minimizeState);
 
 	// start off minimized
 	m_stateMachine->setInitialState(m_minimizeState);
@@ -2203,6 +2214,26 @@ void CardWindowManager::handleMinimizeGesture(BezelGesture* gesture)
     }
 }
 
+void CardWindowManager::handleSpreadGesture(QPinchGesture* gesture)
+{
+	if(gesture->state() == Qt::GestureUpdated)
+	{
+		if(m_activeGroup->cards().size() > 1)
+		{
+			qreal xf = gesture->scaleFactor() - 1;
+			xf *= 1.5;
+			xf += m_activeGroup->xDistanceFactor();
+			xf = min(xf, qreal(Settings::LunaSettings()->cardGroupingXDistanceFactor / m_activeGroup->cards().size())*12);
+			xf = max(xf, qreal(Settings::LunaSettings()->cardGroupingXDistanceFactor));
+			
+			m_activeGroup->setXDistanceFactor(xf);
+			slideAllGroups(true);
+		}
+	}
+    else if(gesture->state() == Qt::GestureFinished)
+    	minimizeActiveWindow();
+}
+
 void CardWindowManager::handleTapGestureMinimized(QTapGesture* event)
 {
 	if (!m_activeGroup)
@@ -2383,6 +2414,13 @@ void CardWindowManager::setGroupsMinimizeGesture(bool enable)
 {
 	for (int i=0; i<m_groups.size();i++) {
         m_groups[i]->setMinimizeGesture(enable);
+    }
+}
+
+void CardWindowManager::setGroupsSpreadGesture(bool enable)
+{
+	for (int i=0; i<m_groups.size();i++) {
+        //m_groups[i]->setSpreadGesture(enable);
     }
 }
 
@@ -3648,6 +3686,20 @@ void CardWindowManager::slotMinimizeGesture(BezelGesture* gesture)
     
     if (m_curState)
         m_curState->minimizeGestureEvent(gesture);
+}
+
+void CardWindowManager::slotSpreadGesture(QPinchGesture* gesture)
+{
+    if(m_curState == m_minimizeState && gesture->state() == Qt::GestureUpdated)
+    {
+		if(gesture->totalScaleFactor() <= 0.9 || gesture->totalScaleFactor() >= 1.1)
+		{
+			Q_EMIT signalEnterSpreadGestureState();
+		}
+    }
+    
+    if (m_curState)
+        m_curState->spreadGestureEvent(gesture);
 }
 
 void CardWindowManager::slotTouchToShareAppUrlTransfered(const std::string& appId)
