@@ -315,6 +315,7 @@ Q_SIGNALS:
 	void signalChangeCardWindow(bool next);
     void signalSwitchGesture(BezelGesture* gesture);
     void signalMinimizeGesture(BezelGesture* gesture);
+    void signalSpreadGesture(QPinchGesture* gesture);
 
 	void signalHideMenu();
 
@@ -410,6 +411,7 @@ private:
 	void handleUpSwipe();
 	void handleSwitchGesture(BezelGesture* gesture);
 	void handleMinimizeGesture(BezelGesture* gesture);
+	void handlePinchGesture(QPinchGesture* gesture);
 
 	Window* m_parentOfModalWindow;
 	Window* m_activeCardWindow;

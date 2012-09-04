@@ -306,6 +306,12 @@ bool SystemUiController::handleGestureEvent (QGestureEvent* event)
 			}
 		}
 	}
+	
+	t = event->gesture(Qt::PinchGesture);
+	if (t) {
+		QPinchGesture* pinch = static_cast<QPinchGesture*>(t);
+		handlePinchGesture(pinch);
+	}
 
 	if (Preferences::instance()->sysUiEnableNextPrevGestures() == true) {
 		if (Settings::LunaSettings()->uiType != Settings::UI_MINIMAL && !m_emergencyMode) {
@@ -2277,4 +2283,37 @@ void SystemUiController::handleMinimizeGesture(BezelGesture* gesture)
     	fired = false;
 	
 	Q_EMIT signalMinimizeGesture(gesture);
+}
+
+void SystemUiController::handlePinchGesture(QPinchGesture* gesture)
+{
+	if (m_deviceLocked || m_launcherShown || m_universalSearchShown || m_inDockMode)
+		return;
+					
+	static bool fired = false;
+	
+	if(gesture->state() == Qt::GestureUpdated)
+	{
+		//Trigger the spread
+		if(!fired)
+		{
+			//Should we fire?
+			if(gesture->totalScaleFactor() <= 0.9 || gesture->totalScaleFactor() >= 1.1)
+			{
+				if (m_dashboardOpened)
+					Q_EMIT signalCloseDashboard(true);
+				
+				if (m_menuVisible)
+					Q_EMIT signalHideMenu();
+				
+				fired = true;
+			}
+		}
+	}
+	else if(gesture->state() == Qt::GestureFinished)
+	{
+		fired = false;
+	}
+	
+	Q_EMIT signalSpreadGesture(gesture);
 }
