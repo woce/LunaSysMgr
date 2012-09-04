@@ -56,6 +56,7 @@ public:
 	virtual void tapAndHoldGestureEvent(QTapAndHoldGesture* event) {}
 	virtual void switchCardEvent(BezelGesture* gesture) {}
 	virtual void minimizeGestureEvent(BezelGesture* gesture) {}
+	virtual void spreadGestureEvent(QPinchGesture* gesture) {}
 
 	virtual void windowAdded(CardWindow* win);
 	virtual void windowRemoved(CardWindow* win);
@@ -322,6 +323,23 @@ public:
 				: CardWindowManagerState(wm) { setObjectName("MinimizeGesture"); }
 
 	virtual void minimizeGestureEvent(BezelGesture* gesture);
+
+protected:
+	virtual void onExit(QEvent* event);
+	virtual void onEntry(QEvent* event);
+};
+
+// -----------------------------------------------------------------------------------
+
+class SpreadGestureState : public CardWindowManagerState
+{
+	Q_OBJECT
+
+public:
+	SpreadGestureState(CardWindowManager* wm) 
+				: CardWindowManagerState(wm) { setObjectName("SpreadGesture"); }
+
+	virtual void spreadGestureEvent(QPinchGesture* gesture);
 
 protected:
 	virtual void onExit(QEvent* event);

@@ -885,3 +885,24 @@ void MinimizeGestureState::onExit(QEvent* event)
 	
 	m_wm->setGroupsMinimizeGesture(false);
 }
+
+// --------------------------------------------------------------------------------------------------
+
+void SpreadGestureState::spreadGestureEvent(QPinchGesture* gesture)
+{
+	m_wm->handleSpreadGesture(gesture);
+}
+
+void SpreadGestureState::onEntry(QEvent* event)
+{
+	CardWindowManagerState::onEntry(event);
+	
+	//m_wm->setGroupsMinimizeGesture(true);
+}
+
+void SpreadGestureState::onExit(QEvent* event)
+{
+	CardWindowManagerState::onExit(event);
+	
+	//m_wm->setGroupsMinimizeGesture(false);
+}
