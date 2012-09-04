@@ -307,10 +307,12 @@ bool SystemUiController::handleGestureEvent (QGestureEvent* event)
 		}
 	}
 	
-	t = event->gesture(Qt::PinchGesture);
-	if (t) {
-		QPinchGesture* pinch = static_cast<QPinchGesture*>(t);
-		handlePinchGesture(pinch);
+	if (Preferences::instance()->sysUiEnableSpreadGesture() == true) {
+		t = event->gesture(Qt::PinchGesture);
+		if (t) {
+			QPinchGesture* pinch = static_cast<QPinchGesture*>(t);
+			handlePinchGesture(pinch);
+		}
 	}
 
 	if (Preferences::instance()->sysUiEnableNextPrevGestures() == true) {

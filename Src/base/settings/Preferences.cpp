@@ -74,6 +74,7 @@ Preferences::Preferences()
 	, m_sysUiShowDeviceNameAsCarrierText(false)
 	, m_sysUiUseCustomCarrierString(false)
 	, m_sysUiCarrierString("HP webOS")
+	, m_sysUiEnableSpreadGesture(false)
 	, m_lockTimeout(0)
 	, m_lsHandle(0)
 	, m_imeEnabled(false)
@@ -592,6 +593,7 @@ bool Preferences::serverConnectCallback(LSHandle *sh, LSMessage *message, void *
 													   \"sysUiShowDeviceNameAsCarrierText\", \
 													   \"sysUiUseCustomCarrierString\", \
 													   \"sysUiCarrierString\", \
+													   \"sysUiEnableSpreadGesture\", \
 													   \"airplaneMode\", \
 													   \"hideWANAlert\", \
 													   \"roamingIndicator\", \
@@ -934,6 +936,13 @@ bool Preferences::getPreferencesCallback(LSHandle *sh, LSMessage *message, void 
 	if (label && !is_error(label)) {
 		if (prefObjPtr) {
 			prefObjPtr->m_sysUiCarrierString = json_object_get_string(label);
+		}
+	}
+
+	label = json_object_object_get(json, "sysUiEnableSpreadGesture");
+	if (label && !is_error(label)) {
+		if (prefObjPtr) {
+			prefObjPtr->m_sysUiEnableSpreadGesture = json_object_get_boolean(label);
 		}
 	}
 

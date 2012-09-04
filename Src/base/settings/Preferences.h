@@ -69,6 +69,7 @@ public:
 	bool sysUiShowDeviceNameAsCarrierText() const { return m_sysUiShowDeviceNameAsCarrierText; }
 	bool sysUiUseCustomCarrierString() const { return m_sysUiUseCustomCarrierString; }
 	std::string sysUiCarrierString() { return m_sysUiCarrierString; }
+	bool sysUiEnableSpreadGesture() const { return m_sysUiEnableSpreadGesture; }
 
 	bool imeEnabled() const { return m_imeEnabled; }
 	bool pinyinEnabled() const { return m_pinyinEnabled; }
@@ -154,6 +155,7 @@ private:
 	bool m_sysUiShowDeviceNameAsCarrierText;
 	bool m_sysUiUseCustomCarrierString;
 	std::string m_sysUiCarrierString;
+	bool m_sysUiEnableSpreadGesture;
 
 	bool m_imeEnabled;
 	bool m_pinyinEnabled;
