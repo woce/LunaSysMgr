@@ -307,7 +307,7 @@ bool SystemUiController::handleGestureEvent (QGestureEvent* event)
 		}
 	}
 
-	if (!t && Preferences::instance()->sysUiEnableNextPrevGestures() == true) {
+	if (Preferences::instance()->sysUiEnableNextPrevGestures() == true) {
 		if (Settings::LunaSettings()->uiType != Settings::UI_MINIMAL && !m_emergencyMode) {
 			//Fluid Gestures
 			t = event->gesture((Qt::GestureType) BezelGestureType);

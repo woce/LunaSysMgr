@@ -255,7 +255,7 @@ void CardWindowManager::init()
 	m_maximizeState->addTransition(this,
 		SIGNAL(signalGroupWindow()), m_groupState);
 	m_maximizeState->addTransition(this,
-		SIGNAL(signalEnterSwitch()), m_switchGestureState);
+		SIGNAL(signalEnterSwitchGestureState()), m_switchGestureState);
 	m_maximizeState->addTransition(this,
 		SIGNAL(signalEnterMinimizeGestureState()), m_minimizeGestureState);
 
@@ -3600,7 +3600,7 @@ void CardWindowManager::slotSwitchGesture(BezelGesture* gesture)
     {
 		if(m_curState == m_maximizeState && gesture->state() == Qt::GestureUpdated)
 		{
-			Q_EMIT signalEnterSwitch();
+			Q_EMIT signalEnterSwitchGestureState();
 		}
 		
 		if (m_curState)
@@ -3612,7 +3612,7 @@ void CardWindowManager::slotSwitchGesture(BezelGesture* gesture)
     	{
 			if(m_curState == m_maximizeState && gesture->state() == Qt::GestureUpdated && m_movement == MovementUnlocked)
 			{
-				Q_EMIT signalEnterSwitch();
+				Q_EMIT signalEnterSwitchGestureState();
 			}
 			
 			if (m_curState)

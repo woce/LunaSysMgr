@@ -151,7 +151,7 @@ Q_SIGNALS:
 	void signalEnterReorder(QPoint pt, int slice);
 	void signalExitReorder(bool canceled = true);
 	void signalSwitchGesture(BezelGesture* gesture);
-	void signalEnterSwitch();
+	void signalEnterSwitchGestureState();
 	void signalMinimizeGesture(BezelGesture* gesture);
 	void signalEnterMinimizeGestureState();
     void signalFirstCardRun();
