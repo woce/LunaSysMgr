@@ -233,7 +233,7 @@ static TabletKeymap::constUKeyArray sSeQwerty0_extended = { Qt::Key_0, Qt::Key_Q
 									KEY_3(1, cKey_Hide, cKey_Hide, sHide_extended),\
 
 static TabletKeymap::Layout sSeQwertyLayout = {
-	{ KEY_2(-0.5, Qt::Key_Q, Qt::Key_BracketLeft), SE_QWERTY_NUMBERS_10(1), KEY_1(-0.5, Qt::Key_Backspace) },
+	{ SE_QWERTY_NUMBERS_10(1) },
 	{ SE_QWERTY_TOP_11(1), KEY_1(2, Qt::Key_Backspace), NOKEY_1 },
 	{ KEY_2(-0.2, Qt::Key_A, Qt::Key_Less), SE_QWERTY_MID_11(1), KEY_1(1, Qt::Key_Return), NOKEY_1 },
 	{ KEY_1(0.8, Qt::Key_Shift), SE_QWERTY_LOW_9(1), KEY_1(2, Qt::Key_Shift), NOKEY_1 },
