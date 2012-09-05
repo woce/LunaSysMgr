@@ -269,7 +269,7 @@ private:
     
     void setGroupsMinimizeGesture(bool enable);
     
-    void setGroupsMiniMode();
+    void setGroupsMiniMode(qreal scale);
 
 	void disableCardRestoreToMaximized();
 	void restoreCardToMaximized();
@@ -403,6 +403,9 @@ private:
   bool m_groupDir;
   float m_groupVelocity;
   QTimer *m_groupMoveTimer;
+  
+	// Mini Cards Scale
+	qreal m_miniScale;
 
     bool m_playedAngryCardStretchSound;
 

@@ -122,7 +122,7 @@ CardWindowManager::CardWindowManager(int maxWidth, int maxHeight)
 	, m_groupShift(0)                 // For Group Tabs
 	, m_groupDir(true)                // For Group Tabs
 	, m_groupVelocity(0)              // For Group Tabs
-
+	, m_miniScale(0.35)	// For Mini Cards & Pinch Zoom
 				  
 {
     c_instance = this;
@@ -680,7 +680,7 @@ void CardWindowManager::prepareAddWindowSibling(CardWindow* win)
 				//Make sure to copy the settings over from the current group
 				if(m_activeGroup)
 				{
-					newGroup->setMiniMode(m_activeGroup->miniMode());
+					newGroup->setMiniModeScale(m_activeGroup->miniModeScale());
 					newGroup->setMinimizeGesture(m_activeGroup->minimizeGesture());
 					newGroup->setSwitchGesture(m_activeGroup->switchGesture());
 				}
@@ -2225,7 +2225,27 @@ void CardWindowManager::handleSpreadGesture(QPinchGesture* gesture)
 {
 	if(gesture->state() == Qt::GestureUpdated)
 	{
-		if(m_activeGroup && m_activeGroup->cards().size() > 1)
+		if(m_activeGroup && m_activeGroup->cards().size() == 1 && Preferences::instance()->sysUiEnableZoomGesture())
+		{
+			m_miniScale = qMax(qreal(m_activeGroup->miniModeScale() + (gesture->scaleFactor()-1)), 0.35f);
+			m_miniScale = qMin(m_miniScale, 1.35f);
+			for(int i=m_groups.size()-1; i>=0; i--)
+			{
+				m_groups[i]->setMiniModeScale(m_miniScale);
+			}
+			slideAllGroups(true);
+		}
+		if(m_activeGroup && m_activeGroup->cards().size() >= 1 && !Preferences::instance()->sysUiEnableSpreadGesture() && Preferences::instance()->sysUiEnableZoomGesture())
+		{
+			m_miniScale = qMax(qreal(m_activeGroup->miniModeScale() + (gesture->scaleFactor()-1)), 0.35f);
+			m_miniScale = qMin(m_miniScale, 1.35f);
+			for(int i=m_groups.size()-1; i>=0; i--)
+			{
+				m_groups[i]->setMiniModeScale(m_miniScale);
+			}
+			slideAllGroups(true);
+		}
+		else if(m_activeGroup && m_activeGroup->cards().size() > 1 && Preferences::instance()->sysUiEnableSpreadGesture())
 		{
 			qreal xf = gesture->scaleFactor() - 1;
 			xf *= 1.5;
@@ -2279,7 +2299,10 @@ void CardWindowManager::handleTapGestureMinimized(QTapGesture* event)
 		else {
 			if (pt.y() > 0 && Preferences::instance()->sysUiEnableMiniCards())
 			{
-				setGroupsMiniMode();
+				if(m_activeGroup->miniModeScale() != 1.0)
+					setGroupsMiniMode(1.0);
+				else
+					setGroupsMiniMode(m_miniScale);
 			}
 			
 			// poke the groups to make sure they animate to their final positions
@@ -2428,10 +2451,10 @@ void CardWindowManager::setGroupsMinimizeGesture(bool enable)
     }
 }
 
-void CardWindowManager::setGroupsMiniMode()
+void CardWindowManager::setGroupsMiniMode(qreal scale)
 {
 	for (int i=0; i<m_groups.size();i++) {
-        m_groups[i]->setMiniMode(!m_groups[i]->miniMode());
+        m_groups[i]->setMiniModeScale(scale);
     }
 }
 
