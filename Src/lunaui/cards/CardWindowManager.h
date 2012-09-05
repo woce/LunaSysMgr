@@ -269,7 +269,7 @@ private:
     
     void setGroupsMinimizeGesture(bool enable);
     
-    void setGroupsSpreadGesture(bool enable);
+    void setGroupsMiniMode();
 
 	void disableCardRestoreToMaximized();
 	void restoreCardToMaximized();

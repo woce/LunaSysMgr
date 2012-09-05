@@ -677,6 +677,13 @@ void CardWindowManager::prepareAddWindowSibling(CardWindow* win)
 				// spawn new group to the right of active group
 				CardGroup* newGroup = new CardGroup(kActiveScale, kNonActiveScale);
 				newGroup->setPos(QPointF(0, kWindowOrigin));
+				//Make sure to copy the settings over from the current group
+				if(m_activeGroup)
+				{
+					newGroup->setMiniMode(m_activeGroup->miniMode());
+					newGroup->setMinimizeGesture(m_activeGroup->minimizeGesture());
+					newGroup->setSwitchGesture(m_activeGroup->switchGesture());
+				}
 				newGroup->addToGroup(win);
 				m_groups.insert(m_groups.indexOf(m_activeGroup)+1, newGroup);
 				setActiveGroup(newGroup);
@@ -2270,7 +2277,12 @@ void CardWindowManager::handleTapGestureMinimized(QTapGesture* event)
 				maximizeActiveWindow();
 		}
 		else {
-
+			if (pt.y() > 0)
+			{
+				setGroupsMiniMode();
+				qCritical() << "Minicard Trigger Tapped";
+			}
+			
 			// poke the groups to make sure they animate to their final positions
 			slideAllGroups();
 		}
@@ -2417,10 +2429,10 @@ void CardWindowManager::setGroupsMinimizeGesture(bool enable)
     }
 }
 
-void CardWindowManager::setGroupsSpreadGesture(bool enable)
+void CardWindowManager::setGroupsMiniMode()
 {
 	for (int i=0; i<m_groups.size();i++) {
-        //m_groups[i]->setSpreadGesture(enable);
+        m_groups[i]->setMiniMode(!m_groups[i]->miniMode());
     }
 }
 
