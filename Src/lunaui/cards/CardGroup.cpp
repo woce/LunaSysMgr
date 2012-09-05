@@ -45,6 +45,7 @@ CardGroup::CardGroup(qreal curScale, qreal nonCurScale)
 	, m_currentPosition(0)
 	, m_switchGesture(false)
 	, m_minimizeGesture(false)
+	, m_miniMode(false)
 {
 	m_cardGroupRotFactor = Settings::LunaSettings()->cardGroupRotFactor;
 	m_cardGroupXDistanceFactor = Settings::LunaSettings()->cardGroupingXDistanceFactor;
@@ -756,23 +757,27 @@ QVector<CardWindow::Position> CardGroup::calculateOpenedPositions(qreal xOffset)
         }
 
 		positions[i].trans.setX(x);
-        if(!m_switchGesture)
-        {
-            positions[i].trans.setY(x > 0 ? x/15 : 0);
-            positions[i].trans.setZ(m_curScale);
-            positions[i].zRot = x/rot;
-        }
-        else if(m_minimizeGesture)
-        {
-            if(m_cards[0]->boundingRect().width() > m_cards[0]->boundingRect().height())
-                positions[i].trans.setY(46 * (m_curScale - 0.5) * 2); //Landscape
+		positions[i].trans.setY(x > 0 ? x/15 : 0);
+		if(m_miniMode)
+			positions[i].trans.setZ(m_curScale/2);
+		else
+			positions[i].trans.setZ(m_curScale);
+		positions[i].zRot = x/rot;
+		
+		if (xOffset != 0) {
+			qreal maxDistUngrouped = activeCardWidth;
+			qreal amtToCollapse = qMax((qreal)1.0, maxDistUngrouped - qAbs(xOffset)) / maxDistUngrouped;
+            
+            positions[i].trans.setX((x*amtToCollapse) + (1-amtToCollapse) * 10 * (i));
+            positions[i].trans.setY(positions[i].trans.y() * amtToCollapse);
+			if(m_miniMode)
+            	positions[i].trans.setZ((m_nonCurScale + (m_curScale-m_nonCurScale) * amtToCollapse)/2);
             else
-                positions[i].trans.setY(71 * (m_curScale - 0.5) * 2); //Portrait
-			
-            positions[i].trans.setZ(m_curScale);
-            positions[i].zRot = x/rot;
-        }
-        else
+            	positions[i].trans.setZ(m_nonCurScale + (m_curScale-m_nonCurScale) * amtToCollapse);
+            positions[i].zRot *= amtToCollapse;
+		}
+        
+        if(m_switchGesture)
         {
             //Horribly hacky method of determining offset
             //Will probably break on non-TP resolutions
@@ -783,16 +788,20 @@ QVector<CardWindow::Position> CardGroup::calculateOpenedPositions(qreal xOffset)
             
             positions[i].trans.setZ(1.0);
         }
-
-		if (xOffset != 0 && !m_switchGesture) {
-			qreal maxDistUngrouped = activeCardWidth;
-			qreal amtToCollapse = qMax((qreal)1.0, maxDistUngrouped - qAbs(xOffset)) / maxDistUngrouped;
             
-            positions[i].trans.setX((x*amtToCollapse/*+xOffset*/) + (1-amtToCollapse) * 10 * (i));
-            positions[i].trans.setY(positions[i].trans.y() * amtToCollapse);
-            positions[i].trans.setZ(m_nonCurScale + (m_curScale-m_nonCurScale) * amtToCollapse);
-            positions[i].zRot *= amtToCollapse;
-		}
+        if(m_minimizeGesture)
+        {
+            if(m_cards[0]->boundingRect().width() > m_cards[0]->boundingRect().height())
+                positions[i].trans.setY(46 * (m_curScale - 0.5) * 2); //Landscape
+            else
+                positions[i].trans.setY(71 * (m_curScale - 0.5) * 2); //Portrait
+			
+			if(m_miniMode)
+				positions[i].trans.setZ(m_curScale/2);
+			else
+				positions[i].trans.setZ(m_curScale);
+            positions[i].zRot = 0;
+        }
 	}
 
 	// update final width of group in parent group coords
