@@ -521,10 +521,25 @@ void MaximizeState::focusMaximizedCardWindow(bool focus)
 
 void MaximizeState::changeCardWindow(bool next)
 {
-	if (next)
-		m_wm->switchToPrevAppMaximized();
+	if(!Preferences::instance()->getInfiniteCardCyclingPreference())
+	{
+		if (next)
+			m_wm->switchToPrevAppMaximized();
+		else
+			m_wm->switchToNextAppMaximized();
+	}
 	else
-		m_wm->switchToNextAppMaximized();
+	{
+		// Change Card Window
+		m_wm->slotMinimizeActiveCardWindow();
+		
+		if(next)
+			m_wm->switchToPrevGroup();
+		else
+			m_wm->switchToNextGroup();
+		
+		m_wm->slotMaximizeActiveCardWindow();
+	}
 }
 
 void MaximizeState::relayout(const QRectF& r, bool animate)
