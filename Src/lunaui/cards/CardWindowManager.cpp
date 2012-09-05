@@ -2218,7 +2218,7 @@ void CardWindowManager::handleSpreadGesture(QPinchGesture* gesture)
 {
 	if(gesture->state() == Qt::GestureUpdated)
 	{
-		if(m_activeGroup->cards().size() > 1)
+		if(m_activeGroup && m_activeGroup->cards().size() > 1)
 		{
 			qreal xf = gesture->scaleFactor() - 1;
 			xf *= 1.5;
