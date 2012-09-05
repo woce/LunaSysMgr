@@ -45,7 +45,7 @@ CardGroup::CardGroup(qreal curScale, qreal nonCurScale)
 	, m_currentPosition(0)
 	, m_switchGesture(false)
 	, m_minimizeGesture(false)
-	, m_miniMode(false)
+	, m_miniModeScale(1.0)
 {
 	m_cardGroupRotFactor = Settings::LunaSettings()->cardGroupRotFactor;
 	m_cardGroupXDistanceFactor = Settings::LunaSettings()->cardGroupingXDistanceFactor;
@@ -758,10 +758,7 @@ QVector<CardWindow::Position> CardGroup::calculateOpenedPositions(qreal xOffset)
 
 		positions[i].trans.setX(x);
 		positions[i].trans.setY(x > 0 ? x/15 : 0);
-		if(m_miniMode)
-			positions[i].trans.setZ(m_curScale/2);
-		else
-			positions[i].trans.setZ(m_curScale);
+		positions[i].trans.setZ(m_curScale*m_miniModeScale);
 		positions[i].zRot = x/rot;
 		
 		if (xOffset != 0) {
@@ -770,10 +767,7 @@ QVector<CardWindow::Position> CardGroup::calculateOpenedPositions(qreal xOffset)
             
             positions[i].trans.setX((x*amtToCollapse) + (1-amtToCollapse) * 10 * (i));
             positions[i].trans.setY(positions[i].trans.y() * amtToCollapse);
-			if(m_miniMode)
-            	positions[i].trans.setZ((m_nonCurScale + (m_curScale-m_nonCurScale) * amtToCollapse)/2);
-            else
-            	positions[i].trans.setZ(m_nonCurScale + (m_curScale-m_nonCurScale) * amtToCollapse);
+            positions[i].trans.setZ((m_nonCurScale + (m_curScale-m_nonCurScale) * amtToCollapse) * m_miniModeScale);
             positions[i].zRot *= amtToCollapse;
 		}
         
@@ -796,10 +790,7 @@ QVector<CardWindow::Position> CardGroup::calculateOpenedPositions(qreal xOffset)
             else
                 positions[i].trans.setY(71 * (m_curScale - 0.5) * 2); //Portrait
 			
-			if(m_miniMode)
-				positions[i].trans.setZ(m_curScale/2);
-			else
-				positions[i].trans.setZ(m_curScale);
+			positions[i].trans.setZ(m_curScale * m_miniModeScale);
             positions[i].zRot = 0;
         }
 	}
@@ -828,7 +819,7 @@ QVector<CardWindow::Position> CardGroup::calculateClosedPositions()
 		positions[i].trans.setX(xOff);
         if(!m_switchGesture && !m_minimizeGesture)
         {
-            positions[i].trans.setZ(m_nonCurScale);
+            positions[i].trans.setZ(m_nonCurScale * m_miniModeScale);
         }
         else
         {

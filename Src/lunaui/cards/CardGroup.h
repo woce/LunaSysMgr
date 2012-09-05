@@ -170,8 +170,8 @@ public:
     bool minimizeGesture() const { return m_minimizeGesture; }
     void setMinimizeGesture(bool minimizeGesture) { m_minimizeGesture = minimizeGesture; }
     
-    bool miniMode() const { return m_miniMode; }
-    void setMiniMode(bool miniMode) { m_miniMode = miniMode; }
+    qreal miniModeScale() const { return m_miniModeScale; }
+    void setMiniModeScale(qreal scale) { m_miniModeScale = scale; }
 	
 	bool shouldMaximizeOrScroll(QPointF scenePt);
 	bool testHit(QPointF scenePt);
@@ -204,7 +204,7 @@ private:
 	qreal m_currentPosition;
     bool m_switchGesture;
     bool m_minimizeGesture;
-    bool m_miniMode;
+    qreal m_miniModeScale;
 };
 
 Q_DECLARE_METATYPE(CardWindow::Position)
