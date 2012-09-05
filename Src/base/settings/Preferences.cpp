@@ -75,6 +75,7 @@ Preferences::Preferences()
 	, m_sysUiUseCustomCarrierString(false)
 	, m_sysUiCarrierString("HP webOS")
 	, m_sysUiEnableSpreadGesture(false)
+	, m_sysUiEnableMiniCards(false)
 	, m_lockTimeout(0)
 	, m_lsHandle(0)
 	, m_imeEnabled(false)
@@ -594,6 +595,7 @@ bool Preferences::serverConnectCallback(LSHandle *sh, LSMessage *message, void *
 													   \"sysUiUseCustomCarrierString\", \
 													   \"sysUiCarrierString\", \
 													   \"sysUiEnableSpreadGesture\", \
+													   \"sysUiEnableMiniCards\", \
 													   \"airplaneMode\", \
 													   \"hideWANAlert\", \
 													   \"roamingIndicator\", \
@@ -943,6 +945,13 @@ bool Preferences::getPreferencesCallback(LSHandle *sh, LSMessage *message, void 
 	if (label && !is_error(label)) {
 		if (prefObjPtr) {
 			prefObjPtr->m_sysUiEnableSpreadGesture = json_object_get_boolean(label);
+		}
+	}
+
+	label = json_object_object_get(json, "sysUiEnableMiniCards");
+	if (label && !is_error(label)) {
+		if (prefObjPtr) {
+			prefObjPtr->m_sysUiEnableMiniCards = json_object_get_boolean(label);
 		}
 	}
 

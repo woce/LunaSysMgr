@@ -70,6 +70,7 @@ public:
 	bool sysUiUseCustomCarrierString() const { return m_sysUiUseCustomCarrierString; }
 	std::string sysUiCarrierString() { return m_sysUiCarrierString; }
 	bool sysUiEnableSpreadGesture() const { return m_sysUiEnableSpreadGesture; }
+	bool sysUiEnableMiniCards() const { return m_sysUiEnableMiniCards; }
 
 	bool imeEnabled() const { return m_imeEnabled; }
 	bool pinyinEnabled() const { return m_pinyinEnabled; }
@@ -156,6 +157,7 @@ private:
 	bool m_sysUiUseCustomCarrierString;
 	std::string m_sysUiCarrierString;
 	bool m_sysUiEnableSpreadGesture;
+	bool m_sysUiEnableMiniCards;
 
 	bool m_imeEnabled;
 	bool m_pinyinEnabled;

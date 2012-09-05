@@ -2277,10 +2277,9 @@ void CardWindowManager::handleTapGestureMinimized(QTapGesture* event)
 				maximizeActiveWindow();
 		}
 		else {
-			if (pt.y() > 0)
+			if (pt.y() > 0 && Preferences::instance()->sysUiEnableMiniCards())
 			{
 				setGroupsMiniMode();
-				qCritical() << "Minicard Trigger Tapped";
 			}
 			
 			// poke the groups to make sure they animate to their final positions
