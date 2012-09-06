@@ -682,7 +682,7 @@ void CardWindowManager::prepareAddWindowSibling(CardWindow* win)
 				{
 					newGroup->setMiniModeScale(m_activeGroup->miniModeScale());
 					newGroup->setMinimizeGesture(m_activeGroup->minimizeGesture());
-					newGroup->setSwitchGesture(m_activeGroup->switchGesture());
+					newGroup->setSizeOverride(m_activeGroup->sizeOverride());
 				}
 				newGroup->addToGroup(win);
 				m_groups.insert(m_groups.indexOf(m_activeGroup)+1, newGroup);
@@ -2133,7 +2133,7 @@ void CardWindowManager::handleMinimizeGesture(BezelGesture* gesture)
             	//Set all the cards' scales to 1
 				for(int i=m_groups.size()-1;i>=0;i--)
 				{
-					m_groups[i]->setNonCurScale(1.0);
+					m_groups[i]->setNonCurScale(0.925);
 					m_groups[i]->setCurScale(1.0);
 				}
 				//Lock the movement
@@ -2141,10 +2141,10 @@ void CardWindowManager::handleMinimizeGesture(BezelGesture* gesture)
             }
 			
 			//Calculate the current scales based on finger movement
-			nonCurScale = qMax(qreal(m_activeGroup->nonCurScale() + (delta/250.0)), kNonActiveScale);
-			curScale = qMax(qreal(m_activeGroup->curScale() + (delta/250.0)), kActiveScale);
-			nonCurScale = qMin(nonCurScale, qreal(1.0));
-			curScale = qMin(curScale, qreal(1.0));
+			nonCurScale = qMax(qreal(m_activeGroup->nonCurScale() + (delta/250.0)), kNonActiveScale * m_activeGroup->miniModeScale());
+			curScale = qMax(qreal(m_activeGroup->curScale() + (delta/250.0)), kActiveScale * m_activeGroup->miniModeScale());
+			nonCurScale = qMin(nonCurScale, 0.925f);
+			curScale = qMin(curScale, 1.0f);
 			
 			//Set all the cards' scales
 			for(int i=m_groups.size()-1;i>=0;i--)
@@ -2440,7 +2440,7 @@ void CardWindowManager::setActiveGroup(CardGroup* group)
 void CardWindowManager::setGroupsMaximized(bool enable)
 {
 	for (int i=0; i<m_groups.size();i++) {
-        m_groups[i]->setSwitchGesture(enable);
+        m_groups[i]->setSizeOverride(enable);
     }
 }
 

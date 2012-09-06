@@ -43,7 +43,7 @@ CardGroup::CardGroup(qreal curScale, qreal nonCurScale)
 	, m_rightWidth(0)
 	, m_activeCard(0)
 	, m_currentPosition(0)
-	, m_switchGesture(false)
+	, m_sizeOverride(false)
 	, m_minimizeGesture(false)
 	, m_miniModeScale(1.0)
 {
@@ -739,40 +739,41 @@ QVector<CardWindow::Position> CardGroup::calculateOpenedPositions(qreal xOffset)
 	for (int i=0; i<m_cards.size(); i++) {
 		
 		qreal x;
-        if(!m_switchGesture)
-        {
-            x = ((i - m_currentPosition) / 3.0) * activeCardWidth * m_cardGroupXDistanceFactor;
-        
-            if (x > rOff)
-                x = (x + (rOff * 4)) / 5;
-            else if (x < lOff)
-                x = (x + (lOff * 4)) / 5;
+		
+		//Minimized
+		if(!m_sizeOverride)
+		{
+			x = ((i - m_currentPosition) / 3.0) * activeCardWidth * m_cardGroupXDistanceFactor;
+		
+			if (x > rOff)
+				x = (x + (rOff * 4)) / 5;
+			else if (x < lOff)
+				x = (x + (lOff * 4)) / 5;
+	
+			positions[i].trans.setX(x);
+			positions[i].trans.setY(x > 0 ? x/15 : 0);
+			positions[i].trans.setZ(m_curScale*m_miniModeScale);
+			positions[i].zRot = x/rot;
+			
+			if (xOffset != 0) {
+				qreal maxDistUngrouped = activeCardWidth;
+				qreal amtToCollapse = qMax((qreal)1.0, maxDistUngrouped - qAbs(xOffset)) / maxDistUngrouped;
+				
+				positions[i].trans.setX((x*amtToCollapse) + (1-amtToCollapse) * 10 * (i));
+				positions[i].trans.setY(positions[i].trans.y() * amtToCollapse);
+				positions[i].trans.setZ((m_nonCurScale + (m_curScale-m_nonCurScale) * amtToCollapse) * m_miniModeScale);
+				positions[i].zRot *= amtToCollapse;
+			}
         }
-        else
+        //Maximized
+        else if(m_sizeOverride)
         {
             if(m_cards.size() > 1)
-                x = (i-m_cards.indexOf(m_activeCard)) * (m_cards[0]->boundingRect().width() + Settings::LunaSettings()->gapBetweenCardGroups);
+                x = (i-m_cards.indexOf(m_activeCard)) * (m_activeCard->boundingRect().width() + Settings::LunaSettings()->gapBetweenCardGroups);
             else
-                x = (i-m_cards.indexOf(m_activeCard)) * m_cards[0]->boundingRect().width();
-        }
-
-		positions[i].trans.setX(x);
-		positions[i].trans.setY(x > 0 ? x/15 : 0);
-		positions[i].trans.setZ(m_curScale*m_miniModeScale);
-		positions[i].zRot = x/rot;
-		
-		if (xOffset != 0) {
-			qreal maxDistUngrouped = activeCardWidth;
-			qreal amtToCollapse = qMax((qreal)1.0, maxDistUngrouped - qAbs(xOffset)) / maxDistUngrouped;
-            
-            positions[i].trans.setX((x*amtToCollapse) + (1-amtToCollapse) * 10 * (i));
-            positions[i].trans.setY(positions[i].trans.y() * amtToCollapse);
-            positions[i].trans.setZ((m_nonCurScale + (m_curScale-m_nonCurScale) * amtToCollapse) * m_miniModeScale);
-            positions[i].zRot *= amtToCollapse;
-		}
-        
-        if(m_switchGesture)
-        {
+                x = (i-m_cards.indexOf(m_activeCard)) * m_activeCard->boundingRect().width();
+        	positions[i].trans.setX(x);   
+        	
             //Horribly hacky method of determining offset
             //Will probably break on non-TP resolutions
             if(m_cards[0]->boundingRect().width() > m_cards[0]->boundingRect().height())
@@ -782,16 +783,29 @@ QVector<CardWindow::Position> CardGroup::calculateOpenedPositions(qreal xOffset)
             
             positions[i].trans.setZ(1.0);
         }
-            
-        if(m_minimizeGesture)
+        
+        //Minimize Gesture
+        if(m_minimizeGesture && m_sizeOverride)
         {
+			x = (i - m_cards.indexOf(m_activeCard)) //Starting point - active card should always be at 0
+			* (m_activeCard->boundingRect().width() + Settings::LunaSettings()->gapBetweenCardGroups) //Card x difference
+			* 2.2 //Scaler to make the cards 'swoosh in' during the gesture
+			* qMax(qreal(m_curScale - 0.5),0.0f) //Limiter
+			* m_miniModeScale; //Mini Mode Adaptation
+	
+			positions[i].trans.setX(x);
+			
             if(m_cards[0]->boundingRect().width() > m_cards[0]->boundingRect().height())
                 positions[i].trans.setY(46 * (m_curScale - 0.5) * 2); //Landscape
             else
                 positions[i].trans.setY(71 * (m_curScale - 0.5) * 2); //Portrait
 			
-			positions[i].trans.setZ(m_curScale * m_miniModeScale);
-            positions[i].zRot = 0;
+			if(xOffset == 0)
+				positions[i].trans.setZ(m_curScale);
+			else
+				positions[i].trans.setZ(m_nonCurScale);
+			
+			//positions[i].zRot = (x/rot);
         }
 	}
 
@@ -817,11 +831,12 @@ QVector<CardWindow::Position> CardGroup::calculateClosedPositions()
 	for (int i=m_cards.size()-1; i>=0; i--) {
 
 		positions[i].trans.setX(xOff);
-        if(!m_switchGesture && !m_minimizeGesture)
+        if(!m_sizeOverride)
         {
             positions[i].trans.setZ(m_nonCurScale * m_miniModeScale);
         }
-        else
+        
+        if(m_sizeOverride)
         {
             positions[i].trans.setZ(1.0);
         }

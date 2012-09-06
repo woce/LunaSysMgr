@@ -164,8 +164,8 @@ public:
 	qreal xDistanceFactor() const { return m_cardGroupXDistanceFactor; }
 	void setXDistanceFactor(const qreal xDistanceFactor) { m_cardGroupXDistanceFactor = xDistanceFactor; }
     
-    bool switchGesture() const { return m_switchGesture; }
-    void setSwitchGesture(bool switchGesture) { m_switchGesture = switchGesture; }
+    bool sizeOverride() const { return m_sizeOverride; }
+    void setSizeOverride(bool sizeOverride) { m_sizeOverride = sizeOverride; }
     
     bool minimizeGesture() const { return m_minimizeGesture; }
     void setMinimizeGesture(bool minimizeGesture) { m_minimizeGesture = minimizeGesture; }
@@ -202,7 +202,7 @@ private:
 	// 1: 	3-4 cards with the second card being the center of the group
 	// N:	>4 cards where valid positions are between 1.0 and N - 4 + 1
 	qreal m_currentPosition;
-    bool m_switchGesture;
+    bool m_sizeOverride;
     bool m_minimizeGesture;
     qreal m_miniModeScale;
 };
