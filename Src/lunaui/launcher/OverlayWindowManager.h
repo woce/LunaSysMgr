@@ -127,6 +127,9 @@ public:
 	// property 'dockShown' access functions
 	bool dockShown() const;
 	void setDockShown(bool shown);
+	
+	// wave launcher animation
+	void animateWaveDock(QPoint pos);
 
 	// property 'universalSearchShown' access functions
 	bool universalSearchShown() const;

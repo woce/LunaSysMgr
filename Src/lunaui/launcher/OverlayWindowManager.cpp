@@ -1516,6 +1516,28 @@ void OverlayWindowManager::setDockShown(bool shown)
 	SystemUiController::instance()->setDockShown(shown);
 }
 
+void OverlayWindowManager::animateWaveDock(QPoint pos)
+{
+	if(!m_dockWin) {
+		return;
+	}
+
+	if((m_dockWin->pos().y() == pos.y()) && ((!m_dockPosAnimation) || (m_dockPosAnimation->state() == QAbstractAnimation::Stopped))) {
+		// already there
+		return;
+	}
+
+	if(!m_dockPosAnimation) {
+		m_dockWin->setPos(QPoint(m_dockWin->pos().x(),pos.y()));
+		return;
+	}
+	
+	m_dockPosAnimation->stop();
+	m_dockPosAnimation->setStartValue(m_dockWin->pos());
+	m_dockPosAnimation->setEndValue(QPoint(m_dockWin->pos().x(),pos.y()));
+	m_dockPosAnimation->start();
+}
+
 bool OverlayWindowManager::launcherVisible() const
 {
 	return (m_launcherState != OverlayWindowManager::StateNoLauncher);
