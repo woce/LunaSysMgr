@@ -100,11 +100,11 @@ QGestureRecognizer::Result BezelGestureRecognizer::recognize(QGesture *state,
 				//Left border
 				if(startPos.x() <= kGestureBorderSize)
 				{
+					q->setEdge(Left);
 					//If the finger has moved in a horizontal direction
 					if(delta.x() >= kGestureTriggerDistance && delta.x() > delta.y())
 					{
 						//Set variables and trigger gesture
-						q->setEdge(Left);
 						fired = true;
 						result = QGestureRecognizer::TriggerGesture;
 					}
@@ -113,24 +113,26 @@ QGestureRecognizer::Result BezelGestureRecognizer::recognize(QGesture *state,
 				//Right border
 				if(startPos.x() >= displayBounds.x() - kGestureBorderSize)
 				{
+					q->setEdge(Right);
 					//If the finger has moved in a horizontal direction
 					if(delta.x() <= -kGestureTriggerDistance && delta.x() < delta.y())
 					{
 						//Set variables and trigger gesture
-						q->setEdge(Right);
 						fired = true;
 						result = QGestureRecognizer::TriggerGesture;
 					}
 				}
 				
+				qCritical() << startPos << displayBounds << delta;
+				
 				//Bottom border
 				if(startPos.y() >= displayBounds.y() - kGestureBorderSize)
 				{
+					q->setEdge(Bottom);
 					//If the finger has moved in a vertical direction
 					if(delta.y() <= -kGestureTriggerDistance && delta.y() < delta.x())
 					{
 						//Set variables and trigger gesture
-						q->setEdge(Bottom);
 						fired = true;
 						result = QGestureRecognizer::TriggerGesture;
 					}
