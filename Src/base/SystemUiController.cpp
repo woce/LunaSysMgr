@@ -231,6 +231,7 @@ bool SystemUiController::handleEvent(QEvent *event)
 		return handleKeyEvent(static_cast<QKeyEvent*>(event));
 	case QEvent::MouseButtonPress:
 	case QEvent::MouseButtonRelease:
+	case QEvent::MouseMove:
 		return handleMouseEvent(static_cast<QMouseEvent*>(event));
 	case QEvent::Gesture:
 		return handleGestureEvent (static_cast<QGestureEvent*>(event));
@@ -250,53 +251,63 @@ bool SystemUiController::handleMouseEvent(QMouseEvent *event)
 	{
 		m_waveBar = false;
 		QTapGesture *tapGes = new QTapGesture(this);
-		tapGes->setHotSpot(event->pos());
+		tapGes->setHotSpot(event->pos() - QPoint(0,64));
 		tapGes->setState(Qt::GestureFinished);
 		QList<QGesture *> tapGestureList;
 		tapGestureList.append(tapGes);
 		QGestureEvent event(tapGestureList);
 		event.setWidget(WindowServer::instance()->viewport());
 		OverlayWindowManager::systemActiveInstance()->quicklaunchBar()->quickLaunchBar()->tapGesture(tapGes, &event);
-		//QApplication::sendEvent(WindowServer::instance(), &event);
 		Q_EMIT signalHideDock();
+		if(CardWindowManager::instance()->isMinimized())
+			Q_EMIT signalShowDock();
+		return true;
 	}
+
+	//Adhere to 'Enable Advanced Gestures' setting
+	if (!Preferences::instance()->sysUiEnableNextPrevGestures()) return false;
+
+	int xDown = event->pos().x();
+	int yDown = event->pos().y();
+
+	//Transform touch coordinates to match the screen orientation
+	switch (WindowServer::instance()->getUiOrientation())
+	{
+		case OrientationEvent::Orientation_Up: //Speakers Down
+			//Do nothing
+			break;
+		case OrientationEvent::Orientation_Down: //Speakers Up
+			xDown = (m_uiWidth-1) - xDown;
+			yDown = (m_uiHeight-1) - yDown;
+			break;
+		case OrientationEvent::Orientation_Left: //Speakers Right
+		{
+			int temp = (m_uiHeight-1) - xDown;
+			xDown = yDown;
+			yDown = temp;
+			break;
+		}
+		case OrientationEvent::Orientation_Right: //Speakers Left
+		{
+			int temp = xDown;
+			xDown = (m_uiWidth-1) - yDown;
+			yDown = temp;
+			break;
+		}
+		default:
+			g_warning("Unknown UI orientation");
+			return false;
+	}
+	
+	if(event->type() == QEvent::MouseMove && m_waveBar)
+	{
+		qCritical() << "Mouse Move";
+		OverlayWindowManager::systemActiveInstance()->animateWaveDock(QPoint(xDown,yDown - (m_uiHeight/2) - 64));
+		return true;
+	}
+	
 	if(event->type() == QEvent::MouseButtonPress)
 	{
-		//Adhere to 'Enable Advanced Gestures' setting
-		if (!Preferences::instance()->sysUiEnableNextPrevGestures()) return false;
-
-		int xDown = event->pos().x();
-		int yDown = event->pos().y();
-
-		//Transform touch coordinates to match the screen orientation
-		switch (WindowServer::instance()->getUiOrientation())
-		{
-			case OrientationEvent::Orientation_Up: //Speakers Down
-				//Do nothing
-				break;
-			case OrientationEvent::Orientation_Down: //Speakers Up
-				xDown = (m_uiWidth-1) - xDown;
-				yDown = (m_uiHeight-1) - yDown;
-				break;
-			case OrientationEvent::Orientation_Left: //Speakers Right
-			{
-				int temp = (m_uiHeight-1) - xDown;
-				xDown = yDown;
-				yDown = temp;
-				break;
-			}
-			case OrientationEvent::Orientation_Right: //Speakers Left
-			{
-				int temp = xDown;
-				xDown = (m_uiWidth-1) - yDown;
-				yDown = temp;
-				break;
-			}
-			default:
-				g_warning("Unknown UI orientation");
-				return false;
-		}
-
 		//Eat mousedown events if they fall inside the gesture border
 		if (xDown <= kGestureBorderSize && yDown > m_statusBarPtr->boundingRect().height()) return true;
 		if (xDown >= (m_uiWidth-1) - kGestureBorderSize && yDown > m_statusBarPtr->boundingRect().height()) return true;
@@ -2383,10 +2394,11 @@ void SystemUiController::handleTapAndHoldGesture(QTapAndHoldGesture* gesture)
 	
 	if(gesture->state() == Qt::GestureFinished)
 	{
-		if(yDown >= (m_uiHeight-1) - kGestureBorderSize)
+		if(yDown >= (m_uiHeight-1) - (kGestureBorderSize * 2))
 		{
 			m_waveBar = true;
 			Q_EMIT signalShowDock();
+			OverlayWindowManager::systemActiveInstance()->animateWaveDock(QPoint(xDown,yDown - (m_uiHeight/2) - 64));
 		}
 	}
 }
