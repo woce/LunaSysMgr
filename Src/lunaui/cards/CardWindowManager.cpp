@@ -1559,9 +1559,15 @@ void CardWindowManager::handleFlickGestureMinimized(QGestureEvent* event)
 		else {
 			// advance to the next/previous group if we are Outer Locked or were still unbiased horizontally
 			if (flick->velocity().x() > 0)
+			{
+				setActiveGroup(groupClosestToCenterHorizontally());
 				switchToPrevGroup();
+			}
 			else
+			{
+				setActiveGroup(groupClosestToCenterHorizontally());
 				switchToNextGroup();
+			}
 		}
 	}
 }
