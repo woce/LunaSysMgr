@@ -77,6 +77,7 @@ Preferences::Preferences()
 	, m_sysUiEnableSpreadGesture(false)
 	, m_sysUiEnableMiniCards(false)
 	, m_sysUiEnableZoomGesture(false)
+	, m_sysUiEnableWaveLauncher(false)
 	, m_lockTimeout(0)
 	, m_lsHandle(0)
 	, m_imeEnabled(false)
@@ -598,6 +599,7 @@ bool Preferences::serverConnectCallback(LSHandle *sh, LSMessage *message, void *
 													   \"sysUiEnableSpreadGesture\", \
 													   \"sysUiEnableMiniCards\", \
 													   \"sysUiEnableZoomGesture\", \
+													   \"sysUiEnableWaveLauncher\", \
 													   \"airplaneMode\", \
 													   \"hideWANAlert\", \
 													   \"roamingIndicator\", \
@@ -961,6 +963,13 @@ bool Preferences::getPreferencesCallback(LSHandle *sh, LSMessage *message, void 
 	if (label && !is_error(label)) {
 		if (prefObjPtr) {
 			prefObjPtr->m_sysUiEnableZoomGesture = json_object_get_boolean(label);
+		}
+	}
+
+	label = json_object_object_get(json, "sysUiEnableWaveLauncher");
+	if (label && !is_error(label)) {
+		if (prefObjPtr) {
+			prefObjPtr->m_sysUiEnableWaveLauncher = json_object_get_boolean(label);
 		}
 	}
 

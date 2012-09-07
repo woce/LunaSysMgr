@@ -72,6 +72,7 @@ public:
 	bool sysUiEnableSpreadGesture() const { return m_sysUiEnableSpreadGesture; }
 	bool sysUiEnableMiniCards() const { return m_sysUiEnableMiniCards; }
 	bool sysUiEnableZoomGesture() const { return m_sysUiEnableZoomGesture; }
+	bool sysUiEnableWaveLauncher() const { return m_sysUiEnableWaveLauncher; }
 
 	bool imeEnabled() const { return m_imeEnabled; }
 	bool pinyinEnabled() const { return m_pinyinEnabled; }
@@ -160,6 +161,7 @@ private:
 	bool m_sysUiEnableSpreadGesture;
 	bool m_sysUiEnableMiniCards;
 	bool m_sysUiEnableZoomGesture;
+	bool m_sysUiEnableWaveLauncher;
 
 	bool m_imeEnabled;
 	bool m_pinyinEnabled;
