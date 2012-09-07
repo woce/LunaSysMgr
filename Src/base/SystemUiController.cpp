@@ -52,6 +52,8 @@
 #include "StatusBarServicesConnector.h"
 #include "CardWindowManager.h"
 
+#include <QApplication>
+
 #define MESSAGES_INTERNAL_FILE "SysMgrMessagesInternal.h"
 #include <PIpcMessageMacros.h>
 
@@ -93,6 +95,7 @@ SystemUiController::SystemUiController()
 	m_emergencyMode = false;
 	m_inDockMode = false;
     m_universalSearchShown = false;
+    m_waveBar = false;
 
 	m_activeCardWindow = 0;
 	m_maximizedCardWindow = 0;
@@ -243,6 +246,20 @@ bool SystemUiController::handleEvent(QEvent *event)
 
 bool SystemUiController::handleMouseEvent(QMouseEvent *event)
 {
+	if(event->type() == QEvent::MouseButtonRelease && m_waveBar)
+	{
+		m_waveBar = false;
+		QTapGesture *tapGes = new QTapGesture(this);
+		tapGes->setHotSpot(event->pos());
+		tapGes->setState(Qt::GestureFinished);
+		QList<QGesture *> tapGestureList;
+		tapGestureList.append(tapGes);
+		QGestureEvent event(tapGestureList);
+		event.setWidget(WindowServer::instance()->viewport());
+		OverlayWindowManager::systemActiveInstance()->quicklaunchBar()->quickLaunchBar()->tapGesture(tapGes, &event);
+		//QApplication::sendEvent(WindowServer::instance(), &event);
+		Q_EMIT signalHideDock();
+	}
 	if(event->type() == QEvent::MouseButtonPress)
 	{
 		//Adhere to 'Enable Advanced Gestures' setting
@@ -311,6 +328,15 @@ bool SystemUiController::handleGestureEvent (QGestureEvent* event)
 	if (t) {
 		QPinchGesture* pinch = static_cast<QPinchGesture*>(t);
 		handlePinchGesture(pinch);
+	}
+	
+	if (Preferences::instance()->sysUiEnableWaveLauncher())
+	{
+		t = event->gesture(Qt::TapAndHoldGesture);
+		if (t) {
+			QTapAndHoldGesture* hold = static_cast<QTapAndHoldGesture*>(t);
+			handleTapAndHoldGesture(hold);
+		}
 	}
 
 	if (Preferences::instance()->sysUiEnableNextPrevGestures() == true) {
@@ -2258,6 +2284,9 @@ void SystemUiController::handleMinimizeGesture(BezelGesture* gesture)
 	if (m_deviceLocked)
 		return;
 	
+	if (m_waveBar)
+		return;
+	
 	if (m_dashboardOpened)
 		Q_EMIT signalCloseDashboard(true);
 	
@@ -2316,4 +2345,48 @@ void SystemUiController::handlePinchGesture(QPinchGesture* gesture)
 	}
 	
 	Q_EMIT signalSpreadGesture(gesture);
+}
+
+void SystemUiController::handleTapAndHoldGesture(QTapAndHoldGesture* gesture)
+{
+	int xDown = gesture->hotSpot().toPoint().x();
+	int yDown = gesture->hotSpot().toPoint().y();
+
+	//Transform touch coordinates to match the screen orientation
+	switch (WindowServer::instance()->getUiOrientation())
+	{
+		case OrientationEvent::Orientation_Up: //Speakers Down
+			//Do nothing
+			break;
+		case OrientationEvent::Orientation_Down: //Speakers Up
+			xDown = (m_uiWidth-1) - xDown;
+			yDown = (m_uiHeight-1) - yDown;
+			break;
+		case OrientationEvent::Orientation_Left: //Speakers Right
+		{
+			int temp = (m_uiHeight-1) - xDown;
+			xDown = yDown;
+			yDown = temp;
+			break;
+		}
+		case OrientationEvent::Orientation_Right: //Speakers Left
+		{
+			int temp = xDown;
+			xDown = (m_uiWidth-1) - yDown;
+			yDown = temp;
+			break;
+		}
+		default:
+			g_warning("Unknown UI orientation");
+			return;
+	}
+	
+	if(gesture->state() == Qt::GestureFinished)
+	{
+		if(yDown >= (m_uiHeight-1) - kGestureBorderSize)
+		{
+			m_waveBar = true;
+			Q_EMIT signalShowDock();
+		}
+	}
 }

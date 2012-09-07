@@ -67,6 +67,8 @@ public:
     bool handleMouseEvent(QMouseEvent *event);
     bool handleGestureEvent(QGestureEvent *event);
     bool handleCustomEvent(QEvent *event);
+    
+    void postTap(QPoint pos);
 
 	void setCardWindowAboutToMaximize();
 
@@ -344,6 +346,7 @@ Q_SIGNALS:
 
 	void signalShowDock();
 	void signalHideDock();
+	void signalWaveLaunch();
 	void signalFadeDock(bool fadeOut);
 
 	void signalOpenDashboard();
@@ -412,6 +415,7 @@ private:
 	void handleSwitchGesture(BezelGesture* gesture);
 	void handleMinimizeGesture(BezelGesture* gesture);
 	void handlePinchGesture(QPinchGesture* gesture);
+	void handleTapAndHoldGesture(QTapAndHoldGesture* gesture);
 
 	Window* m_parentOfModalWindow;
 	Window* m_activeCardWindow;
@@ -432,6 +436,7 @@ private:
 	bool m_dockShown;
 	bool m_inDockMode;
     bool m_universalSearchShown;
+    bool m_waveBar;
 
 	bool m_emergencyMode;
 
