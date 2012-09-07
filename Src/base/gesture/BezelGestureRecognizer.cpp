@@ -123,8 +123,6 @@ QGestureRecognizer::Result BezelGestureRecognizer::recognize(QGesture *state,
 					}
 				}
 				
-				qCritical() << startPos << displayBounds << delta;
-				
 				//Bottom border
 				if(startPos.y() >= displayBounds.y() - kGestureBorderSize)
 				{
