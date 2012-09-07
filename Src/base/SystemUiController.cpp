@@ -301,7 +301,6 @@ bool SystemUiController::handleMouseEvent(QMouseEvent *event)
 	
 	if(event->type() == QEvent::MouseMove && m_waveBar)
 	{
-		qCritical() << "Mouse Move";
 		OverlayWindowManager::systemActiveInstance()->animateWaveDock(QPoint(xDown,yDown - (m_uiHeight/2) - 64));
 		return true;
 	}
