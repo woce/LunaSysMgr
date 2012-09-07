@@ -78,6 +78,8 @@ public:
 
 	virtual bool acceptIncomingIcon(IconBase * p_newIcon);
 	virtual bool releaseTransferredIcon(IconBase * p_transferredIcon);
+	
+	virtual bool tapGesture(QTapGesture *tapEvent,QGestureEvent * baseGestureEvent);
 
 	virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option=0,QWidget *widget=0);
 	virtual void paintOffscreen(QPainter *painter);
@@ -129,7 +131,6 @@ protected:
 	virtual bool gestureEvent(QGestureEvent *gestureEvent) { return true; }
 	virtual bool flickGesture(FlickGesture *flickEvent,QGestureEvent * baseGestureEvent);
 	virtual bool tapAndHoldGesture(QTapAndHoldGesture *tapHoldEvent,QGestureEvent * baseGestureEvent);
-	virtual bool tapGesture(QTapGesture *tapEvent,QGestureEvent * baseGestureEvent);
 
 	void setAppLaunchFeedback(IconBase* pIcon);
 
