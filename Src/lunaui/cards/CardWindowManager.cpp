@@ -2273,46 +2273,47 @@ void CardWindowManager::handleTapGestureMinimized(QTapGesture* event)
 	if (!m_activeGroup)
 		return;
 
-	//Things that must be done here:
-	//--Perform a hit test to determine if the current active group was hit
+	// If the tap is on the active group
 	if (m_activeGroup->testHit(event->position())) {
-		//--If it was, then we need to see if the card hit was in a reasonable
-		//  range of the active card.  If it was then maximize it.  If it was not
-		//  slide the card fan over to make it more visible.
+		// We need to see if the card hit was in a reasonable range of the active card.
+		// If it was then maximize it.
 		if (m_activeGroup->shouldMaximizeOrScroll(event->position())) {
 			m_activeGroup->setActiveCard(event->position());
 			maximizeActiveWindow();
 		}
+		// If it was not, slide the card fan over to make it more visible.
 		else {
 			slideAllGroups();
 		}
 	}
 	else {
-		// first test to see if the tap is not above/below the active group
+		// If the tap is to the left/right of the active group
 		QPointF pt = mapFromScene(event->position());
 		if (!m_activeGroup->withinColumn(pt)) {
-			if (pt.x() < 0) {
-				// tapped to the left of the active group
-				switchToPrevGroup();
-			}
-			else {
-				// tapped to the right of the active group
-				switchToNextGroup();
-			}
-
-			if(Preferences::instance()->sysUiEnableMaximizeEdges())
-				maximizeActiveWindow();
-		}
-		else {
-			if (pt.y() > 0 && Preferences::instance()->sysUiEnableMiniCards())
+			//Loop through all the other groups and see if one was tapped
+			for(int i=m_groups.size()-1; i>=0; i--)
 			{
-				if(m_activeGroup->miniModeScale() != 1.0)
-					setGroupsMiniMode(1.0);
-				else
-					setGroupsMiniMode(m_miniScale);
+				if(m_groups[i] == m_activeGroup) continue;
+				//If so, set it active and maximize
+				if(m_groups[i]->testHit(event->position()))
+				{
+					setActiveGroup(m_groups[i]);
+					slideAllGroups();
+					if(Preferences::instance()->sysUiEnableMaximizeEdges())
+						maximizeActiveWindow();
+					return;
+				}
 			}
-			
-			// poke the groups to make sure they animate to their final positions
+		}
+		
+		//If the tap dos not hit any card, toggle mini mode
+		if (Preferences::instance()->sysUiEnableMiniCards())
+		{
+			if(m_activeGroup->miniModeScale() != 1.0)
+				setGroupsMiniMode(1.0);
+			else
+				setGroupsMiniMode(m_miniScale);
+				
 			slideAllGroups();
 		}
 	}
