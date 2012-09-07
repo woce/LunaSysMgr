@@ -97,6 +97,9 @@ public:
 
 	void enableShadow();
 	void disableShadow();
+	
+	void enableFullScreen();
+	void disableFullScreen();
 
 	virtual void setPrepareAddedToWindowManager() { m_prepareAddedToWm = true; }
 	bool prepareAddedToWindowManager() const { return m_prepareAddedToWm; }
@@ -260,8 +263,6 @@ protected:
 	bool pinchEvent(QGestureEvent* event);
 	bool mouseSingleClickEvent(QGestureEvent* singleClick);
 	bool coversScreenFully() const;
-	void enableFullScreen();
-	void disableFullScreen();
 	virtual void fullScreenEnabled(bool val);
 	void updateDirectRenderingPosition();
 

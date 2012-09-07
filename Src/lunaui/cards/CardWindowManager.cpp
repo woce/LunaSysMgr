@@ -2072,6 +2072,7 @@ void CardWindowManager::handleSwitchGesture(BezelGesture* gesture)
             
             //If the movement is unlocked, lock it and reset the pivot
             if (m_movement == MovementUnlocked) {
+            	m_activeGroup->activeCard()->disableFullScreen();
                 m_movement = MovementHLocked;
                 m_activeGroupPivot = 0;
             }
