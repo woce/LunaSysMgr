@@ -247,42 +247,28 @@ bool SystemUiController::handleEvent(QEvent *event)
 
 bool SystemUiController::handleMouseEvent(QMouseEvent *event)
 {
-	if(event->type() == QEvent::MouseButtonRelease && m_waveBar)
-	{
-		m_waveBar = false;
-		QTapGesture *tapGes = new QTapGesture(this);
-		tapGes->setHotSpot(event->pos() - QPoint(0,64));
-		tapGes->setState(Qt::GestureFinished);
-		QList<QGesture *> tapGestureList;
-		tapGestureList.append(tapGes);
-		QGestureEvent event(tapGestureList);
-		event.setWidget(WindowServer::instance()->viewport());
-		OverlayWindowManager::systemActiveInstance()->quicklaunchBar()->quickLaunchBar()->tapGesture(tapGes, &event);
-		Q_EMIT signalHideDock();
-		return true;
-	}
-
-	//Adhere to 'Enable Advanced Gestures' setting
-	if (!Preferences::instance()->sysUiEnableNextPrevGestures()) return false;
-
 	int xDown = event->pos().x();
 	int yDown = event->pos().y();
+	QPoint offset(0,0);
 
 	//Transform touch coordinates to match the screen orientation
 	switch (WindowServer::instance()->getUiOrientation())
 	{
 		case OrientationEvent::Orientation_Up: //Speakers Down
 			//Do nothing
+			offset = QPoint(0,-60);
 			break;
 		case OrientationEvent::Orientation_Down: //Speakers Up
 			xDown = (m_uiWidth-1) - xDown;
 			yDown = (m_uiHeight-1) - yDown;
+			offset = QPoint(0,60);
 			break;
 		case OrientationEvent::Orientation_Left: //Speakers Right
 		{
 			int temp = (m_uiHeight-1) - xDown;
 			xDown = yDown;
 			yDown = temp;
+			offset = QPoint(60,0);
 			break;
 		}
 		case OrientationEvent::Orientation_Right: //Speakers Left
@@ -290,6 +276,7 @@ bool SystemUiController::handleMouseEvent(QMouseEvent *event)
 			int temp = xDown;
 			xDown = (m_uiWidth-1) - yDown;
 			yDown = temp;
+			offset = QPoint(-60,0);
 			break;
 		}
 		default:
@@ -305,10 +292,35 @@ bool SystemUiController::handleMouseEvent(QMouseEvent *event)
 	
 	if(event->type() == QEvent::MouseButtonPress)
 	{
+		//Adhere to 'Enable Advanced Gestures' setting
+		if (!Preferences::instance()->sysUiEnableNextPrevGestures()) return false;
+		
 		//Eat mousedown events if they fall inside the gesture border
 		if (xDown <= kGestureBorderSize && yDown > m_statusBarPtr->boundingRect().height()) return true;
 		if (xDown >= (m_uiWidth-1) - kGestureBorderSize && yDown > m_statusBarPtr->boundingRect().height()) return true;
 		if (yDown >= (m_uiHeight-1) - kGestureBorderSize) return true;
+	}
+	
+	if(event->type() == QEvent::MouseButtonRelease && m_waveBar)
+	{
+		m_waveBar = false;
+		if(xDown < (m_uiWidth - 1) - 128)
+		{
+			QTapGesture *tapGes = new QTapGesture(this);
+			tapGes->setHotSpot(event->pos() + offset);
+			tapGes->setState(Qt::GestureFinished);
+			QList<QGesture *> tapGestureList;
+			tapGestureList.append(tapGes);
+			QGestureEvent event(tapGestureList);
+			event.setWidget(WindowServer::instance()->viewport());
+			OverlayWindowManager::systemActiveInstance()->quicklaunchBar()->quickLaunchBar()->tapGesture(tapGes, &event);
+		}
+		else
+		{
+			Q_EMIT signalToggleLauncher();
+		}
+		Q_EMIT signalHideDock();
+		return true;
 	}
 	
 	//Otherwise, let them through
@@ -2389,7 +2401,7 @@ void SystemUiController::handleTapAndHoldGesture(QTapAndHoldGesture* gesture)
 			return;
 	}
 	
-	if(gesture->state() == Qt::GestureFinished)
+	if(gesture->state() == Qt::GestureFinished && (CardWindowManager::instance()->isMinimized() || CardWindowManager::instance()->isMaximized()))
 	{
 		if(yDown >= (m_uiHeight-1) - (kGestureBorderSize * 2))
 		{
