@@ -102,6 +102,8 @@ QuickLaunchBar::QuickLaunchBar(const QRectF& geom,Quicklauncher * p_quicklaunche
 , m_iconInMotionCurrentIndex(-1)
 , m_iconShowingFeedback(0)
 , m_feedbackTimer(this)
+, m_wave(false)
+, m_wavePos(0)
 {
 
 	m_qp_backgroundTranslucent =
@@ -278,21 +280,22 @@ inline void QuickLaunchBar::paintBackground(QPainter * painter)
 	painter->setBrushOrigin(m_geom.topLeft());
     painter->setRenderHint(QPainter::HighQualityAntialiasing);
 	
-	if(false) //Draw the standard 'box'
+	if(!m_wave) //Draw the standard 'box'
 	{
 		painter->fillRect(m_geom, QBrush(*(*m_qp_currentBg)));
 	}
 	else //Draw the 'stache
 	{
+		QPoint offset(m_wavePos,0);
 		QPainterPath path(QPoint(m_geom.left() * 2,m_geom.bottom()));
-		path.cubicTo(QPoint(0,0), QPoint(m_geom.left(),m_geom.top()/2), QPoint(0,m_geom.top()));
-		path.cubicTo(QPoint(m_geom.right(),m_geom.top()/2), QPoint(0,0), QPoint(m_geom.right()*2,m_geom.bottom()));
-		path.lineTo(QPoint(m_geom.right()*2, m_geom.bottom()*4));
-		path.cubicTo(QPoint(0,m_geom.bottom()), QPoint(m_geom.right()/2,m_geom.bottom()/2), QPoint(0,16));
-		path.cubicTo(QPoint(m_geom.left()/2,m_geom.bottom()/2), QPoint(0,m_geom.bottom()), QPoint(m_geom.left()*2, m_geom.bottom()*4));
-		path.lineTo(QPoint(m_geom.left() * 2,m_geom.bottom()));
+		path.cubicTo(QPoint(0,0) + offset, QPoint(m_geom.left(),m_geom.top()/2) + offset, QPoint(0,m_geom.top()) + offset);
+		path.cubicTo(QPoint(m_geom.right(),m_geom.top()/2) + offset, QPoint(0,0) + offset, QPoint(m_geom.right()*2,m_geom.bottom()) + offset);
+		path.lineTo(QPoint(m_geom.right()*2, m_geom.bottom()*4) + offset);
+		path.cubicTo(QPoint(0,m_geom.bottom()) + offset, QPoint(m_geom.right()/2,m_geom.bottom()/2) + offset, QPoint(0,16) + offset);
+		path.cubicTo(QPoint(m_geom.left()/2,m_geom.bottom()/2) + offset, QPoint(0,m_geom.bottom()) + offset, QPoint(m_geom.left()*2, m_geom.bottom()*4) + offset);
+		path.lineTo(QPoint(m_geom.left() * 2,m_geom.bottom()) + offset);
 		
-		QLinearGradient linearGrad(QPointF(0, 0), QPointF(m_geom.width(), 0));
+		QLinearGradient linearGrad(QPointF(m_wavePos, 0), QPointF(m_geom.width() + m_wavePos, 0));
 		linearGrad.setColorAt(0.1, QColor(0,0,0,100));
 		linearGrad.setColorAt(0.25, QColor(0,0,0,160));
 		linearGrad.setColorAt(0.5, QColor(0,0,0,200));
@@ -345,7 +348,8 @@ bool QuickLaunchBar::resize(const QSize& s)
 		// everything ordered symmetrically in the QL bar.
 		m_qp_launcherAccessButton->setPos(
 				m_geom.topRight()
-				+QPoint(-m_qp_launcherAccessButton->geometry().width(), LayoutSettings::settings()->quickLaunchBarLauncherAccessButtonOffsetPx.y() + m_qp_launcherAccessButton->geometry().height()/2));
+				+QPoint(-m_qp_launcherAccessButton->geometry().width(),
+				LayoutSettings::settings()->quickLaunchBarLauncherAccessButtonOffsetPx.y() + m_qp_launcherAccessButton->geometry().height()/2));
 
 		m_qp_launcherAccessButton->setVisible(true);
 	}
@@ -699,11 +703,12 @@ void QuickLaunchBar::rearrangeIcons(bool animate)
 		m_qp_reorderAnimationGroup = new QParallelAnimationGroup(this);
 	}
 
-	m_layoutAnchorsXcoords.clear();
+	m_layoutAnchorsCoords.clear();
 	
 	int idx=0;
 	QPointF iconPos;
-	iconPos.setY(m_itemsY);
+	qint32 barFullW = (m_itemAreaXrange.second-m_itemAreaXrange.first); //Calculate bar width
+	qint32 barHalfW = barFullW/2;
 
 	for (QList<QPointer<IconBase> >::iterator it = m_iconItems.begin();
 			it != m_iconItems.end();++it)
@@ -714,15 +719,20 @@ void QuickLaunchBar::rearrangeIcons(bool animate)
 			continue;
 		}
 		
-		
-		qint32 barFullW = (m_itemAreaXrange.second-m_itemAreaXrange.first); //Calculate bar width
-		qint32 barHalfW = barFullW/2;
 		qint32 iconX = m_itemAreaXrange.first; //Start on the left
 		iconX += (barHalfW/m_iconItems.length()); //Offset from left
 		iconX += (barFullW/m_iconItems.length()) * idx; //How far to the right should we go?
-
+		qint32 iconY = 0.0;
+		iconY += m_itemsY; //Start at the normal Y position
+		if(m_wave)
+		{
+			iconY += m_itemsY; //A little bit lower
+			iconY += sin((iconX - (m_wavePos + barHalfW - 96.0))/qreal(barHalfW/2)) * 64.0;
+		}
+			
 		if(pIcon != m_qp_iconInMotion) {// no need to move the icon that the user is dragging around
 			iconPos.setX(iconX);
+			iconPos.setY(iconY);
 
 			if(pIcon->pos() != iconPos) {
 				if(!animate) {
@@ -738,12 +748,25 @@ void QuickLaunchBar::rearrangeIcons(bool animate)
 			}
 		}
 		
-		//Pipe the current position into m_layoutAnchorsXcoords
+		//Pipe the current position into m_layoutAnchorsCoords
 		//This determines the icon positions for tap checks
-		m_layoutAnchorsXcoords << iconPos.x();
+		m_layoutAnchorsCoords << iconPos;
 		
 		idx++;
 	}
+	
+	if(m_wave)
+	{
+		qreal launcherButtonY = LayoutSettings::settings()->quickLaunchBarLauncherAccessButtonOffsetPx.y(); //Launcher icon offset
+		launcherButtonY += sin((m_qp_launcherAccessButton->pos().x() - (m_wavePos + barHalfW - 96.0))/qreal(barHalfW/2)) * 64.0;
+		m_qp_launcherAccessButton->setPos(m_qp_launcherAccessButton->pos().x(), launcherButtonY);
+	}
+	else
+		m_qp_launcherAccessButton->setPos(
+				m_geom.topRight()
+				+QPoint(-m_qp_launcherAccessButton->geometry().width(),
+				LayoutSettings::settings()->quickLaunchBarLauncherAccessButtonOffsetPx.y() + m_qp_launcherAccessButton->geometry().height()/2));
+	
 
 	if(animate && !m_qp_reorderAnimationGroup.isNull() && m_qp_reorderAnimationGroup->animationCount()) {
 		m_qp_reorderAnimationGroup->start(QAbstractAnimation::DeleteWhenStopped);
@@ -1121,8 +1144,10 @@ IconBase* QuickLaunchBar::iconAtCoordinate(const QPointF& coord)
 	// determine if the provided coordinates falls into the bounds of any of the icons in the m_iconItems list
 	for (IconListIter it = m_iconItems.begin(); it != m_iconItems.end(); ++it)
 	{
-		qint32 slotX = m_layoutAnchorsXcoords.value(index);
-		QRectF target = (*it)->geometry().translated(QPoint(slotX, m_itemsY));
+		qreal slotX = m_layoutAnchorsCoords.value(index).x();
+		qreal slotY = m_layoutAnchorsCoords.value(index).y();
+		QRectF target;
+		target = (*it)->geometry().translated(QPoint(slotX, slotY));
 
 		if (target.contains(coord))
 		{

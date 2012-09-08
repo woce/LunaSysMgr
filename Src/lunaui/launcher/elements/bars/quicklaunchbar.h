@@ -100,6 +100,15 @@ public:
 	virtual bool restoreFromSave();
 
 	void cancelLaunchFeedback();
+	
+	bool wave() const { return m_wave; }
+	void setWave(bool wave) { m_wave = wave; }
+	int wavePos() const { return m_wavePos; }
+	void setWavePos(int x) { m_wavePos = x; }
+
+	//rearrange all the current items based on the current sizing
+	//PREREQUISITE: m_itemAreaXRange and m_itemsY are set correctly
+	virtual void rearrangeIcons(bool animate = false);
 
 public Q_SLOTS:
 
@@ -133,10 +142,6 @@ protected:
 	virtual bool tapAndHoldGesture(QTapAndHoldGesture *tapHoldEvent,QGestureEvent * baseGestureEvent);
 
 	void setAppLaunchFeedback(IconBase* pIcon);
-
-	//rearrange all the current items based on the current sizing
-	//PREREQUISITE: m_itemAreaXRange and m_itemsY are set correctly
-	virtual void rearrangeIcons(bool animate = false);
 
 	//index >= items.size will append safely
 	virtual qint32 getCurrentIconListIndex(IconBase * p_icon);
@@ -251,7 +256,7 @@ protected:
 	//...and this is the centerline
 	qint32					m_itemsY;
 
-	QList<qint32>			m_layoutAnchorsXcoords;
+	QList<QPointF>				m_layoutAnchorsCoords;
 	QList<QPointer<IconBase> > m_iconItems;				//must be IN ORDER, as arranged on the QL. ==> when a reorder on the QL happens, this list needs to be shuffled to match
 	typedef QList<QPointer<IconBase> >::iterator IconListIter;
 
@@ -262,6 +267,9 @@ protected:
 
 	IconBase* m_iconShowingFeedback;
 	QTimer    m_feedbackTimer;
+	
+	bool m_wave;
+	int m_wavePos;
 };
 
 #endif /* QUICKLAUNCHBAR_H_ */
