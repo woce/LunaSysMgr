@@ -259,8 +259,6 @@ bool SystemUiController::handleMouseEvent(QMouseEvent *event)
 		event.setWidget(WindowServer::instance()->viewport());
 		OverlayWindowManager::systemActiveInstance()->quicklaunchBar()->quickLaunchBar()->tapGesture(tapGes, &event);
 		Q_EMIT signalHideDock();
-		if(CardWindowManager::instance()->isMinimized())
-			Q_EMIT signalShowDock();
 		return true;
 	}
 
