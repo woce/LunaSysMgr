@@ -276,7 +276,32 @@ inline void QuickLaunchBar::paintBackground(QPainter * painter)
 	//not sure if this is necessary (to save, i mean...the origin call IS necessary)
 	QPoint sbo = painter->brushOrigin();
 	painter->setBrushOrigin(m_geom.topLeft());
-	painter->fillRect(m_geom, QBrush(*(*m_qp_currentBg)));
+    painter->setRenderHint(QPainter::HighQualityAntialiasing);
+	
+	if(false) //Draw the standard 'box'
+	{
+		painter->fillRect(m_geom, QBrush(*(*m_qp_currentBg)));
+	}
+	else //Draw the 'stache
+	{
+		QPainterPath path(QPoint(m_geom.left() * 2,m_geom.bottom()));
+		path.cubicTo(QPoint(0,0), QPoint(m_geom.left(),m_geom.top()/2), QPoint(0,m_geom.top()));
+		path.cubicTo(QPoint(m_geom.right(),m_geom.top()/2), QPoint(0,0), QPoint(m_geom.right()*2,m_geom.bottom()));
+		path.lineTo(QPoint(m_geom.right()*2, m_geom.bottom()*4));
+		path.cubicTo(QPoint(0,m_geom.bottom()), QPoint(m_geom.right()/2,m_geom.bottom()/2), QPoint(0,16));
+		path.cubicTo(QPoint(m_geom.left()/2,m_geom.bottom()/2), QPoint(0,m_geom.bottom()), QPoint(m_geom.left()*2, m_geom.bottom()*4));
+		path.lineTo(QPoint(m_geom.left() * 2,m_geom.bottom()));
+		
+		QLinearGradient linearGrad(QPointF(0, 0), QPointF(m_geom.width(), 0));
+		linearGrad.setColorAt(0.1, QColor(0,0,0,100));
+		linearGrad.setColorAt(0.25, QColor(0,0,0,160));
+		linearGrad.setColorAt(0.5, QColor(0,0,0,200));
+		linearGrad.setColorAt(0.75, QColor(0,0,0,160));
+		linearGrad.setColorAt(0.9, QColor(0,0,0,100));
+     
+		painter->fillPath(path, QBrush(linearGrad));
+	}
+	
 	painter->setBrushOrigin(sbo);
 }
 

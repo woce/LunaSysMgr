@@ -301,7 +301,7 @@ bool SystemUiController::handleMouseEvent(QMouseEvent *event)
 	
 	if(event->type() == QEvent::MouseMove && m_waveBar)
 	{
-		OverlayWindowManager::systemActiveInstance()->animateWaveDock(QPoint(xDown,yDown - (m_uiHeight/2) - 64));
+		OverlayWindowManager::systemActiveInstance()->animateWaveDock(QPoint(xDown - (m_uiWidth/2),yDown - (m_uiHeight/2) - 64));
 		return true;
 	}
 	
@@ -2397,7 +2397,7 @@ void SystemUiController::handleTapAndHoldGesture(QTapAndHoldGesture* gesture)
 		{
 			m_waveBar = true;
 			Q_EMIT signalShowDock();
-			OverlayWindowManager::systemActiveInstance()->animateWaveDock(QPoint(xDown,yDown - (m_uiHeight/2) - 64));
+			OverlayWindowManager::systemActiveInstance()->animateWaveDock(QPoint(xDown - (m_uiWidth/2),yDown - (m_uiHeight/2) - 64));
 		}
 	}
 }

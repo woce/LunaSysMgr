@@ -1522,19 +1522,20 @@ void OverlayWindowManager::animateWaveDock(QPoint pos)
 		return;
 	}
 
-	if((m_dockWin->pos().y() == pos.y()) && ((!m_dockPosAnimation) || (m_dockPosAnimation->state() == QAbstractAnimation::Stopped))) {
+	if((m_dockWin->pos() == pos)
+	&& ((!m_dockPosAnimation) || (m_dockPosAnimation->state() == QAbstractAnimation::Stopped))) {
 		// already there
 		return;
 	}
 
 	if(!m_dockPosAnimation) {
-		m_dockWin->setPos(QPoint(m_dockWin->pos().x(),pos.y()));
+		m_dockWin->setPos(pos);
 		return;
 	}
 	
 	m_dockPosAnimation->stop();
 	m_dockPosAnimation->setStartValue(m_dockWin->pos());
-	m_dockPosAnimation->setEndValue(QPoint(m_dockWin->pos().x(),pos.y()));
+	m_dockPosAnimation->setEndValue(pos);
 	m_dockPosAnimation->start();
 }
 
