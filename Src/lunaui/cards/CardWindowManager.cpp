@@ -341,6 +341,10 @@ bool CardWindowManager::isMinimized() {
 	return (m_curState == m_minimizeState);
 }
 
+bool CardWindowManager::isMaximized() {
+	return (m_curState == m_maximizeState);
+}
+
 void CardWindowManager::updateAngryCardThreshold()
 {
     kAngryCardThreshold = ((boundingRect().height() / 2) * 0.30);

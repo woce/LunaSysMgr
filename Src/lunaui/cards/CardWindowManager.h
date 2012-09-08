@@ -89,6 +89,7 @@ public:
 	void stopMoveGroupTimer() {m_groupMoveTimer->stop();}
 	virtual bool okToResize();
 	virtual bool isMinimized();
+	virtual bool isMaximized();
 
 	CardWindow* modalParent() const { return m_parentOfModalCard; }
 
