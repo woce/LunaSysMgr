@@ -287,20 +287,33 @@ inline void QuickLaunchBar::paintBackground(QPainter * painter)
 	else //Draw the 'stache
 	{
 		QPoint offset(m_wavePos,0);
-		QPainterPath path(QPoint(m_geom.left() * 2,m_geom.bottom()));
-		path.cubicTo(QPoint(0,0) + offset, QPoint(m_geom.left(),m_geom.top()/2) + offset, QPoint(0,m_geom.top()) + offset);
-		path.cubicTo(QPoint(m_geom.right(),m_geom.top()/2) + offset, QPoint(0,0) + offset, QPoint(m_geom.right()*2,m_geom.bottom()) + offset);
-		path.lineTo(QPoint(m_geom.right()*2, m_geom.bottom()*4) + offset);
-		path.cubicTo(QPoint(0,m_geom.bottom()) + offset, QPoint(m_geom.right()/2,m_geom.bottom()/2) + offset, QPoint(0,16) + offset);
-		path.cubicTo(QPoint(m_geom.left()/2,m_geom.bottom()/2) + offset, QPoint(0,m_geom.bottom()) + offset, QPoint(m_geom.left()*2, m_geom.bottom()*4) + offset);
+		
+		//Start at the top-left vertex
+		QPainterPath path(QPoint(m_geom.left()*2,m_geom.bottom()*2) + offset);
+		
+		//Top Curve
+		path.cubicTo(QPoint(m_geom.left()/2,m_geom.bottom()) + offset, QPoint(m_geom.left(),m_geom.top()*1.75) + offset, QPoint(0,m_geom.top()*1.75) + offset);
+		path.cubicTo(QPoint(m_geom.right(),m_geom.top()*1.75) + offset, QPoint(m_geom.right()/2,m_geom.bottom()) + offset, QPoint(m_geom.right()*2,m_geom.bottom()*2) + offset);
+		
+		//Right hand line
+		path.lineTo(QPoint(m_geom.right()*2, m_geom.bottom()*3) + offset);
+		
+		//Bottom Curve
+		path.cubicTo(QPoint(m_geom.right()/2,m_geom.bottom()*2) + offset, QPoint(m_geom.right(),0) + offset, QPoint(0,0) + offset);
+		path.cubicTo(QPoint(m_geom.left(),0) + offset, QPoint(m_geom.left()/2,m_geom.bottom()*2) + offset, QPoint(m_geom.left()*2, m_geom.bottom()*3) + offset);
+		
+		//Left hand line
 		path.lineTo(QPoint(m_geom.left() * 2,m_geom.bottom()) + offset);
 		
-		QLinearGradient linearGrad(QPointF(m_wavePos, 0), QPointF(m_geom.width() + m_wavePos, 0));
-		linearGrad.setColorAt(0.1, QColor(0,0,0,100));
+		//Gradient
+		QLinearGradient linearGrad(QPointF(-m_geom.width() /2 + m_wavePos, 0), QPointF(m_geom.width()*1.5 + m_wavePos, 0));
+		linearGrad.setColorAt(0.025, QColor(0,0,0,0));
+		linearGrad.setColorAt(0.1, QColor(0,0,0,50));
 		linearGrad.setColorAt(0.25, QColor(0,0,0,160));
 		linearGrad.setColorAt(0.5, QColor(0,0,0,200));
 		linearGrad.setColorAt(0.75, QColor(0,0,0,160));
-		linearGrad.setColorAt(0.9, QColor(0,0,0,100));
+		linearGrad.setColorAt(0.9, QColor(0,0,0,50));
+		linearGrad.setColorAt(0.975, QColor(0,0,0,0));
      
 		painter->fillPath(path, QBrush(linearGrad));
 	}
@@ -727,7 +740,7 @@ void QuickLaunchBar::rearrangeIcons(bool animate)
 		if(m_wave)
 		{
 			iconY += m_itemsY; //A little bit lower
-			iconY += sin((iconX - (m_wavePos + barHalfW - 96.0))/qreal(barHalfW/2)) * 64.0;
+			iconY += sin((iconX - (m_wavePos + barHalfW + 32))/qreal(barHalfW/1.5)) * 64.0;
 		}
 			
 		if(pIcon != m_qp_iconInMotion) {// no need to move the icon that the user is dragging around
@@ -758,7 +771,7 @@ void QuickLaunchBar::rearrangeIcons(bool animate)
 	if(m_wave)
 	{
 		qreal launcherButtonY = LayoutSettings::settings()->quickLaunchBarLauncherAccessButtonOffsetPx.y(); //Launcher icon offset
-		launcherButtonY += sin((m_qp_launcherAccessButton->pos().x() - (m_wavePos + barHalfW - 96.0))/qreal(barHalfW/2)) * 64.0;
+		launcherButtonY += sin((m_qp_launcherAccessButton->pos().x() - (m_wavePos + barHalfW))/qreal(barHalfW/1.5)) * 64.0;
 		m_qp_launcherAccessButton->setPos(m_qp_launcherAccessButton->pos().x(), launcherButtonY);
 	}
 	else
