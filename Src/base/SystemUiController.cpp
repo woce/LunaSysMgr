@@ -250,13 +250,16 @@ bool SystemUiController::handleMouseEvent(QMouseEvent *event)
 	int xDown = event->pos().x();
 	int yDown = event->pos().y();
 	QPoint offset(0,0);
+	
+	static int startX;
+	static int startY;
 
 	//Transform touch coordinates to match the screen orientation
 	switch (WindowServer::instance()->getUiOrientation())
 	{
 		case OrientationEvent::Orientation_Up: //Speakers Down
 			//Do nothing
-			offset = QPoint(0,-60);
+			offset = QPoint(0,-16);
 			break;
 		case OrientationEvent::Orientation_Down: //Speakers Up
 			xDown = (m_uiWidth-1) - xDown;
@@ -268,7 +271,7 @@ bool SystemUiController::handleMouseEvent(QMouseEvent *event)
 			int temp = (m_uiHeight-1) - xDown;
 			xDown = yDown;
 			yDown = temp;
-			offset = QPoint(60,0);
+			offset = QPoint(16,0);
 			break;
 		}
 		case OrientationEvent::Orientation_Right: //Speakers Left
@@ -276,7 +279,7 @@ bool SystemUiController::handleMouseEvent(QMouseEvent *event)
 			int temp = xDown;
 			xDown = (m_uiWidth-1) - yDown;
 			yDown = temp;
-			offset = QPoint(-60,0);
+			offset = QPoint(-16,0);
 			break;
 		}
 		default:
@@ -284,14 +287,37 @@ bool SystemUiController::handleMouseEvent(QMouseEvent *event)
 			return false;
 	}
 	
-	if(event->type() == QEvent::MouseMove && m_waveBar)
+	if(event->type() == QEvent::MouseMove)
 	{
-		OverlayWindowManager::systemActiveInstance()->animateWaveDock(QPoint(xDown - (m_uiWidth/2),yDown - (m_uiHeight/2) - 64));
-		return true;
+		if(m_waveBar)
+		{
+			yDown = max(yDown, m_uiWidth/4);
+			OverlayWindowManager::systemActiveInstance()->animateWaveDock(QPoint(xDown - (m_uiWidth/2),yDown - (m_uiHeight/2) - 16));
+			return true;
+		}
+		else
+		{
+				if (Preferences::instance()->sysUiEnableWaveLauncher())
+				{
+				QPoint diff(xDown - startX, yDown - startY);
+				if(abs(diff.x()) > kGestureBorderSize * 2
+				&& startY >= m_uiHeight - kGestureBorderSize * 2
+				&& yDown >= m_uiHeight - kGestureBorderSize * 2
+				&& abs(diff.x()) > abs(diff.y()))
+				{
+					m_waveBar = true;
+					Q_EMIT signalShowDock();
+				}
+			}
+		}
 	}
 	
 	if(event->type() == QEvent::MouseButtonPress)
 	{
+		//Note start x for Wave Launcher
+		startX = xDown;
+		startY = yDown;
+		 
 		//Adhere to 'Enable Advanced Gestures' setting
 		if (!Preferences::instance()->sysUiEnableNextPrevGestures()) return false;
 		
@@ -351,15 +377,6 @@ bool SystemUiController::handleGestureEvent (QGestureEvent* event)
 	if (t) {
 		QPinchGesture* pinch = static_cast<QPinchGesture*>(t);
 		handlePinchGesture(pinch);
-	}
-	
-	if (Preferences::instance()->sysUiEnableWaveLauncher())
-	{
-		t = event->gesture(Qt::TapAndHoldGesture);
-		if (t) {
-			QTapAndHoldGesture* hold = static_cast<QTapAndHoldGesture*>(t);
-			handleTapAndHoldGesture(hold);
-		}
 	}
 
 	if (Preferences::instance()->sysUiEnableNextPrevGestures() == true && !m_waveBar) {
@@ -2365,49 +2382,4 @@ void SystemUiController::handlePinchGesture(QPinchGesture* gesture)
 	}
 	
 	Q_EMIT signalSpreadGesture(gesture);
-}
-
-void SystemUiController::handleTapAndHoldGesture(QTapAndHoldGesture* gesture)
-{
-	int xDown = gesture->hotSpot().toPoint().x();
-	int yDown = gesture->hotSpot().toPoint().y();
-
-	//Transform touch coordinates to match the screen orientation
-	switch (WindowServer::instance()->getUiOrientation())
-	{
-		case OrientationEvent::Orientation_Up: //Speakers Down
-			//Do nothing
-			break;
-		case OrientationEvent::Orientation_Down: //Speakers Up
-			xDown = (m_uiWidth-1) - xDown;
-			yDown = (m_uiHeight-1) - yDown;
-			break;
-		case OrientationEvent::Orientation_Left: //Speakers Right
-		{
-			int temp = (m_uiHeight-1) - xDown;
-			xDown = yDown;
-			yDown = temp;
-			break;
-		}
-		case OrientationEvent::Orientation_Right: //Speakers Left
-		{
-			int temp = xDown;
-			xDown = (m_uiWidth-1) - yDown;
-			yDown = temp;
-			break;
-		}
-		default:
-			g_warning("Unknown UI orientation");
-			return;
-	}
-	
-	if(gesture->state() == Qt::GestureFinished && (CardWindowManager::instance()->isMinimized() || CardWindowManager::instance()->isMaximized()))
-	{
-		if(yDown >= (m_uiHeight-1) - (kGestureBorderSize * 2))
-		{
-			m_waveBar = true;
-			Q_EMIT signalShowDock();
-			OverlayWindowManager::systemActiveInstance()->animateWaveDock(QPoint(xDown - (m_uiWidth/2),yDown - (m_uiHeight/2) - 64));
-		}
-	}
 }
