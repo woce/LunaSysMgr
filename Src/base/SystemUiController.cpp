@@ -362,7 +362,7 @@ bool SystemUiController::handleGestureEvent (QGestureEvent* event)
 		}
 	}
 
-	if (Preferences::instance()->sysUiEnableNextPrevGestures() == true) {
+	if (Preferences::instance()->sysUiEnableNextPrevGestures() == true && !m_waveBar) {
 		if (Settings::LunaSettings()->uiType != Settings::UI_MINIMAL && !m_emergencyMode) {
 			//Fluid Gestures
 			t = event->gesture((Qt::GestureType) BezelGestureType);
@@ -2305,9 +2305,6 @@ void SystemUiController::handleMinimizeGesture(BezelGesture* gesture)
 	}
 	
 	if (m_deviceLocked)
-		return;
-	
-	if (m_waveBar)
 		return;
 	
 	if (m_dashboardOpened)
