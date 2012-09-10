@@ -40,6 +40,7 @@
 #include "reorderablepage.h"
 #include "operationalsettings.h"
 #include "icongeometrysettings.h"
+#include "CardWindowManager.h"
 
 #include <QPainter>
 #include <QString>
@@ -122,7 +123,7 @@ QuickLaunchBar::QuickLaunchBar(const QRectF& geom,Quicklauncher * p_quicklaunche
 		m_qp_launcherAccessButton->setParentItem(this);
 		m_qp_launcherAccessButton->setVisible(false);
 
-		connect(m_qp_launcherAccessButton,SIGNAL(signalContact()),this,SIGNAL(signalToggleLauncher()));
+		connect(m_qp_launcherAccessButton,SIGNAL(signalContact()),this, SLOT(slotLauncherButton()));
 	}
 	setAcceptTouchEvents(true);
 	grabGesture((Qt::GestureType) SysMgrGestureFlick);
@@ -540,7 +541,7 @@ bool QuickLaunchBar::sceneEvent(QEvent* event)
 		QGesture* g = ge->gesture(Qt::TapGesture);
 		if (g) {
 			QTapGesture* tap = static_cast<QTapGesture*>(g);
-			if (tap->state() == Qt::GestureFinished) {
+			if (tap->state() == Qt::GestureFinished && !m_wave) {
 				return tapGesture(tap,ge);
 			}
 		}
@@ -1732,4 +1733,15 @@ void QuickLaunchBar::cancelLaunchFeedback()
 void QuickLaunchBar::slotCancelLaunchFeedback()
 {
 	cancelLaunchFeedback();
+}
+
+void QuickLaunchBar::slotLauncherButton()
+{
+	//Fix for erroneous wave launcher behaviour
+	if(CardWindowManager::instance()->isMaximized())
+	{
+		Q_EMIT signalHideDock();
+	}
+	
+	Q_EMIT signalToggleLauncher();
 }
