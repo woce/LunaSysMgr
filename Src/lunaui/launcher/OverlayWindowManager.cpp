@@ -1084,7 +1084,10 @@ void OverlayWindowManager::setupDock()
 	setupDockStateMachine();
 
 	if(m_dockWin->quickLaunchBar())
+	{
 		connect(m_dockWin->quickLaunchBar(),SIGNAL(signalToggleLauncher()),this,SLOT(slotSystemAPIToggleLauncher()));
+		connect(m_dockWin->quickLaunchBar(),SIGNAL(signalHideDock()),this,SLOT(slotHideDock()));
+	}
 
 	return;
 }
@@ -1111,6 +1114,10 @@ void OverlayWindowManager::slotSystemAPIToggleLauncher()
 	{
 		//it's up, signal that I want it down
 		Q_EMIT signalFSMHideLauncher();
+		
+		//if there's a card maximized, hide the search pill
+		if(CardWindowManager::instance()->isMaximized())
+			Q_EMIT signalFSMHideSearchPill();
 	}
 }
 
@@ -1349,6 +1356,13 @@ void OverlayWindowManager::slotAnimateShowDock()
 		return;
 	}
 
+	//Make sure wave is false to prevent the mustache appearing at the wrong time
+	if(m_dockWin->quickLaunchBar()->wave())
+	{
+		m_dockWin->quickLaunchBar()->setWave(false);
+		m_dockWin->quickLaunchBar()->rearrangeIcons(false);
+	}
+	
 	if((scene() != NULL) && (scene()->mouseGrabberItem() == this))
 		ungrabMouse();
 
@@ -1483,7 +1497,7 @@ void OverlayWindowManager::dockAnimationFinished()
 		m_dockWin->setVisible(false);
 		m_dockWin->quickLaunchBar()->setWave(false);
 		m_dockWin->quickLaunchBar()->rearrangeIcons(false);
-		if(CardWindowManager::instance()->isMinimized())
+		if(CardWindowManager::instance()->isMinimized() || SystemUiController::instance()->isLauncherShown())
 			slotShowDock();
 	}
 	else
