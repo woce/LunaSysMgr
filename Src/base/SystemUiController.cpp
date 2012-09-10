@@ -304,20 +304,23 @@ bool SystemUiController::handleMouseEvent(QMouseEvent *event)
 	if(event->type() == QEvent::MouseButtonRelease && m_waveBar)
 	{
 		m_waveBar = false;
-		if(xDown < (m_uiWidth - 1) - 128)
+		if(yDown < (m_uiHeight - 1) - (kGestureBorderSize * 2))
 		{
-			QTapGesture *tapGes = new QTapGesture(this);
-			tapGes->setHotSpot(event->pos() + offset);
-			tapGes->setState(Qt::GestureFinished);
-			QList<QGesture *> tapGestureList;
-			tapGestureList.append(tapGes);
-			QGestureEvent event(tapGestureList);
-			event.setWidget(WindowServer::instance()->viewport());
-			OverlayWindowManager::systemActiveInstance()->quicklaunchBar()->quickLaunchBar()->tapGesture(tapGes, &event);
-		}
-		else
-		{
-			Q_EMIT signalToggleLauncher();
+			if(xDown < (m_uiWidth - 1) - 128)
+			{
+				QTapGesture *tapGes = new QTapGesture(this);
+				tapGes->setHotSpot(event->pos() + offset);
+				tapGes->setState(Qt::GestureFinished);
+				QList<QGesture *> tapGestureList;
+				tapGestureList.append(tapGes);
+				QGestureEvent event(tapGestureList);
+				event.setWidget(WindowServer::instance()->viewport());
+				OverlayWindowManager::systemActiveInstance()->quicklaunchBar()->quickLaunchBar()->tapGesture(tapGes, &event);
+			}
+			else
+			{
+				Q_EMIT signalToggleLauncher();
+			}
 		}
 		Q_EMIT signalHideDock();
 		return true;
