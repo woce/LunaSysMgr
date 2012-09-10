@@ -346,7 +346,6 @@ Q_SIGNALS:
 
 	void signalShowDock();
 	void signalHideDock();
-	void signalWaveLaunch();
 	void signalFadeDock(bool fadeOut);
 
 	void signalOpenDashboard();
