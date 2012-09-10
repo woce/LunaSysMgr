@@ -1648,9 +1648,7 @@ void CardWindowManager::handleMouseMoveMinimized(QGraphicsSceneMouseEvent* event
                 m_activeGroupPivot = m_activeGroup->x();
             }
 		}
-		
-		if (!m_trackWithinGroup) {
-
+		else {
             m_activeGroupPivot += diff.x();
             slideAllGroupsTo(m_activeGroupPivot);
 		}
@@ -1761,7 +1759,7 @@ void CardWindowManager::handleMouseMoveReorder(QGraphicsSceneMouseEvent* event)
 	CardWindow::Position pos;
 	pos.trans = QVector3D(activeWin->position().trans.x() + delta.x(), 
 						  activeWin->position().trans.y() + delta.y(), 
-						  kActiveScale);
+						  kActiveScale*m_activeGroup->miniModeScale());
 	activeWin->setPosition(pos);
 
 	// should we switch zones?
@@ -1792,11 +1790,11 @@ void CardWindowManager::handleMouseMoveReorder(QGraphicsSceneMouseEvent* event)
 
 CardWindowManager::ReorderZone CardWindowManager::getReorderZone(QPoint pt)
 {
-	qreal section = boundingRect().width() / s_marginSlice;
-	if (pt.x() < boundingRect().left() + section) {
+	qreal section = boundingRect().width() * kActiveScale * m_activeGroup->miniModeScale();
+	if (pt.x() < -section/2) {
 		return ReorderZone_Left;
 	}
-	else if (pt.x() > boundingRect().right() - section) {
+	else if (pt.x() > section/2) {
 		return ReorderZone_Right;
 	}
 	return ReorderZone_Center;
@@ -1807,7 +1805,6 @@ void CardWindowManager::enterReorder(QPoint pt)
 	CardWindow* activeWin = activeWindow();
 	luna_assert(activeWin != 0);
 	activeWin->setOpacity(0.8);
-	activeWin->disableShadow();
 
 	activeWin->setAttachedToGroup(false);
 
@@ -2058,7 +2055,6 @@ void CardWindowManager::handleMouseReleaseReorder(QGraphicsSceneMouseEvent* even
 
 	// TODO: fix the y for the draggedWin
 	activeWin->setOpacity(1.0);
-	activeWin->enableShadow();
 	activeWin->setAttachedToGroup(true);
 
 	slideAllGroups();

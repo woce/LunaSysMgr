@@ -744,11 +744,6 @@ QVector<CardWindow::Position> CardGroup::calculateOpenedPositions(qreal xOffset)
 		if(!m_sizeOverride)
 		{
 			x = ((i - m_currentPosition) / 3.0) * activeCardWidth * m_cardGroupXDistanceFactor;
-		
-			if (x > rOff)
-				x = (x + (rOff * 4)) / 5;
-			else if (x < lOff)
-				x = (x + (lOff * 4)) / 5;
 	
 			positions[i].trans.setX(x);
 			positions[i].trans.setY(x > 0 ? x/15 : 0);
@@ -859,17 +854,8 @@ void CardGroup::clampCurrentPosition()
 
 		m_currentPosition = 0.0;
 	}
-	else if (m_cards.size() == 2) {
-
-		m_currentPosition = 0.5;
-	}
-	else if (m_cards.size() > 2 && m_cards.size() <= kMaxStationaryCards) {
-
-		m_currentPosition = 1.0;
-	}
 	else {
-
-		m_currentPosition = qBound((qreal)1.0, m_currentPosition, (qreal) (m_cards.size() - kMaxStationaryCards + 1));
+		m_currentPosition = (m_cards.size()-1)/2 + (m_cards.size() % 2 == 1 ? 0.0 : 0.5);
 	}
 
 }
