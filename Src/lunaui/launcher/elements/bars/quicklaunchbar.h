@@ -132,6 +132,7 @@ Q_SIGNALS:
 
 	void signalFlickAction(QPointF normVectorDirection = QPointF());
 
+	void signalHideDock();
 	void signalToggleLauncher();
 
 protected:
@@ -160,6 +161,7 @@ protected Q_SLOTS:
 
 	virtual void slotIconDeleted(QObject * p);
 	void slotCancelLaunchFeedback();
+	void slotLauncherButton();
 
 	/////////////////////////// Touch and Touch FSM related /////////////////////////////////////////////
 
