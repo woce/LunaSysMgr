@@ -1773,27 +1773,23 @@ void QuickLaunchBar::slotCancelLaunchFeedback()
 	cancelLaunchFeedback();
 }
 
-void QuickLaunchBar::waveRelease(QTapGesture *tapEvent,QGestureEvent * baseGestureEvent)
+void QuickLaunchBar::waveRelease()
 {
-	//ignore event if we are currently moving an item around
-	if (m_qp_iconInMotion)
+	for (QList<QPointer<IconBase> >::iterator it = m_iconItems.begin();
+			it != m_iconItems.end();++it)
 	{
-		return;
+		IconBase * pIcon = *it;
+		if (!pIcon)
+		{
+			continue;
+		}
+		
+		if(pIcon->launchFeedbackVisibility())
+		{
+			iconActivatedTap(pIcon->uid());
+			return;
+		}
 	}
-
-	QPointF positionOfTapICS = mapFromScene(baseGestureEvent->mapToGraphicsScene(tapEvent->hotSpot()));
-
-	// determine if we hit any of the icons on teh quick launch bar
-	IconBase* pIcon = iconAtCoordinate(QPointF(positionOfTapICS.x(),0.0));
-	if (pIcon == NULL)
-	{
-		//no icon there
-		return;
-	}
-
-	iconActivatedTap(pIcon->uid());
-
-	setAppLaunchFeedback(pIcon);
 }
 
 void QuickLaunchBar::slotLauncherButton()

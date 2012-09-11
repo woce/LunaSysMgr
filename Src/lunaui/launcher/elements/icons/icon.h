@@ -158,6 +158,7 @@ public:
 	void setIconWaveScale(qreal scale);
 	void setUsePrerenderedLabel(bool usePreRendered);
 	void setLaunchFeedbackVisibility(bool visible);
+	bool launchFeedbackVisibility() const { return m_showFeedback; }
 
 
 	//if null (0) passed in, then the primary launcher instance will be used

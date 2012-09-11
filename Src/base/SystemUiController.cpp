@@ -350,14 +350,7 @@ bool SystemUiController::handleMouseEvent(QMouseEvent *event)
 		{
 			if(xDown < (m_uiWidth - 1) - 128)
 			{
-				QTapGesture *tapGes = new QTapGesture(this);
-				tapGes->setHotSpot(event->pos() + offset);
-				tapGes->setState(Qt::GestureFinished);
-				QList<QGesture *> tapGestureList;
-				tapGestureList.append(tapGes);
-				QGestureEvent event(tapGestureList);
-				event.setWidget(WindowServer::instance()->viewport());
-				OverlayWindowManager::systemActiveInstance()->quicklaunchBar()->quickLaunchBar()->waveRelease(tapGes, &event);
+				OverlayWindowManager::systemActiveInstance()->quicklaunchBar()->quickLaunchBar()->waveRelease();
 			}
 			else
 			{
