@@ -169,6 +169,17 @@ bool TabletKeymap::setKeymap(const std::string & keymap)
 	}
 	return false;
 }
+void TabletKeymap::setAutoCorrectLanguage(const std::string & language)
+{
+	if (language.compare("none") == 0)
+	{
+		m_autoCorrectLanguage = QString::fromUtf8("");
+	}
+	else
+	{
+		m_autoCorrectLanguage = QString::fromStdString(language);
+	}
+}
 
 QString TabletKeymap::getLanguageDisplayName(const LayoutFamily * layoutFamily)
 {
