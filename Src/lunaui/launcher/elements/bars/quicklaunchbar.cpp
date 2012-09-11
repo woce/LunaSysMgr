@@ -1735,6 +1735,37 @@ void QuickLaunchBar::slotCancelLaunchFeedback()
 	cancelLaunchFeedback();
 }
 
+void QuickLaunchBar::waveRelease(QTapGesture *tapEvent,QGestureEvent * baseGestureEvent)
+{
+	//ignore event if we are currently moving an item around
+	if (m_qp_iconInMotion)
+	{
+		return;
+	}
+
+	QPointF positionOfTapICS = mapFromScene(baseGestureEvent->mapToGraphicsScene(tapEvent->hotSpot()));
+
+	// determine if we hit any of the icons on teh quick launch bar
+	IconBase* pIcon = iconAtCoordinate(QPointF(positionOfTapICS.x(),0.0));
+	if (pIcon == NULL)
+	{
+		//no icon there
+		return;
+	}
+
+	QPointF intraIconPositionOfTapICS = pIcon->geometry().center();
+	//check to see if the icon should handle the event internally
+	IconInternalHitAreas::Enum hitArea;
+	if (pIcon->tapIntoIcon(intraIconPositionOfTapICS,hitArea))
+	{
+		return;
+	}
+
+	iconActivatedTap(pIcon->uid());
+
+	setAppLaunchFeedback(pIcon);
+}
+
 void QuickLaunchBar::slotLauncherButton()
 {
 	//Fix for erroneous wave launcher behaviour

@@ -291,9 +291,17 @@ bool SystemUiController::handleMouseEvent(QMouseEvent *event)
 	{
 		if(m_waveBar)
 		{
-			yDown = max(yDown, m_uiWidth/4);
-			OverlayWindowManager::systemActiveInstance()->animateWaveDock(QPoint(xDown - (m_uiWidth/2),yDown - (m_uiHeight/2) - 16));
-			return true;
+			if(!OverlayWindowManager::systemActiveInstance()->dockInAnimation())
+			{
+				yDown = max(yDown, m_uiWidth/4);
+				OverlayWindowManager::systemActiveInstance()->animateWaveDock(QPoint(xDown - (m_uiWidth/2),yDown - (m_uiHeight/2) - 16));
+				return true;
+			}
+			else
+			{
+				OverlayWindowManager::systemActiveInstance()->quicklaunchBar()->quickLaunchBar()->setWavePos(xDown - (m_uiWidth/2));
+				OverlayWindowManager::systemActiveInstance()->quicklaunchBar()->quickLaunchBar()->rearrangeIcons(false);
+			}
 		}
 		else
 		{
@@ -306,7 +314,14 @@ bool SystemUiController::handleMouseEvent(QMouseEvent *event)
 				&& abs(diff.x()) > abs(diff.y()))
 				{
 					m_waveBar = true;
-					Q_EMIT signalShowDock();
+					if(CardWindowManager::instance()->isMinimized() || m_launcherShown) {
+						OverlayWindowManager::systemActiveInstance()->setQueueWave(true);
+						Q_EMIT signalHideDock();
+					}
+					else {
+						Q_EMIT signalShowDock();
+						OverlayWindowManager::systemActiveInstance()->animateWaveDock(QPoint(xDown - (m_uiWidth/2),yDown - (m_uiHeight/2) - 64));
+					}
 				}
 			}
 		}
@@ -341,7 +356,7 @@ bool SystemUiController::handleMouseEvent(QMouseEvent *event)
 				tapGestureList.append(tapGes);
 				QGestureEvent event(tapGestureList);
 				event.setWidget(WindowServer::instance()->viewport());
-				OverlayWindowManager::systemActiveInstance()->quicklaunchBar()->quickLaunchBar()->tapGesture(tapGes, &event);
+				OverlayWindowManager::systemActiveInstance()->quicklaunchBar()->quickLaunchBar()->waveRelease(tapGes, &event);
 			}
 			else
 			{

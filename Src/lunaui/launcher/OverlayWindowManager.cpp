@@ -192,6 +192,7 @@ OverlayWindowManager::OverlayWindowManager(int maxWidth, int maxHeight)
 	, m_ignoreKeyDueToSpeedDialEvent(false)
 	, m_keyDown(0)
 	, m_pendingLauncherRecreate(false)
+	, m_queueWave(false)
 {
 	setObjectName("OverlayWindowManager");
 
@@ -1387,7 +1388,10 @@ void OverlayWindowManager::slotAnimateShowDock()
 
 	m_dockPosAnimation->stop();
 	m_dockPosAnimation->setStartValue(m_dockWin->pos());
-	m_dockPosAnimation->setEndValue(m_dockShownPos);
+	if(!m_queueWave)
+		m_dockPosAnimation->setEndValue(m_dockShownPos);
+	else
+		m_dockPosAnimation->setEndValue(m_dockShownPos+QPoint(0,16));
 	m_dockPosAnimation->start();
 }
 
@@ -1498,7 +1502,15 @@ void OverlayWindowManager::dockAnimationFinished()
 		m_dockWin->quickLaunchBar()->setWave(false);
 		m_dockWin->quickLaunchBar()->rearrangeIcons(false);
 		if(CardWindowManager::instance()->isMinimized() || SystemUiController::instance()->isLauncherShown())
+		{
 			slotShowDock();
+			if(m_queueWave)
+			{
+				m_dockWin->quickLaunchBar()->setWave(true);
+				m_dockWin->quickLaunchBar()->rearrangeIcons(false);
+				m_queueWave = false;
+			}
+		}
 	}
 	else
 	{

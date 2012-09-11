@@ -105,6 +105,8 @@ public:
 	void setWave(bool wave) { m_wave = wave; }
 	int wavePos() const { return m_wavePos; }
 	void setWavePos(int x) { m_wavePos = x; }
+	
+	void waveRelease(QTapGesture *tapEvent,QGestureEvent * baseGestureEvent);
 
 	//rearrange all the current items based on the current sizing
 	//PREREQUISITE: m_itemAreaXRange and m_itemsY are set correctly

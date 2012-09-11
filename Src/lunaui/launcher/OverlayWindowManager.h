@@ -130,6 +130,9 @@ public:
 	
 	// wave launcher animation
 	void animateWaveDock(QPoint pos);
+	
+	bool queueWave() const { return m_queueWave; }
+	void setQueueWave(bool queueWave) { m_queueWave = queueWave; }
 
 	// property 'universalSearchShown' access functions
 	bool universalSearchShown() const;
@@ -158,6 +161,8 @@ public:
 
     virtual bool handleNavigationEvent(QKeyEvent* keyEvent, bool& propogate);
 
+	bool dockInAnimation() const;
+
 protected:
 
 	bool sceneEvent(QEvent* event);
@@ -171,8 +176,6 @@ protected:
 	bool mouseFlickEvent(FlickGesture* flick);
 
 private:
-
-	bool dockInAnimation() const;
 	void mapCoordToWindow(Window* win, int& x, int& y) const;
 
 	void setupSearchPill();
@@ -420,6 +423,7 @@ private:
 	QPointer<QPropertyAnimation> m_qp_launcherPosAnimation;
 	
 	bool m_pendingLauncherRecreate;
+	bool m_queueWave;
 
 	friend class WindowServerLuna;
 
