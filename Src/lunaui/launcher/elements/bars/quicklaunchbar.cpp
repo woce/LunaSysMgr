@@ -763,7 +763,7 @@ void QuickLaunchBar::rearrangeIcons(bool animate)
 			iconY += m_itemsY*1.5; //A little bit lower
 			iconY += sin((iconX - (m_wavePos + barHalfW + 32))/qreal(barHalfW/1.5)) * 96.0;
 			
-			if(m_wavePos >= iconX - 64 && m_wavePos <= iconX + 64) {
+			if(m_wavePos >= iconX - ((barFullW/nItems-1)/2) && m_wavePos <= iconX + ((barFullW/nItems-1)/2)) {
 				pIcon->setLaunchFeedbackVisibility(true);
 				//pIcon->setIconLabelVisibility(true);
 				pIcon->setIconLabelMode(true);
@@ -1788,14 +1788,6 @@ void QuickLaunchBar::waveRelease(QTapGesture *tapEvent,QGestureEvent * baseGestu
 	if (pIcon == NULL)
 	{
 		//no icon there
-		return;
-	}
-
-	QPointF intraIconPositionOfTapICS = pIcon->geometry().center();
-	//check to see if the icon should handle the event internally
-	IconInternalHitAreas::Enum hitArea;
-	if (pIcon->tapIntoIcon(intraIconPositionOfTapICS,hitArea))
-	{
 		return;
 	}
 
