@@ -289,22 +289,42 @@ inline void QuickLaunchBar::paintBackground(QPainter * painter)
 	{
 		QPoint offset(m_wavePos,0);
 		
-		//Start at the top-left vertex
-		QPainterPath path(QPoint(m_geom.left()*2,m_geom.bottom()*2) + offset);
+		//Start at the top-middle vertex
+		QPainterPath path(QPoint(0,m_geom.top()*2.75) + offset);
 		
-		//Top Curve
-		path.cubicTo(QPoint(m_geom.left()/2,m_geom.bottom()) + offset, QPoint(m_geom.left(),m_geom.top()*1.75) + offset, QPoint(0,m_geom.top()*1.75) + offset);
-		path.cubicTo(QPoint(m_geom.right(),m_geom.top()*1.75) + offset, QPoint(m_geom.right()/2,m_geom.bottom()) + offset, QPoint(m_geom.right()*2,m_geom.bottom()*2) + offset);
+		//Top Right Curve
+		path.cubicTo(
+			QPoint(m_geom.right(), m_geom.top()*2.75) + offset,
+			QPoint(m_geom.right(),m_geom.bottom()*3) + offset,
+			QPoint(m_geom.right()*2.5,m_geom.bottom()*3) + offset
+		);
 		
 		//Right hand line
-		path.lineTo(QPoint(m_geom.right()*2, m_geom.bottom()*3) + offset);
+		path.lineTo(QPoint(m_geom.right()*2.5, m_geom.bottom()*4) + offset);
 		
-		//Bottom Curve
-		path.cubicTo(QPoint(m_geom.right()/2,m_geom.bottom()*2) + offset, QPoint(m_geom.right(),0) + offset, QPoint(0,0) + offset);
-		path.cubicTo(QPoint(m_geom.left(),0) + offset, QPoint(m_geom.left()/2,m_geom.bottom()*2) + offset, QPoint(m_geom.left()*2, m_geom.bottom()*3) + offset);
+		//Bottom Right Curve
+		path.cubicTo(
+			QPoint(m_geom.right(),m_geom.bottom()*4) + offset,
+			QPoint(m_geom.right(),0) + offset,
+			QPoint(0,0) + offset
+		);
+		
+		//Bottom Left Curve
+		path.cubicTo(
+			QPoint(m_geom.left(),0) + offset,
+			QPoint(m_geom.left(),m_geom.bottom()*4) + offset,
+			QPoint(m_geom.left()*2.5, m_geom.bottom()*4) + offset
+		);
 		
 		//Left hand line
-		path.lineTo(QPoint(m_geom.left() * 2,m_geom.bottom()) + offset);
+		path.lineTo(QPoint(m_geom.left()*2.5,m_geom.bottom()*3) + offset);
+		
+		//Top Left Curve
+		path.cubicTo(
+			QPoint(m_geom.left(),m_geom.bottom()*3) + offset,
+			QPoint(m_geom.left(),m_geom.top()*2.75) + offset,
+			QPoint(0,m_geom.top()*2.75) + offset
+		);
 		
 		//Gradient
 		QLinearGradient linearGrad(QPointF(-m_geom.width() /2 + m_wavePos, 0), QPointF(m_geom.width()*1.5 + m_wavePos, 0));
@@ -740,8 +760,26 @@ void QuickLaunchBar::rearrangeIcons(bool animate)
 		iconY += m_itemsY; //Start at the normal Y position
 		if(m_wave)
 		{
-			iconY += m_itemsY; //A little bit lower
-			iconY += sin((iconX - (m_wavePos + barHalfW + 32))/qreal(barHalfW/1.5)) * 64.0;
+			iconY += m_itemsY*1.5; //A little bit lower
+			iconY += sin((iconX - (m_wavePos + barHalfW + 32))/qreal(barHalfW/1.5)) * 96.0;
+			
+			if(m_wavePos >= iconX - 64 && m_wavePos <= iconX + 64) {
+				pIcon->setLaunchFeedbackVisibility(true);
+				//pIcon->setIconLabelVisibility(true);
+				pIcon->setIconLabelMode(true);
+			}
+			else {
+				pIcon->setLaunchFeedbackVisibility(false);
+				//pIcon->setIconLabelVisibility(false);
+				pIcon->setIconLabelMode(false);
+			}
+			pIcon->setIconWaveScale((sin((iconX - (m_wavePos + barHalfW + 32))/qreal(barHalfW/1.5)) - 4)*-0.25);
+		}
+		else {
+			pIcon->setLaunchFeedbackVisibility(false);
+			//pIcon->setIconLabelVisibility(false);
+			pIcon->setIconLabelMode(false);
+			pIcon->setIconWaveScale(1.0);
 		}
 			
 		if(pIcon != m_qp_iconInMotion) {// no need to move the icon that the user is dragging around
@@ -772,7 +810,7 @@ void QuickLaunchBar::rearrangeIcons(bool animate)
 	if(m_wave)
 	{
 		qreal launcherButtonY = LayoutSettings::settings()->quickLaunchBarLauncherAccessButtonOffsetPx.y(); //Launcher icon offset
-		launcherButtonY += sin((m_qp_launcherAccessButton->pos().x() - (m_wavePos + barHalfW))/qreal(barHalfW/1.5)) * 64.0;
+		launcherButtonY += sin((m_qp_launcherAccessButton->pos().x() - (m_wavePos + barHalfW))/qreal(barHalfW/1.5)) * 96.0;
 		m_qp_launcherAccessButton->setPos(m_qp_launcherAccessButton->pos().x(), launcherButtonY);
 	}
 	else
