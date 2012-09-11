@@ -1,10 +1,10 @@
-LunaSysMgr - Beta
+LunaSysMgr - Alpha
 =====================
 
-LunaSysMgr - Beta
+LunaSysMgr - Alpha
 
-This branch is used for bugfixing of new features added to alpha.
-The beta Preware package will be updated on a per-tag basis for testing stable release candidates.
+This branch is used for development of new features.
+The alpha package in Preware will be updated on a per-commit basis for testing.
 
 For version 3.0.5 of webOS
 
