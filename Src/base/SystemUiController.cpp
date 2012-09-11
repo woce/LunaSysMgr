@@ -345,7 +345,7 @@ bool SystemUiController::handleMouseEvent(QMouseEvent *event)
 	if(event->type() == QEvent::MouseButtonRelease && m_waveBar)
 	{
 		m_waveBar = false;
-		if(yDown < (m_uiHeight - 1) - (kGestureBorderSize * 2))
+		if(yDown < (m_uiHeight - 1) - kGestureBorderSize)
 		{
 			if(xDown < (m_uiWidth - 1) - 128)
 			{
