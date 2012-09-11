@@ -261,6 +261,7 @@ void TabletKeyboard::setKeyboardCombo(const std::string & keyboardLanguage, cons
 	m_keymap.setHasMoreThanOneLayoutFamily(hasMoreThanOneKeyboardLayout);
 
 	m_candidateBar.setLanguage(autoCorrectLanguage);
+	m_keymap.setAutoCorrectLanguage(autoCorrectLanguage);
 
 	if (changed)
 		keyboardLayoutChanged();
@@ -1503,6 +1504,10 @@ void TabletKeyboard::drawKeyCap(QPainter * painter, GlyphRenderer<GlyphSpec> & r
 				painter->drawPixmap((int) location.left() + (location.width() - pix->width()) / 2, (int) location.top() + (location.height() - pix->height()) / 2, *pix);
 		}
 	}
+	else if (key == cKey_ToggleLanguage)
+	{
+		altText = m_keymap.autoCorrectLanguage();
+	}
 
 	if (text.size() > 0)
 	{
@@ -1567,6 +1572,21 @@ void TabletKeyboard::drawKeyCap(QPainter * painter, GlyphRenderer<GlyphSpec> & r
 				{
 					location.setWidth(location.width() * 85 / 100 + m_9tileCorner.m_trimH);
 					renderer.render(location, GlyphSpec(text, qMin<int>(height, fontSize - 2), sFont.bold(), cFunctionColor, cFunctionColor_back), sFont, Qt::AlignBottom | Qt::AlignRight);
+				}
+			}
+			else if (key == cKey_ToggleLanguage)
+			{
+				if (altText.isEmpty())
+				{
+					renderer.render(location, GlyphSpec(text, qMin<int>(height, fontSize - 2), sFont.bold(), cFunctionColor, cFunctionColor_back), sFont, Qt::AlignVCenter | Qt::AlignHCenter);
+				}
+				else
+				{
+					int boxheight = location.height() / 3;
+					QRect	rect(location.left(), location.bottom() - boxheight - 10 + (boostSize(text) ? -2 : 0), location.width(), boxheight);
+					renderer.render(rect, GlyphSpec(text, font_size(text, mainCharColor, fontSize, 75), sFont.bold(), cFunctionColor, cFunctionColor_back), sFont);
+					rect.moveTop(location.top() + 10);
+					renderer.render(rect, GlyphSpec(altText, font_size(altText, mainCharColor, fontSize, 75), sFont.bold(), cFunctionColor, cFunctionColor_back), sFont);
 				}
 			}
 			else
