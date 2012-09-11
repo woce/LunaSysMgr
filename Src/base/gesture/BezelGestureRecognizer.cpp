@@ -124,7 +124,9 @@ QGestureRecognizer::Result BezelGestureRecognizer::recognize(QGesture *state,
 				}
 				
 				//Bottom border
-				if(startPos.y() >= displayBounds.y() - kGestureBorderSize)
+				if(startPos.y() >= displayBounds.y() - kGestureBorderSize
+				&& startPos.x() > kGestureBorderSize*2
+				&& startPos.x() < displayBounds.x() - kGestureBorderSize*2)
 				{
 					q->setEdge(Bottom);
 					//If the finger has moved in a vertical direction

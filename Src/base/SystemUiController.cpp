@@ -308,19 +308,20 @@ bool SystemUiController::handleMouseEvent(QMouseEvent *event)
 				if (Preferences::instance()->sysUiEnableWaveLauncher())
 				{
 				QPoint diff(xDown - startX, yDown - startY);
-				if(abs(diff.x()) > kGestureBorderSize * 2
-				&& startY >= m_uiHeight - kGestureBorderSize * 2
-				&& yDown >= m_uiHeight - kGestureBorderSize * 2
-				&& abs(diff.x()) > abs(diff.y()))
+				if(diff.y() < -kGestureBorderSize * 2 && abs(diff.x()) < abs(diff.y()))
 				{
-					m_waveBar = true;
-					if(CardWindowManager::instance()->isMinimized() || m_launcherShown) {
-						OverlayWindowManager::systemActiveInstance()->setQueueWave(true);
-						Q_EMIT signalHideDock();
-					}
-					else {
-						Q_EMIT signalShowDock();
-						OverlayWindowManager::systemActiveInstance()->animateWaveDock(QPoint(xDown - (m_uiWidth/2),yDown - (m_uiHeight/2) - 64));
+					if((startX >= m_uiWidth - kGestureBorderSize * 2 && xDown >= m_uiWidth - kGestureBorderSize * 2)
+					|| (startX <= kGestureBorderSize * 2 && xDown <= kGestureBorderSize * 2))
+					{
+						m_waveBar = true;
+						if(CardWindowManager::instance()->isMinimized() || m_launcherShown) {
+							OverlayWindowManager::systemActiveInstance()->setQueueWave(true);
+							Q_EMIT signalHideDock();
+						}
+						else {
+							Q_EMIT signalShowDock();
+							OverlayWindowManager::systemActiveInstance()->animateWaveDock(QPoint(xDown - (m_uiWidth/2),yDown - (m_uiHeight/2) - 64));
+						}
 					}
 				}
 			}
