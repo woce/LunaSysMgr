@@ -28,7 +28,7 @@
 #include <QPainter>
 #include <glib.h>
 
-#define TEXT_BASELINE_OFFSET            (-1)
+#define TEXT_BASELINE_OFFSET(-1)
 
 static const QString currentVersion = "WebOS Ports LunaCE 4.9.5";
 
