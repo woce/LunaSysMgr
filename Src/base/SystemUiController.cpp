@@ -522,6 +522,22 @@ bool SystemUiController::handleKeyEvent(QKeyEvent *event)
         case Qt::Key_Super_L: // maps to the card view key (launcher gesture)
         case Qt::Key_Keyboard:
             return true;
+            
+        case Qt::Key_Tab: {
+        	const bool ctrl = event->modifiers() & (Qt::ControlModifier);
+        	if(ctrl)
+        	{
+				if(Preferences::instance()->getTabbedCardsPreference())
+				{
+					Q_EMIT signalSideSwipe(true);
+				}
+				else
+				{
+					handleSideSwipe(true);
+				}
+        		return true;
+        	}
+        }
 
 		case Qt::Key_Shift:
 		case Qt::Key_Control:

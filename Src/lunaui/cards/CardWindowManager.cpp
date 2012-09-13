@@ -345,6 +345,10 @@ bool CardWindowManager::isMaximized() {
 	return (m_curState == m_maximizeState);
 }
 
+bool CardWindowManager::isGroup() {
+	return (m_curState == m_groupState);
+}
+
 void CardWindowManager::updateAngryCardThreshold()
 {
     kAngryCardThreshold = ((boundingRect().height() / 2) * 0.30);
