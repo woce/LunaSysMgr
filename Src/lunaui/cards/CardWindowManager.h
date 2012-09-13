@@ -90,6 +90,7 @@ public:
 	virtual bool okToResize();
 	virtual bool isMinimized();
 	virtual bool isMaximized();
+	virtual bool isGroup();
 
 	CardWindow* modalParent() const { return m_parentOfModalCard; }
 

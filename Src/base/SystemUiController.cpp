@@ -492,6 +492,8 @@ bool SystemUiController::handleKeyEvent(QKeyEvent *event)
 	}
 #endif
 
+	const bool ctrl = event->modifiers() & (Qt::ControlModifier);
+
 	if (event->type() == QEvent::KeyPress) {
 		switch (event->key()) {
 		case Qt::Key_CoreNavi_Home:
@@ -515,6 +517,48 @@ bool SystemUiController::handleKeyEvent(QKeyEvent *event)
         case Qt::Key_Super_L: // maps to the card view key (launcher gesture)
         case Qt::Key_Keyboard:
             return true;
+
+        case Qt::Key_Tab: {
+        	if(ctrl)
+        	{
+				if(Preferences::instance()->getTabbedCardsPreference())
+					Q_EMIT signalSideSwipe(true);
+				else
+					handleSideSwipe(false);
+        		return true;
+        	}
+        }
+        case Qt::Key_Left: {
+        	if(ctrl)
+        	{
+				handleSideSwipe(true);
+        		return true;
+        	}
+        }
+        case Qt::Key_Right: {
+        	if(ctrl)
+        	{
+				handleSideSwipe(false);
+        		return true;
+        	}
+        }
+        case Qt::Key_Up: {
+        	if(ctrl)
+        	{
+				handleUpSwipe();
+        		return true;
+        	}
+        }
+        case Qt::Key_Down: {
+        	if(ctrl && CardWindowManager::instance()->isMinimized())
+        	{
+        		if(!m_launcherShown)
+					Q_EMIT signalMaximizeActiveCardWindow();
+				else
+					Q_EMIT signalToggleLauncher();
+        		return true;
+        	}
+        }
 
 		case Qt::Key_Shift:
 		case Qt::Key_Control:
