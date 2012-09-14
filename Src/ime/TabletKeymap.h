@@ -108,7 +108,7 @@ const UKey cKey_Resize_Last = cKey_Resize_Large;
 
 const UKey cKey_ToggleSoundFeedback = UKey(0x01200216);
 const UKey cKey_ResizeHandle = UKey(0x01200217);
-const UKey cKey_Trackball = UKey(0x25EF);
+const UKey cKey_Trackball = UKey(0x01200218);
 
 // Keys that correspond to some text entry (label & entered text are equal)
 const UKey cKey_DotCom = UKey(0x01200300);

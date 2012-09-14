@@ -158,6 +158,8 @@ TabletKeyboard::TabletKeyboard(IMEDataInterface * dataInterface) : VirtualKeyboa
 	m_emoticon_yuck_small("/usr/palm/emoticons/emoticon-yuck.png"),
 	m_emoticon_gasp_small("/usr/palm/emoticons/emoticon-gasp.png"),
 	m_emoticon_heart_small("/usr/palm/emoticons/emoticon-heart.png"),
+	m_trackball("/usr/palm/sysmgr/images/statusBar/slider-handle.png"),
+	m_trackballArrows("/usr/palm/sysmgr/images/meta-move.png"),
 	m_background("keyboard-bg.png"),
 	m_drag_handle("drag-handle.png"),
 	m_drag_highlight("drag-highlight.png"),
@@ -1233,7 +1235,10 @@ void TabletKeyboard::paint(QPainter & painter)
 			{
 				if (key == Qt::Key_Shift)
 					drawKeyBackground(painter, r, keyCoord, key, false, count);
-				drawKeyCap(&painter, renderer, r, keyCoord, key, false);
+				if (key != cKey_Trackball)
+					drawKeyCap(&painter, renderer, r, keyCoord, key, false);
+				else //Draw trackball
+					drawKeyCap(&painter, renderer, r, keyCoord, key, false);
 			}
 		}
 	}
@@ -1259,8 +1264,13 @@ void TabletKeyboard::paint(QPainter & painter)
 						painter.setClipRect(r);
 						painter.drawPixmap(r.left(), keyboardFrame.top(), r.width(), keyboardFrame.height(), m_background.pixmap());
 						painter.setClipping(false);
-						drawKeyBackground(painter, r, touch.m_keyCoordinate, key, true, count);
-						drawKeyCap(&painter, renderer, r, touch.m_keyCoordinate, key, true);
+						if(key != cKey_Trackball)
+						{
+							drawKeyBackground(painter, r, touch.m_keyCoordinate, key, true, count);
+							drawKeyCap(&painter, renderer, r, touch.m_keyCoordinate, key, true);
+						}
+						else //Draw trackball
+							drawKeyCap(&painter, renderer, r, touch.m_keyCoordinate, key, false);
 						//g_debug("'%s' drawn pressed, consumed: %d", QString(key).toUtf8().data(), touch.m_consumed);
 					}
 				}
@@ -1393,6 +1403,10 @@ bool TabletKeyboard::updateBackground()
 							m_nineTileSprites.reserve(size, count, m_shift_lock_key);
 							m_nineTileSprites.reserve(size, count, m_black_key);
 						}
+						else if (key == cKey_Trackball)
+						{
+							m_nineTileSprites.reserve(size, count, m_trackball);
+						}
 						else
 							m_nineTileSprites.reserve(size, count, getKeyBackground(keyCoord, key));
 					}
@@ -1409,7 +1423,7 @@ bool TabletKeyboard::updateBackground()
 					{
 						QRect r;
 						int count = m_keymap.keyboardToKeyZone(keyCoord, r);
-						if (count > 0 && key != cKey_None)
+						if (count > 0 && key != cKey_None && key != cKey_Trackball)
 							drawKeyBackground(offscreenPainter, r, keyCoord, key, false, count);
 					}
 				}
@@ -1434,6 +1448,10 @@ QPixmap & TabletKeyboard::getKeyBackground(const QPoint & keyCoord, UKey key)
 		default:
 			return m_black_key;
 		}
+	}
+	else if (key == cKey_Trackball)
+	{
+		return m_trackball;
 	}
 	else
 		return selectFromKeyType<QPixmap &>(m_keymap.map(keyCoord, TabletKeymap::eLayoutPage_plain), m_white_key, m_black_key, m_gray_key);
@@ -1529,6 +1547,7 @@ void TabletKeyboard::drawKeyCap(QPainter * painter, GlyphRenderer<GlyphSpec> & r
 		case cKey_Emoticon_Yuck:	pix = m_emoticon_yuck.height()  + 2 * cPixMargin > location.height() ? &m_emoticon_yuck_small.pixmap() : &m_emoticon_yuck.pixmap();	break;
 		case cKey_Emoticon_Gasp:	pix = m_emoticon_gasp.height()  + 2 * cPixMargin > location.height() ? &m_emoticon_gasp_small.pixmap() : &m_emoticon_gasp.pixmap();	break;
 		case cKey_Emoticon_Heart:	pix = m_emoticon_heart.height()  + 2 * cPixMargin > location.height() ? &m_emoticon_heart_small.pixmap() : &m_emoticon_heart.pixmap();	break;
+		case cKey_Trackball:		pix = m_trackball.height()  + 2 * cPixMargin > location.height() ? &m_trackball.pixmap() : &m_trackball.pixmap();	break;
 		default: /* NOP */;
 		}
 		if (pix && painter)

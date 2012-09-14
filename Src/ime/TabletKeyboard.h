@@ -276,6 +276,10 @@ private:
 	IMEPixmap			m_emoticon_yuck_small;
 	IMEPixmap			m_emoticon_gasp_small;
 	IMEPixmap			m_emoticon_heart_small;
+	
+	// trackball assets
+	IMEPixmap			m_trackball;
+	IMEPixmap			m_trackballArrows;
 
 	// keyboard background assets.
 	IMEPixmap			m_background;
