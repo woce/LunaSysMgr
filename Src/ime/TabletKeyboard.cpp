@@ -1126,6 +1126,8 @@ void TabletKeyboard::getExtendedPopupSpec(int & outCellCount, int & outLineCount
 
 bool TabletKeyboard::canRepeat(UKey key) const
 {
+	if(m_extendedKeys && m_extendedKeyShown == cKey_None) return false;
+	
 	return (key == Qt::Key_Space || key == Qt::Key_Backspace || key == Qt::Key_Left || key == Qt::Key_Right);
 }
 
