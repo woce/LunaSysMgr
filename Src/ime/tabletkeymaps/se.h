@@ -47,9 +47,7 @@ static TabletKeymap::constUKeyArray sSeDvorak0_extended = { Qt::Key_0, Qt::Key_P
 										{ w, Qt::Key_7,			Qt::Key_Ampersand,						sSeDvorak7_extended },\
 										{ w, Qt::Key_8,			Qt::Key_Asterisk,						sSeDvorak8_extended },\
 										{ w, Qt::Key_9,			Qt::Key_ParenLeft,						sSeDvorak9_extended },\
-										{ w, Qt::Key_0,			Qt::Key_ParenRight,						sSeDvorak0_extended },\
-										{ w, Qt::Key_Left,		Qt::Key_Up,							    NULL },\
-										{ w, Qt::Key_Right,		Qt::Key_Down,							NULL }
+										{ w, Qt::Key_0,			Qt::Key_ParenRight,						sSeDvorak0_extended }
 
 #define SE_DVORAK_TOP_10(w)				{ w, Qt::Key_Aring,		Qt::Key_section,						NULL },\
 										{ w, Qt::Key_Comma,		Qt::Key_Slash,							sCommaSlash_extended },\
@@ -123,7 +121,7 @@ static TabletKeymap::constUKeyArray sSeDvorak0_extended = { Qt::Key_0, Qt::Key_P
 									NOKEY_3
 
 static TabletKeymap::Layout sSeDvorakLayout = {
-	{ SE_DVORAK_NUMBERS_10(1) },
+	{ SE_DVORAK_NUMBERS_10(1), KEY_1(2, cKey_Trackball) },
 	{ SE_DVORAK_TOP_10(1), KEY_1(1, Qt::Key_Backspace) },
 	{ KEY_2(-0.5, Qt::Key_A, Qt::Key_Less), SE_DVORAK_MID_10(1), KEY_1(1.5, Qt::Key_Return) },
 	{ KEY_1(1, Qt::Key_Shift), SE_DVORAK_LOW_10(1), KEY_1(2.3, Qt::Key_Shift) },

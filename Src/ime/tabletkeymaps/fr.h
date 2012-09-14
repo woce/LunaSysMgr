@@ -56,9 +56,7 @@ static TabletKeymap::constUKeyArray sExclamAsterisk_extended = { Qt::Key_Exclam,
 										{ w, Qt::Key_Egrave,		Qt::Key_7,									sFrAzert7_extended },\
 										{ w, Qt::Key_ParenRight,	Qt::Key_8,									sFrAzert8_extended },\
 										{ w, Qt::Key_Ccedilla,		Qt::Key_9,									sFrAzert9_extended },\
-										{ w, Qt::Key_Agrave,		Qt::Key_0,									sFrAzert0_extended },\
-										{ w, Qt::Key_Left,			Qt::Key_Up,								    NULL },\
-										{ w, Qt::Key_Right,			Qt::Key_Down,								NULL }
+										{ w, Qt::Key_Agrave,		Qt::Key_0,									sFrAzert0_extended }
 
 #define FR_AZERTY_TOP_10(w)				{ w, Qt::Key_A,				Qt::Key_AsciiTilde,							sA_extended },\
 										{ w, Qt::Key_Z,				Qt::Key_NumberSign,							sZ_extended },\
@@ -129,7 +127,7 @@ static TabletKeymap::constUKeyArray sExclamAsterisk_extended = { Qt::Key_Exclam,
 									NOKEY_3
 
 static TabletKeymap::Layout sFrAzerty = {
-	{ FR_AZERTY_NUMBERS_10(1) },
+	{ FR_AZERTY_NUMBERS_10(1), KEY_1(2, cKey_Trackball) },
 	{ FR_AZERTY_TOP_10(1), KEY_1(1.5, Qt::Key_Backspace), NOKEY_1 },
 	{ KEY_2(-0.5, Qt::Key_Q, Qt::Key_Less), FR_AZERTY_MID_10(1), KEY_1(1, Qt::Key_Return) },
 	{ KEY_1(1, Qt::Key_Shift), FR_AZERTY_LOW_9(1), KEY_1(1.5, Qt::Key_Shift), NOKEY_1 },

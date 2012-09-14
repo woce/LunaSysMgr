@@ -52,9 +52,7 @@ static TabletKeymap::constUKeyArray uk_extended_4 = { UKey(0x42d), UKey(0x404), 
 										{ w, Qt::Key_7,			Qt::Key_Ampersand,						sUkQwerty7_extended },\
 										{ w, Qt::Key_8,			Qt::Key_Asterisk,						sUkQwerty8_extended },\
 										{ w, Qt::Key_9,			Qt::Key_ParenLeft,						sUkQwerty9_extended },\
-										{ w, Qt::Key_0,			Qt::Key_ParenRight,						sUkQwerty0_extended },\
-										{ w, Qt::Key_Left,		Qt::Key_Up,							    NULL },\
-										{ w, Qt::Key_Right,		Qt::Key_Down,							NULL }
+										{ w, Qt::Key_0,			Qt::Key_ParenRight,						sUkQwerty0_extended }
 
 #define UK_QWERTY_TOP(w)				{ w, UKey(0x419),       Qt::Key_QuoteLeft,						uk_extended_1},\
 										{ w, UKey(0x426),       Qt::Key_AsciiTilde,						NULL },\
@@ -128,7 +126,7 @@ static TabletKeymap::constUKeyArray uk_extended_4 = { UKey(0x42d), UKey(0x404), 
 									NOKEY_3
 
 static TabletKeymap::Layout sUkQwertyLayout = {
-	{ UK_QWERTY_NUMBERS(1) },
+	{ UK_QWERTY_NUMBERS(1), KEY_1(2, cKey_Trackball) },
 	{ UK_QWERTY_TOP(1), KEY_1(1.5, Qt::Key_Backspace), NOKEY_1 },
 	{ UK_QWERTY_MID(1), KEY_1(1.5, Qt::Key_Return), NOKEY_1 },
 	{ KEY_1(1, Qt::Key_Shift), UK_QWERTY_LOW(1), KEY_1(1.5, Qt::Key_Shift), NOKEY_1 },

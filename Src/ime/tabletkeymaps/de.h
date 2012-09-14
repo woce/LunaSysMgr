@@ -52,9 +52,7 @@ static TabletKeymap::constUKeyArray sMinusApostrophe_extended = { Qt::Key_Minus,
 										{ w, Qt::Key_7,			Qt::Key_Slash,							sDeQwertz7_extended },\
 										{ w, Qt::Key_8,			Qt::Key_ParenLeft,						sDeQwertz8_extended },\
 										{ w, Qt::Key_9,			Qt::Key_ParenRight,						sDeQwertz9_extended },\
-										{ w, Qt::Key_0,			Qt::Key_Equal,							sDeQwertz0_extended },\
-										{ w, Qt::Key_Left,		Qt::Key_Up,							    NULL },\
-										{ w, Qt::Key_Right,		Qt::Key_Down,							NULL }
+										{ w, Qt::Key_0,			Qt::Key_Equal,							sDeQwertz0_extended }
 
 #define DE_QWERTZ_TOP_10(w)				{ w, Qt::Key_Q,			Qt::Key_QuoteLeft,						NULL },\
 										{ w, Qt::Key_W,			Qt::Key_AsciiTilde,						NULL },\
@@ -127,7 +125,7 @@ static TabletKeymap::constUKeyArray sMinusApostrophe_extended = { Qt::Key_Minus,
 									NOKEY_3
 
 static TabletKeymap::Layout sDeQwertz = {
-	{ DE_QWERTZ_NUMBERS_10(1) },
+	{ DE_QWERTZ_NUMBERS_10(1), KEY_1(2, cKey_Trackball) },
 	{ DE_QWERTZ_TOP_10(1), KEY_1(1, Qt::Key_Backspace), NOKEY_1 },
 	{ KEY_2(-0.2, Qt::Key_A, Qt::Key_Less), DE_QWERTZ_MID_9(1), KEY_1(0.8, Qt::Key_Return), NOKEY_1 },
 	{ KEY_1(0.8, Qt::Key_Shift), DE_QWERTZ_LOW_9(1), KEY_1(2, Qt::Key_Shift), NOKEY_1 },

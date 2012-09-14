@@ -47,9 +47,7 @@ static TabletKeymap::constUKeyArray sUsDvorak0_extended = { Qt::Key_0, Qt::Key_P
 										{ w, Qt::Key_7,			Qt::Key_Ampersand,						sUsDvorak7_extended },\
 										{ w, Qt::Key_8,			Qt::Key_Asterisk,						sUsDvorak8_extended },\
 										{ w, Qt::Key_9,			Qt::Key_ParenLeft,						sUsDvorak9_extended },\
-										{ w, Qt::Key_0,			Qt::Key_ParenRight,						sUsDvorak0_extended },\
-										{ w, Qt::Key_Left,		Qt::Key_Up,							    NULL },\
-										{ w, Qt::Key_Right,		Qt::Key_Down,							NULL }
+										{ w, Qt::Key_0,			Qt::Key_ParenRight,						sUsDvorak0_extended }
 
 #define US_DVORAK_TOP_9(w)				{ w, Qt::Key_Comma,		Qt::Key_Slash,							sCommaSlash_extended },\
 										{ w, Qt::Key_Period,	Qt::Key_Question,						sPeriodQuestion_extended },\
@@ -121,7 +119,7 @@ static TabletKeymap::constUKeyArray sUsDvorak0_extended = { Qt::Key_0, Qt::Key_P
 									NOKEY_3
 
 static TabletKeymap::Layout sUsDvorakLayout = {
-	{ US_DVORAK_NUMBERS_10(1) },
+	{ US_DVORAK_NUMBERS_10(1), KEY_1(2, cKey_Trackball) },
 	{ US_DVORAK_TOP_9(1), KEY_1(1, Qt::Key_Backspace), NOKEY_1 },
 	{ KEY_2(-0.5, Qt::Key_A, Qt::Key_Less), US_DVORAK_MID_10(1), KEY_1(1.5, Qt::Key_Return) },
 	{ NOKEY_1, KEY_1(1, Qt::Key_Shift), US_DVORAK_LOW_8(1), KEY_1(1, Qt::Key_Shift), NOKEY_1 },
@@ -158,9 +156,7 @@ static TabletKeymap::constUKeyArray sUsQwerty0_extended = { Qt::Key_0, Qt::Key_P
 										{ w, Qt::Key_7,			Qt::Key_Ampersand,						sUsQwerty7_extended },\
 										{ w, Qt::Key_8,			Qt::Key_Asterisk,						sUsQwerty8_extended },\
 										{ w, Qt::Key_9,			Qt::Key_ParenLeft,						sUsQwerty9_extended },\
-										{ w, Qt::Key_0,			Qt::Key_ParenRight,						sUsQwerty0_extended },\
-										{ w, Qt::Key_Left,		Qt::Key_Up,							    NULL },\
-										{ w, Qt::Key_Right,		Qt::Key_Down,							NULL }
+										{ w, Qt::Key_0,			Qt::Key_ParenRight,						sUsQwerty0_extended }
 
 #define US_QWERTY_TOP_10(w)				{ w, Qt::Key_Q,			Qt::Key_QuoteLeft,						NULL },\
 										{ w, Qt::Key_W,			Qt::Key_AsciiTilde,						NULL },\
@@ -230,7 +226,7 @@ static TabletKeymap::constUKeyArray sUsQwerty0_extended = { Qt::Key_0, Qt::Key_P
 									NOKEY_3
 
 static TabletKeymap::Layout sUsQwertyLayout = {
-	{ US_QWERTY_NUMBERS_10(1) },
+	{ US_QWERTY_NUMBERS_10(1), KEY_1(2, cKey_Trackball) },
 	{ US_QWERTY_TOP_10(1), KEY_1(1, Qt::Key_Backspace), NOKEY_1 },
 	{ KEY_2(-0.5, Qt::Key_A, Qt::Key_Less), US_QWERTY_MID_9(1), KEY_1(1.5, Qt::Key_Return), NOKEY_1 },
 	{ KEY_1(1, Qt::Key_Shift), US_QWERTY_LOW_9(1), KEY_1(1, Qt::Key_Shift), NOKEY_1 },

@@ -222,6 +222,7 @@ private:
 	uint64_t			m_lastUnlockTime;
 
 	bool				m_resizeMode;
+	bool				m_trackballMode;
 	int					m_keyboardTopPading;
 	int					m_requestedHeight;
 	NineTileCorner		m_9tileCorner;
@@ -250,6 +251,8 @@ private:
 	bool				m_diamondOptimization;
 
 	bool				m_idleInit;
+	
+	QPointF				m_trackballDelta;
 
 	// keyboard special key assets.
 	IMEPixmap			m_backspace;

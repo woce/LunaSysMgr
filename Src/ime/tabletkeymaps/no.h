@@ -47,9 +47,7 @@ static TabletKeymap::constUKeyArray sNoQwerty0_extended = { Qt::Key_0, Qt::Key_Q
 										{ w, Qt::Key_7,			Qt::Key_Slash,							sNoQwerty7_extended },\
 										{ w, Qt::Key_8,			Qt::Key_ParenLeft,						sNoQwerty8_extended },\
 										{ w, Qt::Key_9,			Qt::Key_ParenRight,						sNoQwerty9_extended },\
-										{ w, Qt::Key_0,			Qt::Key_Question,						sNoQwerty0_extended },\
-										{ w, Qt::Key_Left,		Qt::Key_Up,							    NULL },\
-										{ w, Qt::Key_Right,		Qt::Key_Down,							NULL }
+										{ w, Qt::Key_0,			Qt::Key_Question,						sNoQwerty0_extended }
 
 #define NO_QWERTY_TOP_11(w)				{ w, Qt::Key_Q,			Qt::Key_QuoteLeft,						NULL },\
 										{ w, Qt::Key_W,			Qt::Key_AsciiTilde,						NULL },\
@@ -121,7 +119,7 @@ static TabletKeymap::constUKeyArray sNoQwerty0_extended = { Qt::Key_0, Qt::Key_Q
 									KEY_3(1, cKey_Hide, cKey_Hide, sHide_extended),\
 
 static TabletKeymap::Layout sNoQwertyLayout = {
-	{ NO_QWERTY_NUMBERS_10(1) },
+	{ NO_QWERTY_NUMBERS_10(1), KEY_1(2, cKey_Trackball) },
 	{ NO_QWERTY_TOP_11(1), KEY_1(2, Qt::Key_Backspace), NOKEY_1 },
 	{ KEY_2(-0.2, Qt::Key_A, Qt::Key_Less), NO_QWERTY_MID_11(1), KEY_1(1, Qt::Key_Return), NOKEY_1 },
 	{ KEY_1(0.8, Qt::Key_Shift), NO_QWERTY_LOW_9(1), KEY_1(2, Qt::Key_Shift), NOKEY_1 },

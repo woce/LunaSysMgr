@@ -120,6 +120,7 @@ TabletKeyboard::TabletKeyboard(IMEDataInterface * dataInterface) : VirtualKeyboa
 	m_shiftDown(false),
 	m_symbolDown(false),
 	m_resizeMode(false),
+	m_trackballMode(false),
 	m_lastShiftTime(0),
 	m_lastUnlockTime(0),
 	m_keyboardTopPading(0),
@@ -137,6 +138,7 @@ TabletKeyboard::TabletKeyboard(IMEDataInterface * dataInterface) : VirtualKeyboa
 	m_shortcutsHandler(dataInterface),
 	m_diamondOptimization(true),
 	m_idleInit(false),
+	m_trackballDelta(0,0),
 	m_backspace("icon-delete.png"),
 	m_shift("icon-shift.png"),
 	m_shift_on("icon-shift-on.png"),
@@ -587,6 +589,42 @@ void TabletKeyboard::updateTouch(int id, QPointF position)
 		touch.m_lastPosition = touchPosition;
 		touch.m_inCandidateBar = inCandidatebar;
 	}
+	if (m_trackballMode)
+	{
+		QPointF moved = touchPosition - touch.m_lastPosition;
+		m_trackballDelta += moved;
+			
+		if(m_trackballDelta.x() >= 15)
+		{
+			m_trackballDelta = QPointF(0,0);
+			makeSound(Qt::Key_Backspace);
+			sendKeyDownUp(Qt::Key_Right, m_keymap.isShiftDown() ? Qt::ShiftModifier : Qt::NoModifier);
+		}
+
+		if(m_trackballDelta.x() <= -15)
+		{
+			m_trackballDelta = QPointF(0,0);
+			makeSound(Qt::Key_Backspace);
+			sendKeyDownUp(Qt::Key_Left, m_keymap.isShiftDown() ? Qt::ShiftModifier : Qt::NoModifier);
+		}
+			
+		if(m_trackballDelta.y() <= -15)
+		{
+			m_trackballDelta = QPointF(0,0);
+			makeSound(Qt::Key_Backspace);
+			sendKeyDownUp(Qt::Key_Up, m_keymap.isShiftDown() ? Qt::ShiftModifier : Qt::NoModifier);
+		}
+			
+		if(m_trackballDelta.y() >= 15)
+		{
+			m_trackballDelta = QPointF(0,0);
+			makeSound(Qt::Key_Backspace);
+			sendKeyDownUp(Qt::Key_Down, m_keymap.isShiftDown() ? Qt::ShiftModifier : Qt::NoModifier);
+		}
+		
+		touch.m_lastPosition = touchPosition;
+		return;
+	}
 	if (m_resizeMode)
 	{
 		if (!touch.m_consumed)
@@ -666,7 +704,12 @@ void TabletKeyboard::updateTouch(int id, QPointF position)
 			}
 			if (newTouch)
 			{
-				if (newKey == cKey_ResizeHandle)
+				if (newKey == cKey_Trackball)
+				{
+					m_trackballMode = true;
+					clearExtendedkeys();
+				}
+				else if (newKey == cKey_ResizeHandle)
 				{
 					m_resizeMode = true;
 					PixmapCache::instance().suspendPurge(true);
@@ -971,7 +1014,7 @@ void TabletKeyboard::touchEvent(const QTouchEvent& te)
 				Qt::TouchPointState state = touchPoint.state();
 				if (state == Qt::TouchPointReleased)
 				{
-					if (!m_resizeMode)
+					if (!m_trackballMode && !m_resizeMode)
 						releaseTouch(touchPoint.id());
 					m_touches.erase(touchPoint.id());
 				}
@@ -1005,6 +1048,10 @@ void TabletKeyboard::touchEvent(const QTouchEvent& te)
 				for (QList<QTouchEvent::TouchPoint>::ConstIterator iter = touchPoints.constBegin(); iter != touchPoints.constEnd(); ++iter)
 					m_candidateBar.endTrace(iter->id());
 				m_touches.clear();
+			}
+			if (m_trackballMode)
+			{
+				m_trackballMode = false;
 			}
 			if (m_resizeMode)
 			{

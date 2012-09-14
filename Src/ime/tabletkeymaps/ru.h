@@ -48,9 +48,7 @@ static TabletKeymap::constUKeyArray rub_extended = { UKey(0x42c), UKey(0x42a), c
 										{ w, Qt::Key_7,			Qt::Key_Ampersand,						sRuQwerty7_extended },\
 										{ w, Qt::Key_8,			Qt::Key_Asterisk,						sRuQwerty8_extended },\
 										{ w, Qt::Key_9,			Qt::Key_ParenLeft,						sRuQwerty9_extended },\
-										{ w, Qt::Key_0,			Qt::Key_ParenRight,						sRuQwerty0_extended },\
-										{ w, Qt::Key_Left,		Qt::Key_Up,							    NULL },\
-										{ w, Qt::Key_Right,		Qt::Key_Down,							NULL }
+										{ w, Qt::Key_0,			Qt::Key_ParenRight,						sRuQwerty0_extended }
 
 #define RU_QWERTY_TOP(w)				{ w, UKey(0x419),       Qt::Key_QuoteLeft,						NULL },\
 										{ w, UKey(0x426),       Qt::Key_AsciiTilde,						NULL },\
@@ -124,7 +122,7 @@ static TabletKeymap::constUKeyArray rub_extended = { UKey(0x42c), UKey(0x42a), c
 									NOKEY_3
 
 static TabletKeymap::Layout sRuQwertyLayout = {
-	{ RU_QWERTY_NUMBERS(1) },
+	{ RU_QWERTY_NUMBERS(1), KEY_1(2, cKey_Trackball) },
 	{ RU_QWERTY_TOP(1), KEY_1(1.5, Qt::Key_Backspace), NOKEY_1 },
 	{ RU_QWERTY_MID(1), KEY_1(1.5, Qt::Key_Return), NOKEY_1 },
 	{ KEY_1(1, Qt::Key_Shift), RU_QWERTY_LOW(1), KEY_1(1.5, Qt::Key_Shift), NOKEY_1 },
