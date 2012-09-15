@@ -2,6 +2,7 @@
 #include "BezelGestureRecognizer.h"
 
 #include "HostBase.h"
+#include "IMEController.h"
 
 #include <QEvent>
 #include <QTouchEvent>
@@ -35,6 +36,8 @@ QGestureRecognizer::Result BezelGestureRecognizer::recognize(QGesture *state,
 
 	//Result to return
 	QGestureRecognizer::Result result;
+	
+	int triggerDistance = !IMEController::instance()->isIMEOpened() ? kGestureTriggerDistance : kGestureTriggerDistance * 4;
     
     //Switch statement to make sure we're actually handling touch events
     switch (event->type()) {
@@ -102,7 +105,7 @@ QGestureRecognizer::Result BezelGestureRecognizer::recognize(QGesture *state,
 				{
 					q->setEdge(Left);
 					//If the finger has moved in a horizontal direction
-					if(delta.x() >= kGestureTriggerDistance && delta.x() > delta.y())
+					if(delta.x() >= triggerDistance && delta.x() > delta.y())
 					{
 						//Set variables and trigger gesture
 						fired = true;
@@ -115,7 +118,7 @@ QGestureRecognizer::Result BezelGestureRecognizer::recognize(QGesture *state,
 				{
 					q->setEdge(Right);
 					//If the finger has moved in a horizontal direction
-					if(delta.x() <= -kGestureTriggerDistance && delta.x() < delta.y())
+					if(delta.x() <= -triggerDistance && delta.x() < delta.y())
 					{
 						//Set variables and trigger gesture
 						fired = true;
@@ -130,7 +133,7 @@ QGestureRecognizer::Result BezelGestureRecognizer::recognize(QGesture *state,
 				{
 					q->setEdge(Bottom);
 					//If the finger has moved in a vertical direction
-					if(delta.y() <= -kGestureTriggerDistance && delta.y() < delta.x())
+					if(delta.y() <= -triggerDistance && delta.y() < delta.x())
 					{
 						//Set variables and trigger gesture
 						fired = true;
@@ -163,8 +166,8 @@ QGestureRecognizer::Result BezelGestureRecognizer::recognize(QGesture *state,
 			else if (event->type() == QEvent::TouchEnd)
 			{
 				if(fired == true
-				|| abs(delta.x()) >= kGestureTriggerDistance
-				|| abs(delta.y()) >= kGestureTriggerDistance)
+				|| abs(delta.x()) >= triggerDistance
+				|| abs(delta.y()) >= triggerDistance)
 				{
 					result = QGestureRecognizer::FinishGesture;
 					fired = false;
