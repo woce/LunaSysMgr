@@ -139,6 +139,8 @@ TabletKeyboard::TabletKeyboard(IMEDataInterface * dataInterface) : VirtualKeyboa
 	m_diamondOptimization(true),
 	m_idleInit(false),
 	m_trackballDelta(0,0),
+	m_trackballVelocity(0.0f,0.0f),
+	m_trackballTimer(this),
 	m_backspace("icon-delete.png"),
 	m_shift("icon-shift.png"),
 	m_shift_on("icon-shift-on.png"),
@@ -159,7 +161,7 @@ TabletKeyboard::TabletKeyboard(IMEDataInterface * dataInterface) : VirtualKeyboa
 	m_emoticon_gasp_small("/usr/palm/emoticons/emoticon-gasp.png"),
 	m_emoticon_heart_small("/usr/palm/emoticons/emoticon-heart.png"),
 	m_trackball("/usr/palm/sysmgr/images/statusBar/slider-handle.png"),
-	m_trackballArrows("/usr/palm/sysmgr/images/meta-move.png"),
+	m_trackballArrows("/usr/palm/sysmgr/images/menu-arrow-down.png"),
 	m_background("keyboard-bg.png"),
 	m_drag_handle("drag-handle.png"),
 	m_drag_highlight("drag-highlight.png"),
@@ -195,6 +197,7 @@ TabletKeyboard::TabletKeyboard(IMEDataInterface * dataInterface) : VirtualKeyboa
 	connect(&m_IMEDataInterface->m_editorState, SIGNAL(valueChanged(const PalmIME::EditorState &)), SLOT(editorStateChanged(const PalmIME::EditorState &)));
 	connect(&m_IMEDataInterface->m_autoCap, SIGNAL(valueChanged(const bool &)), SLOT(autoCapChanged(const bool &)));
 	connect(&m_timer, SIGNAL(timeout()), this, SLOT(repeatChar()));
+	connect(&m_trackballTimer, SIGNAL(timeout()), this, SLOT(tickTrackball()));
 
 	m_candidateBar.font().setPixelSize(24);
 
@@ -599,6 +602,8 @@ void TabletKeyboard::updateTouch(int id, QPointF position)
 		if(m_trackballDelta.x() >= 15)
 		{
 			m_trackballDelta = QPointF(0,0);
+			if(m_trackballVelocity.x() < 1.0f)
+				m_trackballVelocity += QPointF(0.1f,0.0f);
 			makeSound(Qt::Key_Backspace);
 			sendKeyDownUp(Qt::Key_Right, m_keymap.isShiftDown() ? Qt::ShiftModifier : Qt::NoModifier);
 		}
@@ -606,6 +611,8 @@ void TabletKeyboard::updateTouch(int id, QPointF position)
 		if(m_trackballDelta.x() <= -15)
 		{
 			m_trackballDelta = QPointF(0,0);
+			if(m_trackballVelocity.x() > -1.0f)
+				m_trackballVelocity -= QPointF(0.1f,0.0f);
 			makeSound(Qt::Key_Backspace);
 			sendKeyDownUp(Qt::Key_Left, m_keymap.isShiftDown() ? Qt::ShiftModifier : Qt::NoModifier);
 		}
@@ -613,6 +620,8 @@ void TabletKeyboard::updateTouch(int id, QPointF position)
 		if(m_trackballDelta.y() <= -15)
 		{
 			m_trackballDelta = QPointF(0,0);
+			if(m_trackballVelocity.y() > -1.0f)
+				m_trackballVelocity -= QPointF(0.0f,0.1f);
 			makeSound(Qt::Key_Backspace);
 			sendKeyDownUp(Qt::Key_Up, m_keymap.isShiftDown() ? Qt::ShiftModifier : Qt::NoModifier);
 		}
@@ -620,11 +629,14 @@ void TabletKeyboard::updateTouch(int id, QPointF position)
 		if(m_trackballDelta.y() >= 15)
 		{
 			m_trackballDelta = QPointF(0,0);
+			if(m_trackballVelocity.y() < 1.0f)
+				m_trackballVelocity += QPointF(0.0f,0.1f);
 			makeSound(Qt::Key_Backspace);
 			sendKeyDownUp(Qt::Key_Down, m_keymap.isShiftDown() ? Qt::ShiftModifier : Qt::NoModifier);
 		}
 		
 		touch.m_lastPosition = touchPosition;
+		triggerRepaint();
 		return;
 	}
 	if (m_resizeMode)
@@ -709,6 +721,7 @@ void TabletKeyboard::updateTouch(int id, QPointF position)
 				if (newKey == cKey_Trackball)
 				{
 					m_trackballMode = true;
+					m_trackballTimer.stop();
 					clearExtendedkeys();
 				}
 				else if (newKey == cKey_ResizeHandle)
@@ -1054,6 +1067,7 @@ void TabletKeyboard::touchEvent(const QTouchEvent& te)
 			if (m_trackballMode)
 			{
 				m_trackballMode = false;
+				m_trackballTimer.start(62);
 			}
 			if (m_resizeMode)
 			{
@@ -1108,6 +1122,23 @@ void TabletKeyboard::repeatChar()
 	}
 	else
 		stopRepeat();
+}
+
+void TabletKeyboard::tickTrackball()
+{
+	if(m_trackballVelocity.x() == 0.0f && m_trackballVelocity.y() == 0.0f) {
+		m_trackballTimer.stop();
+		triggerRepaint();
+		return;
+	}
+	
+	if(m_trackballVelocity.x() > 0.1f) m_trackballVelocity -= QPointF(0.1f,0.0f);
+	else if(m_trackballVelocity.x() < -0.1f) m_trackballVelocity += QPointF(0.1f,0.0f);
+	
+	if(m_trackballVelocity.y() > 0.1f) m_trackballVelocity -= QPointF(0.0f,0.1f);
+	else if(m_trackballVelocity.y() < -0.1f) m_trackballVelocity += QPointF(0.0f,0.1f);
+	
+	triggerRepaint();
 }
 
 bool TabletKeyboard::setExtendedKeys(QPoint keyCoord, bool cancelIfSame)
@@ -1569,7 +1600,64 @@ void TabletKeyboard::drawKeyCap(QPainter * painter, GlyphRenderer<GlyphSpec> & r
 				}
 			}
 			else
-				painter->drawPixmap((int) location.left() + (location.width() - pix->width()) / 2, (int) location.top() + (location.height() - pix->height()) / 2, *pix);
+			{
+				if(key != cKey_Trackball)
+					painter->drawPixmap((int) location.left() + (location.width() - pix->width()) / 2, (int) location.top() + (location.height() - pix->height()) / 2, *pix);
+				else
+				{
+					//Ball
+					painter->drawPixmap((int) location.center().x() - pix->width()/2, (int) location.center().y() - pix->height()/2, *pix);
+					
+					QTransform transform;
+					transform.translate(location.center().x(), location.center().y());
+					
+					//Arrows
+					for(int i = 0; i <=3; i++)
+					{
+						//Set opacity based off of velocity
+						switch(i) {
+							case 0:
+								if(m_trackballVelocity.y() > 0)
+									painter->setOpacity(m_trackballVelocity.y() + 0.2f);
+								else
+									painter->setOpacity(0.2f);
+									
+								painter->drawPixmap((int) location.center().x() - 1 - m_trackballArrows.width()/2, (int) location.center().y() + m_trackballArrows.height()/3, m_trackballArrows);
+								break;
+							case 1:
+								if(m_trackballVelocity.x() < 0)
+									painter->setOpacity(-m_trackballVelocity.x() + 0.2f);
+								else
+									painter->setOpacity(0.2f);
+									
+								painter->drawPixmap((int) location.center().x() - m_trackballArrows.width()/2, (int) location.center().y() + m_trackballArrows.height()/3, m_trackballArrows);
+								break;
+							case 2:
+								if(m_trackballVelocity.y() < 0)
+									painter->setOpacity(-m_trackballVelocity.y() + 0.2f);
+								else
+									painter->setOpacity(0.2f);
+									
+								painter->drawPixmap((int) location.center().x() - m_trackballArrows.width()/2, (int) location.center().y() - 1 + m_trackballArrows.height()/3, m_trackballArrows);
+								break;
+							case 3:
+								if(m_trackballVelocity.x() > 0)
+									painter->setOpacity(m_trackballVelocity.x() + 0.2f);
+								else
+									painter->setOpacity(0.2f);
+									
+								painter->drawPixmap((int) location.center().x() - 1 - m_trackballArrows.width()/2, (int) location.center().y() - 1 + m_trackballArrows.height()/3, m_trackballArrows);
+								break;
+						}
+						painter->setTransform(transform, true);
+						painter->rotate(90);
+						painter->setTransform(transform.inverted(), true);
+					}
+					
+					//Reset Opacity
+					painter->setOpacity(1.0);
+				}
+			}
 		}
 	}
 	else if (key == cKey_ToggleLanguage)
