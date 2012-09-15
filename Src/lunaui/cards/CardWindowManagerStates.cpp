@@ -211,7 +211,7 @@ void GroupState::tapAndHoldGestureEvent(QTapAndHoldGesture* event)
 
 bool GroupState::handleKeyNavigation(QKeyEvent* keyEvent)
 {
-    //m_wm->handleKeyNavigationMinimized(keyEvent);
+    m_wm->handleKeyNavigationGroup(keyEvent);
     return true;
 }
 
@@ -534,9 +534,9 @@ void MaximizeState::changeCardWindow(bool next)
 		m_wm->slotMinimizeActiveCardWindow();
 		
 		if(next)
-			m_wm->switchToPrevGroup();
+			m_wm->switchToPrevApp();
 		else
-			m_wm->switchToNextGroup();
+			m_wm->switchToNextApp();
 		
 		m_wm->slotMaximizeActiveCardWindow();
 	}

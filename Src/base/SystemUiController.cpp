@@ -522,7 +522,12 @@ bool SystemUiController::handleKeyEvent(QKeyEvent *event)
         	if(ctrl)
         	{
 				if(Preferences::instance()->getTabbedCardsPreference())
-					Q_EMIT signalSideSwipe(true);
+				{
+					if(!CardWindowManager::instance()->isGroup())
+						Q_EMIT signalSideSwipe(true);
+					else
+						CardWindowManager::instance()->cycleGroupTabs();
+				}
 				else
 					handleSideSwipe(false);
         		return true;
@@ -531,14 +536,18 @@ bool SystemUiController::handleKeyEvent(QKeyEvent *event)
         case Qt::Key_Left: {
         	if(ctrl)
         	{
-				handleSideSwipe(true);
+				if (!m_launcherShown) {
+					Q_EMIT signalChangeCardWindow(true);
+				}
         		return true;
         	}
         }
         case Qt::Key_Right: {
         	if(ctrl)
         	{
-				handleSideSwipe(false);
+				if (!m_launcherShown) {
+					Q_EMIT signalChangeCardWindow(false);
+				}
         		return true;
         	}
         }

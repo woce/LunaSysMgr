@@ -126,34 +126,32 @@ class GroupState : public CardWindowManagerState
   Q_OBJECT
 
 public:
-  GroupState(CardWindowManager* wm)
-        : CardWindowManagerState(wm) { setObjectName("GroupState"); }
+	GroupState(CardWindowManager* wm)
+		: CardWindowManagerState(wm) { setObjectName("GroupState"); }
 
-  virtual void mousePressEvent(QGraphicsSceneMouseEvent* event);
-  virtual void mouseMoveEvent(QGraphicsSceneMouseEvent* event);
-  virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent* event);
-
-  virtual void flickGestureEvent(QGestureEvent* event);
-  virtual void tapGestureEvent(QTapGesture* event);
-  virtual void tapAndHoldGestureEvent(QTapAndHoldGesture* event);
-
-  virtual void animationsFinished();
-  virtual void changeCardWindow(bool);
-  virtual void windowAdded(CardWindow* win);
-  virtual void windowTimedOut(CardWindow* win);
-
-
-
-  virtual void relayout(const QRectF& r, bool animate);
-
-    virtual bool handleKeyNavigation(QKeyEvent* keyEvent);
+	virtual void mousePressEvent(QGraphicsSceneMouseEvent* event);
+	virtual void mouseMoveEvent(QGraphicsSceneMouseEvent* event);
+	virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent* event);
+	
+	virtual void flickGestureEvent(QGestureEvent* event);
+	virtual void tapGestureEvent(QTapGesture* event);
+	virtual void tapAndHoldGestureEvent(QTapAndHoldGesture* event);
+	
+	virtual void animationsFinished();
+	virtual void changeCardWindow(bool);
+	virtual void windowAdded(CardWindow* win);
+	virtual void windowTimedOut(CardWindow* win);
+	
+	virtual void relayout(const QRectF& r, bool animate);
+	
+	virtual bool handleKeyNavigation(QKeyEvent* keyEvent);
 
 protected:
-  virtual void onExit(QEvent *event);
-  virtual void onEntry(QEvent* event);
+	virtual void onExit(QEvent *event);
+	virtual void onEntry(QEvent* event);
 
 Q_SIGNALS:
-  void signalFirstCardRun();
+	void signalFirstCardRun();
 };
 
 // -----------------------------------------------------------------------------------

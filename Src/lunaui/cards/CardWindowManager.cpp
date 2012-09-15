@@ -2400,6 +2400,39 @@ void CardWindowManager::handleFlickGestureGroup(QGestureEvent* event)
   }
 }
 
+void CardWindowManager::handleKeyNavigationGroup(QKeyEvent* keyEvent)
+{
+    if (!m_activeGroup || keyEvent->type() != QEvent::KeyPress)
+        return;
+
+    switch (keyEvent->key()) {
+    case Qt::Key_Up:
+		m_activeGroup->makeBackCardActive();
+		showGroupCards(true);
+		SystemUiController::instance()->setActiveCardWindow(m_activeGroup ? m_activeGroup->activeCard() : 0);
+        break;
+    case Qt::Key_Down:
+		m_activeGroup->makeBackCardActive();
+		showGroupCards(true);
+		SystemUiController::instance()->setActiveCardWindow(m_activeGroup ? m_activeGroup->activeCard() : 0);
+        break;
+    case Qt::Key_Return:
+		m_activeGroup->moveToActiveCard();
+		setActiveGroup(m_activeGroup);
+		clearAnimations();
+		maximizeActiveWindow();
+        break;
+    default:
+        break;
+    }
+}
+
+void CardWindowManager::cycleGroupTabs()
+{
+	m_activeGroup->makeBackCardActive();
+	showGroupCards(true);
+	SystemUiController::instance()->setActiveCardWindow(m_activeGroup ? m_activeGroup->activeCard() : 0);
+}
 
 bool CardWindowManager::whichSideOfScreen(QPointF p)
 {

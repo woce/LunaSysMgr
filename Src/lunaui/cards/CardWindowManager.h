@@ -91,6 +91,9 @@ public:
 	virtual bool isMinimized();
 	virtual bool isMaximized();
 	virtual bool isGroup();
+	
+	// cycle through cards in tabbed view
+	void cycleGroupTabs();
 
 	CardWindow* modalParent() const { return m_parentOfModalCard; }
 
@@ -189,12 +192,13 @@ private:
 
 	void handleTapAndHoldGestureMinimized(QTapAndHoldGesture* event);
 
-    // For tabbed cards input handling
-  void handleMousePressGroup(QGraphicsSceneMouseEvent* event);
-  void handleMouseMoveGroup(QGraphicsSceneMouseEvent* event);
-  void handleMouseReleaseGroup(QGraphicsSceneMouseEvent* event);
-  void handleTapGestureGroupView(QTapGesture* event);
-  void handleFlickGestureGroup(QGestureEvent* event);
+	// For tabbed cards input handling
+	void handleMousePressGroup(QGraphicsSceneMouseEvent* event);
+	void handleMouseMoveGroup(QGraphicsSceneMouseEvent* event);
+	void handleMouseReleaseGroup(QGraphicsSceneMouseEvent* event);
+	void handleTapGestureGroupView(QTapGesture* event);
+	void handleFlickGestureGroup(QGestureEvent* event);
+	void handleKeyNavigationGroup(QKeyEvent* keyEvent);
 
 
     void handleKeyNavigationMinimized(QKeyEvent* keyEvent);
