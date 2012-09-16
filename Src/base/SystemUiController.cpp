@@ -186,6 +186,8 @@ void SystemUiController::init()
 	connect(ss, SIGNAL(signalExitBrickMode()), this, SLOT(slotExitBrickMode()));
 
 	connect(WebAppMgrProxy::instance(), SIGNAL(signalKeyEventRejected(const SysMgrKeyEvent&)), this, SLOT(slotKeyEventRejected(const SysMgrKeyEvent&)));
+	
+	connect(Preferences::instance(), SIGNAL(signalGetPrefsComplete()), this, SLOT(slotGetPrefsComplete()));
 
 	// Initial sizes for positive and negative spaces
     int positiveSpaceFromTop = Settings::LunaSettings()->positiveSpaceTopPadding;
@@ -2157,6 +2159,12 @@ void SystemUiController::slotExitBrickMode()
 		g_warning ("%s: %d", __PRETTY_FUNCTION__, __LINE__);
 		Q_EMIT signalCloseDashboard(false);
 	}
+}
+
+void SystemUiController::slotGetPrefsComplete()
+{
+	qCritical() << "Get Preferences Complete (SysUiController)";
+	updateStatusBarTitle();
 }
 
 void SystemUiController::launcherAction(LauncherActions act)

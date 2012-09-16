@@ -392,6 +392,8 @@ private Q_SLOTS:
 
 	void slotEnterBrickMode(bool val);
 	void slotExitBrickMode();
+	
+	void slotGetPrefsComplete();
 
 	void slotCopy();
 	void slotCut();
