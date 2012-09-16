@@ -590,7 +590,20 @@ bool SystemUiController::handleKeyEvent(QKeyEvent *event)
 			if (m_menuVisible && !m_deviceLocked) {
 				Q_EMIT signalHideMenu();
 			}
-
+			
+			/*//Numbers for QL
+			if (event->key() > 0x30 && event->key() < 0x39 && ctrl)
+			{
+				if(CardWindowManager::instance()->isMaximized()) {
+					int pos = ((((int) event->key()) - 48) * (m_uiWidth/6)) - ((m_uiWidth/6)/2) - m_uiWidth/2; //6 = amount of icons in QL
+					m_waveBar = true;
+					Q_EMIT signalShowDock();
+					OverlayWindowManager::systemActiveInstance()->animateWaveDock(QPoint(0,m_uiHeight/2 - 50));
+					OverlayWindowManager::systemActiveInstance()->quicklaunchBar()->quickLaunchBar()->setWavePos(pos);
+					OverlayWindowManager::systemActiveInstance()->quicklaunchBar()->quickLaunchBar()->rearrangeIcons(false);
+				}
+			}
+			*/
 			// Allow event to be passed on to webkit(!)
 			break;
 		}
@@ -860,6 +873,16 @@ bool SystemUiController::handleKeyEvent(QKeyEvent *event)
             IMEController::instance()->setIMEActive(!IMEController::instance()->isIMEActive());
             return true;
         }
+        /*//Wave Launcher
+		case Qt::Key_Control: {
+			if(m_waveBar)
+			{
+				m_waveBar = false;
+				Q_EMIT signalHideDock();
+				OverlayWindowManager::systemActiveInstance()->quicklaunchBar()->quickLaunchBar()->waveRelease();
+			}
+		}
+		*/
 		default:
 			// eat away all keys if a menu window is visible
 			if (m_menuVisible)
