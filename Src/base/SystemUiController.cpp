@@ -295,7 +295,7 @@ bool SystemUiController::handleMouseEvent(QMouseEvent *event)
 		{
 			if(!OverlayWindowManager::systemActiveInstance()->dockInAnimation())
 			{
-				yDown = max(yDown, m_uiWidth/4);
+				yDown = max(yDown, m_uiHeight/3);
 				OverlayWindowManager::systemActiveInstance()->animateWaveDock(QPoint(xDown - (m_uiWidth/2),yDown - (m_uiHeight/2) - 16));
 				return true;
 			}
