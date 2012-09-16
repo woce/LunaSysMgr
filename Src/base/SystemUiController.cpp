@@ -307,8 +307,8 @@ bool SystemUiController::handleMouseEvent(QMouseEvent *event)
 		}
 		else
 		{
-				if (Preferences::instance()->sysUiEnableWaveLauncher())
-				{
+			if (Preferences::instance()->sysUiEnableWaveLauncher())
+			{
 				QPoint diff(xDown - startX, yDown - startY);
 				if(diff.y() < -kGestureBorderSize * 2 && abs(diff.x()) < abs(diff.y()))
 				{
@@ -322,7 +322,7 @@ bool SystemUiController::handleMouseEvent(QMouseEvent *event)
 						}
 						else {
 							Q_EMIT signalShowDock();
-							OverlayWindowManager::systemActiveInstance()->animateWaveDock(QPoint(xDown - (m_uiWidth/2),yDown - (m_uiHeight/2) - 64));
+							OverlayWindowManager::systemActiveInstance()->animateWaveDock(QPoint(xDown - (m_uiWidth/2),yDown - (m_uiHeight/2) - 16));
 						}
 					}
 				}
