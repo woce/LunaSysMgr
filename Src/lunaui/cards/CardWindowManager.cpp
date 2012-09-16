@@ -2281,14 +2281,8 @@ void CardWindowManager::handleTapGestureMinimized(QTapGesture* event)
 	if (m_activeGroup->testHit(event->position())) {
 		// We need to see if the card hit was in a reasonable range of the active card.
 		// If it was then maximize it.
-		if (m_activeGroup->shouldMaximizeOrScroll(event->position())) {
-			m_activeGroup->setActiveCard(event->position());
-			maximizeActiveWindow();
-		}
-		// If it was not, slide the card fan over to make it more visible.
-		else {
-			slideAllGroups();
-		}
+		m_activeGroup->setActiveCard(event->position());
+		maximizeActiveWindow();
 	}
 	else {
 		// If the tap is to the left/right of the active group
