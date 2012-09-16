@@ -2163,7 +2163,6 @@ void SystemUiController::slotExitBrickMode()
 
 void SystemUiController::slotGetPrefsComplete()
 {
-	qCritical() << "Get Preferences Complete (SysUiController)";
 	updateStatusBarTitle();
 }
 
