@@ -696,7 +696,7 @@ bool WindowServer::processSystemShortcut(QEvent* event)
 				}
 				else {
 					unsigned int curTime = Time::curTimeMs();
-					if (homeKeyDown && (curTime - powerKeyDownTimeStamp) <= 3000) {
+					if (homeKeyDown && (curTime - powerKeyDownTimeStamp) <= 1000) {
 						takeAndSaveScreenShot();
 						QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
 						keyEvent->setModifiers(keyEvent->modifiers() | Qt::GroupSwitchModifier);
@@ -722,7 +722,7 @@ bool WindowServer::processSystemShortcut(QEvent* event)
 				}
 				else {
 					unsigned int curTime = Time::curTimeMs();
-					if (powerKeyDown && (curTime - homeKeyDownTimeStamp) <= 3000) {
+					if (powerKeyDown && (curTime - homeKeyDownTimeStamp) <= 500) {
 						takeAndSaveScreenShot();
 						QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
 						keyEvent->setModifiers(keyEvent->modifiers() | Qt::GroupSwitchModifier);
