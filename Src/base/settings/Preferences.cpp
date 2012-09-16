@@ -1123,7 +1123,9 @@ Done:
 
 	if (json && !is_error(json))
 		json_object_put(json);
-
+		
+	Q_EMIT prefObjPtr->signalGetPrefsComplete();
+			
 	return true;
 }
 

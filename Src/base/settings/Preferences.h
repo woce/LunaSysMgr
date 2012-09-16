@@ -124,6 +124,7 @@ Q_SIGNALS:
 	void signalMuteSoundChanged(bool muteOn);
 	void signalAlsEnabled(bool enable);
 	void signalDeviceNameChanged(std::string deviceName);
+	void signalGetPrefsComplete();
 	
 private:
 
