@@ -36,6 +36,13 @@ QT_BEGIN_NAMESPACE
 class QPropertyAnimation;
 QT_END_NAMESPACE
 
+enum LayoutMode {
+	Stack = 0, //Default minimized behaviour
+	Linear, //No overlap between cards
+	Minimize, //Minimize gesture
+	Tab //Tabbed cards
+};
+
 class CardGroup : public QObject
 {
 	Q_OBJECT
@@ -164,14 +171,11 @@ public:
 	qreal xDistanceFactor() const { return m_cardGroupXDistanceFactor; }
 	void setXDistanceFactor(const qreal xDistanceFactor) { m_cardGroupXDistanceFactor = xDistanceFactor; }
     
-    bool sizeOverride() const { return m_sizeOverride; }
-    void setSizeOverride(bool sizeOverride) { m_sizeOverride = sizeOverride; }
+    int layoutMode() const { return m_layoutMode; }
+    void setLayoutMode(int layoutMode) { m_layoutMode = layoutMode; }
     
-    bool minimizeGesture() const { return m_minimizeGesture; }
-    void setMinimizeGesture(bool minimizeGesture) { m_minimizeGesture = minimizeGesture; }
-    
-    qreal miniModeScale() const { return m_miniModeScale; }
-    void setMiniModeScale(qreal scale) { m_miniModeScale = scale; }
+    qreal miniScale() const { return m_miniScale; }
+    void setMiniScale(qreal scale) { m_miniScale = scale; }
 	
 	bool shouldMaximizeOrScroll(QPointF scenePt);
 	bool testHit(QPointF scenePt);
@@ -202,9 +206,8 @@ private:
 	// 1: 	3-4 cards with the second card being the center of the group
 	// N:	>4 cards where valid positions are between 1.0 and N - 4 + 1
 	qreal m_currentPosition;
-    bool m_sizeOverride;
-    bool m_minimizeGesture;
-    qreal m_miniModeScale;
+	int m_layoutMode;
+    qreal m_miniScale;
 };
 
 Q_DECLARE_METATYPE(CardWindow::Position)

@@ -43,9 +43,8 @@ CardGroup::CardGroup(qreal curScale, qreal nonCurScale)
 	, m_rightWidth(0)
 	, m_activeCard(0)
 	, m_currentPosition(0)
-	, m_sizeOverride(false)
-	, m_minimizeGesture(false)
-	, m_miniModeScale(1.0)
+	, m_layoutMode(0)
+	, m_miniScale(1.0)
 {
 	m_cardGroupRotFactor = Settings::LunaSettings()->cardGroupRotFactor;
 	m_cardGroupXDistanceFactor = Settings::LunaSettings()->cardGroupingXDistanceFactor;
@@ -736,72 +735,83 @@ QVector<CardWindow::Position> CardGroup::calculateOpenedPositions(qreal xOffset)
 	qreal rOff = ((m_curScale*50) + activeCardWidth);
 	qreal lOff = -(m_curScale*100);
 	qreal rot = m_curScale * m_cardGroupRotFactor;
-	for (int i=0; i<m_cards.size(); i++) {
-		
+	for (int i=0; i<m_cards.size(); i++)
+	{	
 		qreal x;
 		
-		//Minimized
-		if(!m_sizeOverride)
-		{
-			x = ((i - m_currentPosition) / 3.0) * activeCardWidth * m_cardGroupXDistanceFactor;
-	
-			positions[i].trans.setX(x);
-			positions[i].trans.setY(x > 0 ? x/15 : 0);
-			positions[i].trans.setZ(m_curScale*m_miniModeScale);
-			positions[i].zRot = x/rot;
-			
-			if (xOffset != 0) {
-				qreal maxDistUngrouped = activeCardWidth;
-				qreal amtToCollapse = qMax((qreal)1.0, maxDistUngrouped - qAbs(xOffset)) / maxDistUngrouped;
+		switch(m_layoutMode) {
+			case LayoutMode(Stack):
+			{
+				qCritical() << "Calculating Stack Layout";
+				x = ((i - m_currentPosition) / 3.0) * activeCardWidth * m_cardGroupXDistanceFactor;
+		
+				positions[i].trans.setX(x);
+				positions[i].trans.setY(x > 0 ? x/15 : 0);
+				positions[i].trans.setZ(m_curScale*m_miniScale);
+				positions[i].zRot = x/rot;
 				
-				positions[i].trans.setX((x*amtToCollapse) + (1-amtToCollapse) * 10 * (i));
-				positions[i].trans.setY(positions[i].trans.y() * amtToCollapse);
-				positions[i].trans.setZ((m_nonCurScale + (m_curScale-m_nonCurScale) * amtToCollapse) * m_miniModeScale);
-				positions[i].zRot *= amtToCollapse;
+				if (xOffset != 0) {
+					qreal maxDistUngrouped = activeCardWidth;
+					qreal amtToCollapse = qMax((qreal)1.0, maxDistUngrouped - qAbs(xOffset)) / maxDistUngrouped;
+					
+					positions[i].trans.setX((x*amtToCollapse) + (1-amtToCollapse) * 10 * (i));
+					positions[i].trans.setY(positions[i].trans.y() * amtToCollapse);
+					positions[i].trans.setZ((m_nonCurScale + (m_curScale-m_nonCurScale) * amtToCollapse) * m_miniScale);
+					positions[i].zRot *= amtToCollapse;
+				}
+					
+				break;
 			}
-        }
-        //Maximized
-        else if(m_sizeOverride)
-        {
-            if(m_cards.size() > 1)
-                x = (i-m_cards.indexOf(m_activeCard)) * (m_activeCard->boundingRect().width() + Settings::LunaSettings()->gapBetweenCardGroups);
-            else
-                x = (i-m_cards.indexOf(m_activeCard)) * m_activeCard->boundingRect().width();
-        	positions[i].trans.setX(x);   
-        	
-            //Horribly hacky method of determining offset
-            //Will probably break on non-TP resolutions
-            if(m_cards[0]->boundingRect().width() > m_cards[0]->boundingRect().height())
-                positions[i].trans.setY(46); //Landscape
-            else
-                positions[i].trans.setY(71); //Portrait
-            
-            positions[i].trans.setZ(1.0);
-        }
-        
-        //Minimize Gesture
-        if(m_minimizeGesture && m_sizeOverride)
-        {
-			x = (i - m_cards.indexOf(m_activeCard)) //Starting point - active card should always be at 0
-			* (m_activeCard->boundingRect().width() + Settings::LunaSettings()->gapBetweenCardGroups) //Card x difference
-			* 2.2 //Scaler to make the cards 'swoosh in' during the gesture
-			* qMax(qreal(m_curScale - 0.5),0.0f) //Limiter
-			* m_miniModeScale; //Mini Mode Adaptation
-	
-			positions[i].trans.setX(x);
-			
-            if(m_cards[0]->boundingRect().width() > m_cards[0]->boundingRect().height())
-                positions[i].trans.setY(46 * (m_curScale - 0.5) * 2); //Landscape
-            else
-                positions[i].trans.setY(71 * (m_curScale - 0.5) * 2); //Portrait
-			
-			if(xOffset == 0)
-				positions[i].trans.setZ(m_curScale);
-			else
-				positions[i].trans.setZ(m_nonCurScale);
-			
-			//positions[i].zRot = (x/rot);
-        }
+			case LayoutMode(Linear):
+			{
+				qCritical() << "Calculating Linear Layout";
+				if(m_cards.size() > 1)
+					x = (i-m_cards.indexOf(m_activeCard)) * (m_activeCard->boundingRect().width() + Settings::LunaSettings()->gapBetweenCardGroups);
+				else
+					x = (i-m_cards.indexOf(m_activeCard)) * m_activeCard->boundingRect().width();
+				positions[i].trans.setX(x);   
+				
+				//Horribly hacky method of determining offset
+				//Will probably break on non-TP resolutions
+				if(m_cards[0]->boundingRect().width() > m_cards[0]->boundingRect().height())
+					positions[i].trans.setY(46); //Landscape
+				else
+					positions[i].trans.setY(71); //Portrait
+				
+				positions[i].trans.setZ(1.0);
+					
+				break;
+			}
+			case LayoutMode(Minimize):
+			{
+				qCritical() << "Calculating Minimize Layout";
+				x = (i - m_cards.indexOf(m_activeCard)) //Starting point - active card should always be at 0
+				* (m_activeCard->boundingRect().width() + Settings::LunaSettings()->gapBetweenCardGroups) //Card x difference
+				* 2.2 //Scaler to make the cards 'swoosh in' during the gesture
+				* qMax(qreal(m_curScale - 0.5),0.0f) //Limiter
+				* m_miniScale; //Mini Mode Adaptation
+		
+				positions[i].trans.setX(x);
+				
+				if(m_cards[0]->boundingRect().width() > m_cards[0]->boundingRect().height())
+					positions[i].trans.setY(46 * (m_curScale - 0.5) * 2); //Landscape
+				else
+					positions[i].trans.setY(71 * (m_curScale - 0.5) * 2); //Portrait
+				
+				if(xOffset == 0)
+					positions[i].trans.setZ(m_curScale);
+				else
+					positions[i].trans.setZ(m_nonCurScale);
+					
+				break;
+			}
+			case LayoutMode(Tab):
+			{
+				qCritical() << "Calculating Tab Layout";
+					
+				break;
+			}
+		}
 	}
 
 	// update final width of group in parent group coords
@@ -823,18 +833,23 @@ QVector<CardWindow::Position> CardGroup::calculateClosedPositions()
 	int stopSpacingIndex = m_cards.size() > kMaxClosedSpacedCards ? 
 						   m_cards.size() - kMaxClosedSpacedCards : 
 						   0;
-	for (int i=m_cards.size()-1; i>=0; i--) {
-
+						   
+	for (int i=m_cards.size()-1; i>=0; i--)
+	{
 		positions[i].trans.setX(xOff);
-        if(!m_sizeOverride)
-        {
-            positions[i].trans.setZ(m_nonCurScale * m_miniModeScale);
-        }
-        
-        if(m_sizeOverride)
-        {
-            positions[i].trans.setZ(1.0);
-        }
+		
+		switch(m_layoutMode)
+		{
+			case LayoutMode(Stack):
+			case LayoutMode(Linear):
+            	positions[i].trans.setZ(m_nonCurScale * m_miniScale);
+            	break;
+			case LayoutMode(Minimize):
+	            positions[i].trans.setZ(1.0);
+	            break;
+			case LayoutMode(Tab):
+				break;
+		}
 
 		if (i >= stopSpacingIndex) {
 			xOff -= 7; // NOTE: should we scale the spacing?
