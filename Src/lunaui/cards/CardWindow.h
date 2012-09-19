@@ -193,6 +193,7 @@ public:
     virtual void setMaxAndLoading(bool enable);
     virtual bool isMaxAndLoading() const { return m_maxAndLoading; }
 
+	QRectF boundingRect() { return m_boundingRect; }
 	void setBoundingRect(int width, int height) {
 
 		int visibleWidth = width;
