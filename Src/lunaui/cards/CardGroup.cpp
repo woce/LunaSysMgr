@@ -742,7 +742,6 @@ QVector<CardWindow::Position> CardGroup::calculateOpenedPositions(qreal xOffset)
 		switch(m_layoutMode) {
 			case LayoutMode(Stack):
 			{
-				qCritical() << "Calculating Stack Layout";
 				x = ((i - m_currentPosition) / 3.0) * activeCardWidth * m_cardGroupXDistanceFactor;
 		
 				positions[i].trans.setX(x);
@@ -764,7 +763,6 @@ QVector<CardWindow::Position> CardGroup::calculateOpenedPositions(qreal xOffset)
 			}
 			case LayoutMode(Linear):
 			{
-				qCritical() << "Calculating Linear Layout";
 				if(m_cards.size() > 1)
 					x = (i-m_cards.indexOf(m_activeCard)) * (m_activeCard->boundingRect().width() + Settings::LunaSettings()->gapBetweenCardGroups);
 				else
@@ -784,7 +782,6 @@ QVector<CardWindow::Position> CardGroup::calculateOpenedPositions(qreal xOffset)
 			}
 			case LayoutMode(Minimize):
 			{
-				qCritical() << "Calculating Minimize Layout";
 				x = (i - m_cards.indexOf(m_activeCard)) //Starting point - active card should always be at 0
 				* (m_activeCard->boundingRect().width() + Settings::LunaSettings()->gapBetweenCardGroups) //Card x difference
 				* 2.2 //Scaler to make the cards 'swoosh in' during the gesture
@@ -807,8 +804,6 @@ QVector<CardWindow::Position> CardGroup::calculateOpenedPositions(qreal xOffset)
 			}
 			case LayoutMode(Tab):
 			{
-				qCritical() << "Calculating Tab Layout";
-					
 				break;
 			}
 		}
