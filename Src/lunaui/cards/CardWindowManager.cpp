@@ -688,9 +688,8 @@ void CardWindowManager::prepareAddWindowSibling(CardWindow* win)
 				//Make sure to copy the settings over from the current group
 				if(m_activeGroup)
 				{
-					newGroup->setMiniModeScale(m_activeGroup->miniModeScale());
-					newGroup->setMinimizeGesture(m_activeGroup->minimizeGesture());
-					newGroup->setSizeOverride(m_activeGroup->sizeOverride());
+					newGroup->setMiniScale(m_activeGroup->miniScale());
+					newGroup->setLayoutMode(m_activeGroup->layoutMode());
 				}
 				newGroup->addToGroup(win);
 				m_groups.insert(m_groups.indexOf(m_activeGroup)+1, newGroup);
@@ -1222,7 +1221,7 @@ void CardWindowManager::maximizeActiveWindow(bool animate)
 
 		setActiveGroup(m_activeGroup);
 	
-		setGroupsMaximized(true);
+		setGroupsLinear();
         
 		if(animate)
 			slideAllGroups(false);
@@ -1763,7 +1762,7 @@ void CardWindowManager::handleMouseMoveReorder(QGraphicsSceneMouseEvent* event)
 	CardWindow::Position pos;
 	pos.trans = QVector3D(activeWin->position().trans.x() + delta.x(), 
 						  activeWin->position().trans.y() + delta.y(), 
-						  kActiveScale*m_activeGroup->miniModeScale());
+						  kActiveScale*m_activeGroup->miniScale());
 	activeWin->setPosition(pos);
 
 	// should we switch zones?
@@ -1794,7 +1793,7 @@ void CardWindowManager::handleMouseMoveReorder(QGraphicsSceneMouseEvent* event)
 
 CardWindowManager::ReorderZone CardWindowManager::getReorderZone(QPoint pt)
 {
-	qreal section = boundingRect().width() * kActiveScale * m_activeGroup->miniModeScale();
+	qreal section = boundingRect().width() * kActiveScale * m_activeGroup->miniScale();
 	if (pt.x() < -section/2) {
 		return ReorderZone_Left;
 	}
@@ -2137,7 +2136,7 @@ void CardWindowManager::handleMinimizeGesture(BezelGesture* gesture)
         case Qt::GestureUpdated:
         {
 			//Put the groups in fluid sizing mode
-			setGroupsMinimizeGesture(true);
+			setGroupsMinimize();
 			
 			//If the movement isn't locked
             if (m_movement == MovementUnlocked) {
@@ -2152,8 +2151,8 @@ void CardWindowManager::handleMinimizeGesture(BezelGesture* gesture)
             }
 			
 			//Calculate the current scales based on finger movement
-			nonCurScale = qMax(qreal(m_activeGroup->nonCurScale() + (delta/250.0)), kNonActiveScale * m_activeGroup->miniModeScale());
-			curScale = qMax(qreal(m_activeGroup->curScale() + (delta/250.0)), kActiveScale * m_activeGroup->miniModeScale());
+			nonCurScale = qMax(qreal(m_activeGroup->nonCurScale() + (delta/250.0)), kNonActiveScale * m_activeGroup->miniScale());
+			curScale = qMax(qreal(m_activeGroup->curScale() + (delta/250.0)), kActiveScale * m_activeGroup->miniScale());
 			nonCurScale = qMin(nonCurScale, 0.925f);
 			curScale = qMin(curScale, 1.0f);
 			
@@ -2169,7 +2168,7 @@ void CardWindowManager::handleMinimizeGesture(BezelGesture* gesture)
         }
         case Qt::GestureFinished:
 			//Reset the fluid sizing mode
-			setGroupsMinimizeGesture(false);
+			setGroupsStack();
 			//Is there a flick?
             switch(gesture->flick())
 			{
@@ -2238,21 +2237,21 @@ void CardWindowManager::handleSpreadGesture(QPinchGesture* gesture)
 	{
 		if(m_activeGroup && m_activeGroup->cards().size() == 1 && Preferences::instance()->sysUiEnableZoomGesture())
 		{
-			m_miniScale = qMax(qreal(m_activeGroup->miniModeScale() + (gesture->scaleFactor()-1)), 0.35f);
+			m_miniScale = qMax(qreal(m_activeGroup->miniScale() + (gesture->scaleFactor()-1)), 0.35f);
 			m_miniScale = qMin(m_miniScale, 1.35f);
 			for(int i=m_groups.size()-1; i>=0; i--)
 			{
-				m_groups[i]->setMiniModeScale(m_miniScale);
+				m_groups[i]->setMiniScale(m_miniScale);
 			}
 			slideAllGroups(true);
 		}
 		if(m_activeGroup && m_activeGroup->cards().size() >= 1 && !Preferences::instance()->sysUiEnableSpreadGesture() && Preferences::instance()->sysUiEnableZoomGesture())
 		{
-			m_miniScale = qMax(qreal(m_activeGroup->miniModeScale() + (gesture->scaleFactor()-1)), 0.35f);
+			m_miniScale = qMax(qreal(m_activeGroup->miniScale() + (gesture->scaleFactor()-1)), 0.35f);
 			m_miniScale = qMin(m_miniScale, 1.35f);
 			for(int i=m_groups.size()-1; i>=0; i--)
 			{
-				m_groups[i]->setMiniModeScale(m_miniScale);
+				m_groups[i]->setMiniScale(m_miniScale);
 			}
 			slideAllGroups(true);
 		}
@@ -2307,10 +2306,10 @@ void CardWindowManager::handleTapGestureMinimized(QTapGesture* event)
 		//If the tap dos not hit any card, toggle mini mode
 		if (Preferences::instance()->sysUiEnableMiniCards())
 		{
-			if(m_activeGroup->miniModeScale() != 1.0)
-				setGroupsMiniMode(1.0);
+			if(m_activeGroup->miniScale() != 1.0)
+				setGroupsMiniScale(1.0);
 			else
-				setGroupsMiniMode(m_miniScale);
+				setGroupsMiniScale(m_miniScale);
 				
 			slideAllGroups();
 		}
@@ -2476,24 +2475,31 @@ void CardWindowManager::setActiveGroup(CardGroup* group)
 	SystemUiController::instance()->setActiveCardWindow(m_activeGroup ? m_activeGroup->activeCard() : 0);
 }
 
-void CardWindowManager::setGroupsMaximized(bool enable)
+void CardWindowManager::setGroupsStack()
 {
 	for (int i=0; i<m_groups.size();i++) {
-        m_groups[i]->setSizeOverride(enable);
+        m_groups[i]->setLayoutMode(LayoutMode(Stack));
     }
 }
 
-void CardWindowManager::setGroupsMinimizeGesture(bool enable)
+void CardWindowManager::setGroupsLinear()
 {
 	for (int i=0; i<m_groups.size();i++) {
-        m_groups[i]->setMinimizeGesture(enable);
+        m_groups[i]->setLayoutMode(LayoutMode(Linear));
     }
 }
 
-void CardWindowManager::setGroupsMiniMode(qreal scale)
+void CardWindowManager::setGroupsMinimize()
 {
 	for (int i=0; i<m_groups.size();i++) {
-        m_groups[i]->setMiniModeScale(scale);
+        m_groups[i]->setLayoutMode(LayoutMode(Minimize));
+    }
+}
+
+void CardWindowManager::setGroupsMiniScale(qreal scale)
+{
+	for (int i=0; i<m_groups.size();i++) {
+        m_groups[i]->setMiniScale(scale);
     }
 }
 

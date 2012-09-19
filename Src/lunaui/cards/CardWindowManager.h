@@ -271,11 +271,13 @@ private:
 
 	void setActiveGroup(CardGroup* group);
     
-    void setGroupsMaximized(bool enable);
+    void setGroupsStack();
     
-    void setGroupsMinimizeGesture(bool enable);
+    void setGroupsLinear();
     
-    void setGroupsMiniMode(qreal scale);
+    void setGroupsMinimize();
+    
+    void setGroupsMiniScale(qreal scale);
 
 	void disableCardRestoreToMaximized();
 	void restoreCardToMaximized();
