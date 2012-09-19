@@ -735,6 +735,15 @@ QVector<CardWindow::Position> CardGroup::calculateOpenedPositions(qreal xOffset)
 	qreal rOff = ((m_curScale*50) + activeCardWidth);
 	qreal lOff = -(m_curScale*100);
 	qreal rot = m_curScale * m_cardGroupRotFactor;
+	
+	int offset;
+	if(m_cards[0]->boundingRect().width() > m_cards[0]->boundingRect().height())
+		offset = 46;
+	else
+		offset = 71;
+		
+	int tabIndex = 0;
+	
 	for (int i=0; i<m_cards.size(); i++)
 	{	
 		qreal x;
@@ -759,7 +768,6 @@ QVector<CardWindow::Position> CardGroup::calculateOpenedPositions(qreal xOffset)
 					positions[i].trans.setZ((m_nonCurScale + (m_curScale-m_nonCurScale) * amtToCollapse) * m_miniScale);
 					positions[i].zRot *= amtToCollapse;
 				}
-					
 				break;
 			}
 			//Maximized
@@ -769,17 +777,10 @@ QVector<CardWindow::Position> CardGroup::calculateOpenedPositions(qreal xOffset)
 					x = (i-m_cards.indexOf(m_activeCard)) * (m_activeCard->boundingRect().width() + Settings::LunaSettings()->gapBetweenCardGroups);
 				else
 					x = (i-m_cards.indexOf(m_activeCard)) * m_activeCard->boundingRect().width();
-				positions[i].trans.setX(x);   
-				
-				//Horribly hacky method of determining offset
-				//Will probably break on non-TP resolutions
-				if(m_cards[0]->boundingRect().width() > m_cards[0]->boundingRect().height())
-					positions[i].trans.setY(46); //Landscape
-				else
-					positions[i].trans.setY(71); //Portrait
-				
-				positions[i].trans.setZ(1.0);
 					
+				positions[i].trans.setX(x);
+				positions[i].trans.setY(offset); //Landscape
+				positions[i].trans.setZ(1.0);
 				break;
 			}
 			//Minimize Gesture
@@ -792,11 +793,7 @@ QVector<CardWindow::Position> CardGroup::calculateOpenedPositions(qreal xOffset)
 				* m_miniScale; //Mini Mode Adaptation
 		
 				positions[i].trans.setX(x);
-				
-				if(m_cards[0]->boundingRect().width() > m_cards[0]->boundingRect().height())
-					positions[i].trans.setY(46 * (m_curScale - 0.5) * 2); //Landscape
-				else
-					positions[i].trans.setY(71 * (m_curScale - 0.5) * 2); //Portrait
+				positions[i].trans.setY(offset * (m_curScale - 0.5) * 2);
 				
 				if(xOffset == 0)
 					positions[i].trans.setZ(m_curScale);
@@ -808,6 +805,26 @@ QVector<CardWindow::Position> CardGroup::calculateOpenedPositions(qreal xOffset)
 			//Tabbed Cards
 			case CardArranger(Tab):
 			{
+				if(i == m_cards.indexOf(m_activeCard))
+				{
+					positions[i].trans.setX(m_cards[i]->boundingRect().width()/4);
+					positions[i].trans.setY(offset); //Landscape
+					positions[i].trans.setZ(1.0);
+				}
+				else
+				{
+					positions[i].trans.setX(-m_cards[i]->boundingRect().width()/2.66);
+					
+					positions[i].trans.setY(
+						((-m_cards[i]->boundingRect().height()/2.66) + offset) //First Position
+						+ ((m_cards[i]->boundingRect().height()*0.24) * tabIndex) //Further Positions
+					);
+					positions[i].trans.setZ(0.225);
+					
+					tabIndex++;
+				}
+				
+				positions[i].zRot = 0;
 				break;
 			}
 		}
