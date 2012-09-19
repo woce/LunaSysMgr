@@ -689,7 +689,7 @@ void CardWindowManager::prepareAddWindowSibling(CardWindow* win)
 				if(m_activeGroup)
 				{
 					newGroup->setMiniScale(m_activeGroup->miniScale());
-					newGroup->setLayoutMode(m_activeGroup->layoutMode());
+					newGroup->setCardArranger(m_activeGroup->cardArranger());
 				}
 				newGroup->addToGroup(win);
 				m_groups.insert(m_groups.indexOf(m_activeGroup)+1, newGroup);
@@ -2478,14 +2478,14 @@ void CardWindowManager::setActiveGroup(CardGroup* group)
 void CardWindowManager::setGroupsStack()
 {
 	for (int i=0; i<m_groups.size();i++) {
-        m_groups[i]->setLayoutMode(LayoutMode(Stack));
+        m_groups[i]->setCardArranger(CardArranger(Tab));
     }
 }
 
 void CardWindowManager::setGroupsLinear()
 {
 	for (int i=0; i<m_groups.size();i++) {
-        m_groups[i]->setLayoutMode(LayoutMode(Linear));
+        m_groups[i]->setCardArranger(CardArranger(Linear));
     }
 }
 

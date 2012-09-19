@@ -36,7 +36,7 @@ QT_BEGIN_NAMESPACE
 class QPropertyAnimation;
 QT_END_NAMESPACE
 
-enum LayoutMode {
+enum CardArranger {
 	Stack = 0, //Default minimized behaviour
 	Linear, //No overlap between cards
 	Minimize, //Minimize gesture
@@ -171,8 +171,8 @@ public:
 	qreal xDistanceFactor() const { return m_cardGroupXDistanceFactor; }
 	void setXDistanceFactor(const qreal xDistanceFactor) { m_cardGroupXDistanceFactor = xDistanceFactor; }
     
-    int layoutMode() const { return m_layoutMode; }
-    void setLayoutMode(int layoutMode) { m_layoutMode = layoutMode; }
+    int cardArranger() const { return m_cardArranger; }
+    void setCardArranger(int cardArranger) { m_cardArranger = cardArranger; }
     
     qreal miniScale() const { return m_miniScale; }
     void setMiniScale(qreal scale) { m_miniScale = scale; }
@@ -206,7 +206,7 @@ private:
 	// 1: 	3-4 cards with the second card being the center of the group
 	// N:	>4 cards where valid positions are between 1.0 and N - 4 + 1
 	qreal m_currentPosition;
-	int m_layoutMode;
+	int m_cardArranger;
     qreal m_miniScale;
 };
 

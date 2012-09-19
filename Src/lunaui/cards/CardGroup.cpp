@@ -43,7 +43,7 @@ CardGroup::CardGroup(qreal curScale, qreal nonCurScale)
 	, m_rightWidth(0)
 	, m_activeCard(0)
 	, m_currentPosition(0)
-	, m_layoutMode(0)
+	, m_cardArranger(0)
 	, m_miniScale(1.0)
 {
 	m_cardGroupRotFactor = Settings::LunaSettings()->cardGroupRotFactor;
@@ -739,8 +739,9 @@ QVector<CardWindow::Position> CardGroup::calculateOpenedPositions(qreal xOffset)
 	{	
 		qreal x;
 		
-		switch(m_layoutMode) {
-			case LayoutMode(Stack):
+		switch(m_cardArranger) {
+			//Minimized
+			case CardArranger(Stack):
 			{
 				x = ((i - m_currentPosition) / 3.0) * activeCardWidth * m_cardGroupXDistanceFactor;
 		
@@ -761,7 +762,8 @@ QVector<CardWindow::Position> CardGroup::calculateOpenedPositions(qreal xOffset)
 					
 				break;
 			}
-			case LayoutMode(Linear):
+			//Maximized
+			case CardArranger(Linear):
 			{
 				if(m_cards.size() > 1)
 					x = (i-m_cards.indexOf(m_activeCard)) * (m_activeCard->boundingRect().width() + Settings::LunaSettings()->gapBetweenCardGroups);
@@ -780,7 +782,8 @@ QVector<CardWindow::Position> CardGroup::calculateOpenedPositions(qreal xOffset)
 					
 				break;
 			}
-			case LayoutMode(Minimize):
+			//Minimize Gesture
+			case CardArranger(Minimize):
 			{
 				x = (i - m_cards.indexOf(m_activeCard)) //Starting point - active card should always be at 0
 				* (m_activeCard->boundingRect().width() + Settings::LunaSettings()->gapBetweenCardGroups) //Card x difference
@@ -802,7 +805,8 @@ QVector<CardWindow::Position> CardGroup::calculateOpenedPositions(qreal xOffset)
 					
 				break;
 			}
-			case LayoutMode(Tab):
+			//Tabbed Cards
+			case CardArranger(Tab):
 			{
 				break;
 			}
@@ -833,16 +837,16 @@ QVector<CardWindow::Position> CardGroup::calculateClosedPositions()
 	{
 		positions[i].trans.setX(xOff);
 		
-		switch(m_layoutMode)
+		switch(m_cardArranger)
 		{
-			case LayoutMode(Stack):
-			case LayoutMode(Linear):
+			case CardArranger(Stack):
+			case CardArranger(Linear):
             	positions[i].trans.setZ(m_nonCurScale * m_miniScale);
             	break;
-			case LayoutMode(Minimize):
+			case CardArranger(Minimize):
 	            positions[i].trans.setZ(1.0);
 	            break;
-			case LayoutMode(Tab):
+			case CardArranger(Tab):
 				break;
 		}
 
