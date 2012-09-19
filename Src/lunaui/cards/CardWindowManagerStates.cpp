@@ -170,7 +170,7 @@ void MinimizeState::onEntry(QEvent* event)
 		activeWin->setBoundingRect(boundingRect.width(), boundingRect.height());
 		m_wm->firstCardAlert();
 	}
-	m_wm->setGroupsMaximized(false);
+	m_wm->setGroupsStack();
 	SystemUiController::instance()->setCardWindowMaximized(false);
 	SystemUiController::instance()->setMaximizedCardWindow(0);
 }
@@ -891,14 +891,14 @@ void MinimizeGestureState::onEntry(QEvent* event)
 {
 	CardWindowManagerState::onEntry(event);
 	
-	m_wm->setGroupsMinimizeGesture(true);
+	m_wm->setGroupsMinimize();
 }
 
 void MinimizeGestureState::onExit(QEvent* event)
 {
 	CardWindowManagerState::onExit(event);
 	
-	m_wm->setGroupsMinimizeGesture(false);
+	m_wm->setGroupsStack();
 }
 
 // --------------------------------------------------------------------------------------------------
@@ -911,13 +911,9 @@ void SpreadGestureState::spreadGestureEvent(QPinchGesture* gesture)
 void SpreadGestureState::onEntry(QEvent* event)
 {
 	CardWindowManagerState::onEntry(event);
-	
-	//m_wm->setGroupsMinimizeGesture(true);
 }
 
 void SpreadGestureState::onExit(QEvent* event)
 {
 	CardWindowManagerState::onExit(event);
-	
-	//m_wm->setGroupsMinimizeGesture(false);
 }
