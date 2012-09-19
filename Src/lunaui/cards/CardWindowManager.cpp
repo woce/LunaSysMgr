@@ -2492,7 +2492,7 @@ void CardWindowManager::setGroupsLinear()
 void CardWindowManager::setGroupsMinimize()
 {
 	for (int i=0; i<m_groups.size();i++) {
-        m_groups[i]->setLayoutMode(LayoutMode(Minimize));
+        m_groups[i]->setCardArranger(CardArranger(Minimize));
     }
 }
 
