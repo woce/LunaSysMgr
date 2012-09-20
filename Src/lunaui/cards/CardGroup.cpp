@@ -807,13 +807,19 @@ QVector<CardWindow::Position> CardGroup::calculateOpenedPositions(qreal xOffset)
 			{
 				if(i == m_cards.indexOf(m_activeCard))
 				{
-					positions[i].trans.setX(m_cards[i]->boundingRect().width()/4);
+					if(m_tabDirection)
+						positions[i].trans.setX(-m_cards[i]->boundingRect().width()/4);
+					else
+						positions[i].trans.setX(m_cards[i]->boundingRect().width()/4);
 					positions[i].trans.setY(offset); //Landscape
 					positions[i].trans.setZ(1.0);
 				}
 				else
 				{
-					positions[i].trans.setX(-m_cards[i]->boundingRect().width()/2.66);
+					if(m_tabDirection)
+						positions[i].trans.setX(m_cards[i]->boundingRect().width()/2.66);
+					else
+						positions[i].trans.setX(-m_cards[i]->boundingRect().width()/2.66);
 					
 					positions[i].trans.setY(
 						((-m_cards[i]->boundingRect().height()/2.66) + offset) //First Position
