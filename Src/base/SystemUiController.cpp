@@ -2428,6 +2428,15 @@ void SystemUiController::handleMinimizeGesture(BezelGesture* gesture)
 		return;
 	}
 	
+	if (CardWindowManager::instance()->isGroup()) {
+		if(!fired)
+		{
+			Q_EMIT signalMinimizeActiveCardWindow();
+			fired = true;
+			return;
+		}
+	}
+	
 	if (m_launcherShown || (!m_launcherShown && CardWindowManager::instance()->isMinimized())) {
 		if(!fired)
 		{
