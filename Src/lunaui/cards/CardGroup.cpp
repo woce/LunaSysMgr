@@ -768,6 +768,11 @@ QVector<CardWindow::Position> CardGroup::calculateOpenedPositions(qreal xOffset)
 					positions[i].trans.setZ((m_nonCurScale + (m_curScale-m_nonCurScale) * amtToCollapse) * m_miniScale);
 					positions[i].zRot *= amtToCollapse;
 				}
+
+				// update final width of group in parent group coords
+				m_leftWidth = (int) qAbs(positions.first().toTransform().mapRect(m_cards.first()->boundingRect()).left());
+				m_rightWidth = (int) qAbs(positions.last().toTransform().mapRect(m_cards.last()->boundingRect()).right());
+				
 				break;
 			}
 			//Maximized
@@ -781,6 +786,11 @@ QVector<CardWindow::Position> CardGroup::calculateOpenedPositions(qreal xOffset)
 				positions[i].trans.setX(x);
 				positions[i].trans.setY(offset); //Landscape
 				positions[i].trans.setZ(1.0);
+
+				// update final width of group in parent group coords
+				m_leftWidth = (int) qAbs(positions.first().toTransform().mapRect(m_cards.first()->boundingRect()).left());
+				m_rightWidth = (int) qAbs(positions.last().toTransform().mapRect(m_cards.last()->boundingRect()).right());
+	
 				break;
 			}
 			//Minimize Gesture
@@ -799,6 +809,10 @@ QVector<CardWindow::Position> CardGroup::calculateOpenedPositions(qreal xOffset)
 					positions[i].trans.setZ(m_curScale);
 				else
 					positions[i].trans.setZ(m_nonCurScale);
+
+				// update final width of group in parent group coords
+				m_leftWidth = (int) qAbs(positions.first().toTransform().mapRect(m_cards.first()->boundingRect()).left());
+				m_rightWidth = (int) qAbs(positions.last().toTransform().mapRect(m_cards.last()->boundingRect()).right());
 					
 				break;
 			}
@@ -831,14 +845,15 @@ QVector<CardWindow::Position> CardGroup::calculateOpenedPositions(qreal xOffset)
 				}
 				
 				positions[i].zRot = 0;
+				
+				// update final width of group in parent group coords
+				m_leftWidth = (int) m_cards[i]->boundingRect().width();
+				m_rightWidth = m_leftWidth;
+	
 				break;
 			}
 		}
 	}
-
-	// update final width of group in parent group coords
-	m_leftWidth = (int) qAbs(positions.first().toTransform().mapRect(m_cards.first()->boundingRect()).left());
-	m_rightWidth = (int) qAbs(positions.last().toTransform().mapRect(m_cards.last()->boundingRect()).right());
 
 	return positions;
 }
