@@ -176,6 +176,9 @@ public:
     
     qreal miniScale() const { return m_miniScale; }
     void setMiniScale(qreal scale) { m_miniScale = scale; }
+    
+    bool tabDirection() const { return m_tabDirection; }
+    void setTabDirection(bool tabDirection) { m_tabDirection = tabDirection; }
 	
 	bool shouldMaximizeOrScroll(QPointF scenePt);
 	bool testHit(QPointF scenePt);
@@ -208,6 +211,7 @@ private:
 	qreal m_currentPosition;
 	int m_cardArranger;
     qreal m_miniScale;
+    bool m_tabDirection;
 };
 
 Q_DECLARE_METATYPE(CardWindow::Position)
