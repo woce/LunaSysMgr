@@ -532,6 +532,7 @@ void LockWindow::resize(int width, int height)
 	if(m_statusBar) {
 		m_statusBar->resize(width, Settings::LunaSettings()->positiveSpaceTopPadding);
 		m_statusBar->setPos(0, m_bounds.y() + m_statusBar->boundingRect().height() / 2);
+		m_statusBar->setMaximizedAppTitle(false, 0, 0, false);
 		m_statusBar->update();
 	}
 
