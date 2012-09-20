@@ -539,7 +539,8 @@ bool SystemUiController::handleKeyEvent(QKeyEvent *event)
         	if(ctrl)
         	{
 				if (!m_launcherShown) {
-					Q_EMIT signalChangeCardWindow(true);
+					if(CardWindowManager::instance()->isMaximized())
+						Q_EMIT signalChangeCardWindow(true);
 				}
         		return true;
         	}
@@ -548,7 +549,8 @@ bool SystemUiController::handleKeyEvent(QKeyEvent *event)
         	if(ctrl)
         	{
 				if (!m_launcherShown) {
-					Q_EMIT signalChangeCardWindow(false);
+					if(CardWindowManager::instance()->isMaximized())
+						Q_EMIT signalChangeCardWindow(false);
 				}
         		return true;
         	}

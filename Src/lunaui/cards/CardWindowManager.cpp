@@ -1321,13 +1321,21 @@ void CardWindowManager::handleKeyNavigationMinimized(QKeyEvent* keyEvent)
 {
     if (!m_activeGroup || keyEvent->type() != QEvent::KeyPress)
         return;
+        
+	bool ctrl = keyEvent->modifiers() & (Qt::ControlModifier);
 
     switch (keyEvent->key()) {
     case Qt::Key_Left:
-        switchToPrevApp();
+    	if(!ctrl)
+        	switchToPrevApp();
+        else
+        	switchToPrevGroup();
         break;
     case Qt::Key_Right:
-        switchToNextApp();
+    	if(!ctrl)
+        	switchToNextApp();
+        else
+        	switchToNextGroup();
         break;
     case Qt::Key_Return:
         if (!keyEvent->isAutoRepeat())
