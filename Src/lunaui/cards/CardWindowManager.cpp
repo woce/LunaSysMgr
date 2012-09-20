@@ -2417,7 +2417,11 @@ void CardWindowManager::handleKeyNavigationGroup(QKeyEvent* keyEvent)
 
 void CardWindowManager::cycleGroupTabs()
 {
-	m_activeGroup->makeBackCardActive();
+	if(m_activeGroup->activeCard() != m_activeGroup->cards().last())
+		switchToNextApp();
+	else
+		m_activeGroup->makeBackCardActive();
+		
 	slideAllGroups();
 	SystemUiController::instance()->setActiveCardWindow(m_activeGroup ? m_activeGroup->activeCard() : 0);
 }
