@@ -196,7 +196,7 @@ private:
 	void handleMousePressGroup(QGraphicsSceneMouseEvent* event);
 	void handleMouseMoveGroup(QGraphicsSceneMouseEvent* event);
 	void handleMouseReleaseGroup(QGraphicsSceneMouseEvent* event);
-	void handleTapGestureGroupView(QTapGesture* event);
+	void handleTapGestureGroup(QTapGesture* event);
 	void handleFlickGestureGroup(QGestureEvent* event);
 	void handleKeyNavigationGroup(QKeyEvent* keyEvent);
 
@@ -242,12 +242,10 @@ private:
 	void switchToNextAppMaximized();
 	void switchToPrevAppMaximized();
 
-  /* Functions Required for Grouped Cards */
-  void showGroupCards(bool direction);
-  void showGroupCardsImmediate();
-  bool whichSideOfScreen(QPointF p);
-  void closeWindowGroup(CardWindow* win, bool dir, bool angryCard=false);
-
+	/* Functions Required for Grouped Cards */
+	void moveGroupCards();
+	bool whichSideOfScreen(QPointF p);
+	void closeWindowGroup(CardWindow* win, bool dir, bool angryCard=false);
 
 	// animate all groups to center around the active group.
 	// optionally include the active card in the active group.
@@ -272,10 +270,9 @@ private:
 	void setActiveGroup(CardGroup* group);
     
     void setGroupsStack();
-    
     void setGroupsLinear();
-    
     void setGroupsMinimize();
+    void setGroupsTab();
     
     void setGroupsMiniScale(qreal scale);
 
