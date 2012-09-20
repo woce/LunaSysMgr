@@ -186,27 +186,22 @@ void GroupState::mousePressEvent(QGraphicsSceneMouseEvent* event)
 
 void GroupState::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
 {
-  m_wm->handleMouseMoveGroup(event);
+	m_wm->handleMouseMoveGroup(event);
 }
 
 void GroupState::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
 {
-  m_wm->handleMouseReleaseGroup(event);
+	m_wm->handleMouseReleaseGroup(event);
 }
 
 void GroupState::flickGestureEvent(QGestureEvent* event)
 {
-  m_wm->handleFlickGestureGroup(event);
+	m_wm->handleFlickGestureGroup(event);
 }
 
 void GroupState::tapGestureEvent(QTapGesture* event)
 {
-  m_wm->handleTapGestureGroupView(event);
-}
-
-void GroupState::tapAndHoldGestureEvent(QTapAndHoldGesture* event)
-{
-  //m_wm->handleTapAndHoldGestureMinimized(event);
+	m_wm->handleTapGestureGroup(event);
 }
 
 bool GroupState::handleKeyNavigation(QKeyEvent* keyEvent)
@@ -215,82 +210,12 @@ bool GroupState::handleKeyNavigation(QKeyEvent* keyEvent)
     return true;
 }
 
-void GroupState::animationsFinished()
-{
-    // attempt to process any tap-to-share actions
-    m_wm->performPendingTouchToShareActions();
-
-  // attempt to auto restore a card to maximized
-  //m_wm->restoreCardToMaximized();
-
-}
-
-void GroupState::relayout(const QRectF& r, bool animate)
-{
-  m_wm->showGroupCardsImmediate();
-
-  //Q_UNUSED(r);
-  //m_wm->minimizeActiveWindow(animate);
-}
-
-void GroupState::changeCardWindow(bool next)
-{
-  if (next)
-    m_wm->switchToPrevApp();
-  else
-    m_wm->switchToNextApp();
-}
-void GroupState::windowAdded(CardWindow* win)
-{
-  CardWindow* activeWin = m_wm->activeWindow();
-  //if (activeWin != win) {
-  //  CardWindowManagerState::windowAdded(win);
-  //  return;
-  //}
-
-  //if (!m_wm->windowHasAnimation(win)) {
-    m_wm->m_activeGroup->setActiveCard(win);
-    m_wm->maximizeActiveWindow(!lastWindowAddedType());
-  //}
-}
-
-void GroupState::windowTimedOut(CardWindow* win)
-{
-  //CardWindow* activeWin = m_wm->activeWindow();
-  //if (win == activeWin) {
-    m_wm->addWindowTimedOutNormal(win);
-  //}
-}
-
-void GroupState::onExit(QEvent *event)
-{
-  // in case we exit the Loading state during the maximizing animation
-  CardWindow* activeWin = m_wm->activeWindow();
-  if (activeWin && activeWin->addedToWindowManager()) {
-
-    activeWin->stopLoadingOverlay();
-  }
-    m_wm->stopMoveGroupTimer();
-
-}
-
-
 void GroupState::onEntry(QEvent* event)
 {
-  CardWindowManagerState::onEntry(event);
+	CardWindowManagerState::onEntry(event);
 
-  CardWindow* activeWin = m_wm->activeWindow();
-  if (activeWin) {
-    m_wm->queueFocusAction(activeWin, false);
-    QRectF boundingRect = m_wm->normalOrScreenBounds(0);
-    activeWin->setBoundingRect(boundingRect.width(), boundingRect.height());
-    m_wm->firstCardAlert();
-  }
-
-  SystemUiController::instance()->setCardWindowMaximized(true);
-  SystemUiController::instance()->setMaximizedCardWindow(activeWin);
-
-  //SystemUiController::instance()->setMaximizedCardWindow(0);
+	m_wm->setGroupsTab();
+	m_wm->slideAllGroups();
 }
 
 
