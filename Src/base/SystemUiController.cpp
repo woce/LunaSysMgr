@@ -121,6 +121,9 @@ SystemUiController::SystemUiController()
 
 	m_uiRotating = false;
 	m_rotationAngle = 0;
+	
+	m_superKey = false;
+	m_superKeyCombo = false;
 
 	m_isBlockScreenTimeout = false;
 	m_isSubtleLightbar = false;
@@ -494,8 +497,6 @@ bool SystemUiController::handleKeyEvent(QKeyEvent *event)
 	}
 #endif
 
-	const bool ctrl = event->modifiers() & (Qt::ControlModifier);
-
 	if (event->type() == QEvent::KeyPress) {
 		switch (event->key()) {
 		case Qt::Key_CoreNavi_Home:
@@ -517,11 +518,12 @@ bool SystemUiController::handleKeyEvent(QKeyEvent *event)
         case Qt::Key_Escape: // maps to the open/close notifications key on BT keyboards
         case Qt::Key_Search: // maps to universal search toggle
         case Qt::Key_Super_L: // maps to the card view key (launcher gesture)
+        	m_superKey = true;
         case Qt::Key_Keyboard:
             return true;
 
         case Qt::Key_Tab: {
-        	if(ctrl)
+        	if(m_superKey)
         	{
 				if(Preferences::instance()->getTabbedCardsPreference())
 				{
@@ -532,43 +534,56 @@ bool SystemUiController::handleKeyEvent(QKeyEvent *event)
 				}
 				else
 					handleSideSwipe(false);
+					
+				m_superKeyCombo = true;
+					
         		return true;
         	}
         }
         case Qt::Key_Left: {
-        	if(ctrl)
+        	if(m_superKey)
         	{
 				if (!m_launcherShown) {
 					if(CardWindowManager::instance()->isMaximized())
 						Q_EMIT signalChangeCardWindow(true);
 				}
+				
+				m_superKeyCombo = true;
+					
         		return true;
         	}
         }
         case Qt::Key_Right: {
-        	if(ctrl)
+        	if(m_superKey)
         	{
 				if (!m_launcherShown) {
 					if(CardWindowManager::instance()->isMaximized())
 						Q_EMIT signalChangeCardWindow(false);
 				}
+				
+				m_superKeyCombo = true;
+					
         		return true;
         	}
         }
         case Qt::Key_Up: {
-        	if(ctrl)
+        	if(m_superKey)
         	{
 				handleUpSwipe();
+				m_superKeyCombo = true;
         		return true;
         	}
         }
         case Qt::Key_Down: {
-        	if(ctrl && CardWindowManager::instance()->isMinimized())
+        	if(m_superKey && CardWindowManager::instance()->isMinimized())
         	{
         		if(!m_launcherShown)
 					Q_EMIT signalMaximizeActiveCardWindow();
 				else
 					Q_EMIT signalToggleLauncher();
+					
+				m_superKeyCombo = true;
+				
         		return true;
         	}
         }
@@ -689,7 +704,13 @@ bool SystemUiController::handleKeyEvent(QKeyEvent *event)
 
 		case (Qt::Key_CoreNavi_Launcher):
         case (Qt::Key_Super_L): {
-
+        	m_superKey = false;
+        	
+        	if(m_superKeyCombo) {
+        		m_superKeyCombo = false;
+        		return false;
+        	}
+        	
 			if (Settings::LunaSettings()->uiType == Settings::UI_MINIMAL) {
 				break;
 			}

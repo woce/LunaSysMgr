@@ -176,6 +176,11 @@ public:
 	void rotationComplete();
 	bool isUiRotating() { return m_uiRotating; }
 	int  getRotationAngle() { return m_uiRotating ? m_rotationAngle : 0; }
+	
+	bool superKey() { return m_superKey; }
+	void setSuperKey(bool superKey) { m_superKey = superKey; }
+	bool superKeyCombo() { return m_superKeyCombo; }
+	void setSuperKeyCombo(bool superKeyCombo) { m_superKeyCombo = superKeyCombo; }
 
 	bool dashboardOwnsNegativeSpace() const { return m_dashboardOwnsNegativeSpace; }
 
@@ -469,6 +474,10 @@ private:
 
 	bool m_uiRotating;
 	int  m_rotationAngle;
+	
+	//Super key checks
+	bool m_superKey;
+	bool m_superKeyCombo;
 
 	SuspendBlocker<SystemUiController> m_suspendBlocker;
 
