@@ -608,19 +608,29 @@ bool SystemUiController::handleKeyEvent(QKeyEvent *event)
 				Q_EMIT signalHideMenu();
 			}
 			
-			/*//Numbers for QL
-			if (event->key() > 0x30 && event->key() < 0x39 && ctrl)
+			//Numbers for QL, this sauce is a little stronger than it used to be, but still weak
+			if (event->key() > 0x30 && event->key() < 0x39 && m_superKey)
 			{
-				if(CardWindowManager::instance()->isMaximized()) {
-					int pos = ((((int) event->key()) - 48) * (m_uiWidth/6)) - ((m_uiWidth/6)/2) - m_uiWidth/2; //6 = amount of icons in QL
+				QList<QPointF> coords = OverlayWindowManager::systemActiveInstance()->quicklaunchBar()->quickLaunchBar()->iconCoords();
+				int numIcons = coords.size();
+				int keyPos = (int) event->key() - 48 - 1;
+				if(CardWindowManager::instance()->isMaximized() && keyPos <= numIcons) {
+					int pos;
+					if(keyPos < coords.size())
+						pos = coords[keyPos].x();
+					else
+						pos = (m_uiWidth/2) - 64; //Launcher button
+						
 					m_waveBar = true;
+					m_superKeyCombo = true;
 					Q_EMIT signalShowDock();
 					OverlayWindowManager::systemActiveInstance()->animateWaveDock(QPoint(0,m_uiHeight/2 - 50));
 					OverlayWindowManager::systemActiveInstance()->quicklaunchBar()->quickLaunchBar()->setWavePos(pos);
 					OverlayWindowManager::systemActiveInstance()->quicklaunchBar()->quickLaunchBar()->rearrangeIcons(false);
+					return true;
 				}
 			}
-			*/
+			
 			// Allow event to be passed on to webkit(!)
 			break;
 		}
@@ -706,8 +716,15 @@ bool SystemUiController::handleKeyEvent(QKeyEvent *event)
         case (Qt::Key_Super_L): {
         	m_superKey = false;
         	
+        	if(m_waveBar)
+			{
+				m_waveBar = false;
+				Q_EMIT signalHideDock();
+				OverlayWindowManager::systemActiveInstance()->quicklaunchBar()->quickLaunchBar()->waveRelease();
+			}
+        	
         	if(m_superKeyCombo) {
-        		m_superKeyCombo = false;
+        		m_superKeyCombo = false; //C-C-C-COMBO BREAKER!!!
         		return false;
         	}
         	
@@ -896,16 +913,6 @@ bool SystemUiController::handleKeyEvent(QKeyEvent *event)
             IMEController::instance()->setIMEActive(!IMEController::instance()->isIMEActive());
             return true;
         }
-        /*//Wave Launcher
-		case Qt::Key_Control: {
-			if(m_waveBar)
-			{
-				m_waveBar = false;
-				Q_EMIT signalHideDock();
-				OverlayWindowManager::systemActiveInstance()->quicklaunchBar()->quickLaunchBar()->waveRelease();
-			}
-		}
-		*/
 		default:
 			// eat away all keys if a menu window is visible
 			if (m_menuVisible)

@@ -107,6 +107,8 @@ public:
 	void setWavePos(int x) { m_wavePos = x; }
 	
 	void waveRelease();
+	
+	QList<QPointF> iconCoords() const { return m_layoutAnchorsCoords; }
 
 	//rearrange all the current items based on the current sizing
 	//PREREQUISITE: m_itemAreaXRange and m_itemsY are set correctly
