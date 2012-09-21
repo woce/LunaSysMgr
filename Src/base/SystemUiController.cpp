@@ -614,7 +614,7 @@ bool SystemUiController::handleKeyEvent(QKeyEvent *event)
 				QList<QPointF> coords = OverlayWindowManager::systemActiveInstance()->quicklaunchBar()->quickLaunchBar()->iconCoords();
 				int numIcons = coords.size();
 				int keyPos = (int) event->key() - 48 - 1;
-				if(CardWindowManager::instance()->isMaximized() && keyPos <= numIcons) {
+				if(keyPos <= numIcons) {
 					int pos;
 					if(keyPos < coords.size())
 						pos = coords[keyPos].x();
