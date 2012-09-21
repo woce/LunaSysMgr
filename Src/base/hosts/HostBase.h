@@ -49,7 +49,7 @@
 
 static const int kGestureBorderSize = 15;
 static const int kGestureTriggerDistance = 15;
-static const int kFlickMinimumYLengthWithKeyboardUp = 60;
+static const int kGestureTriggerDistanceIME = 60;
 
 class QWidget;
 

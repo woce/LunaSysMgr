@@ -37,7 +37,7 @@ QGestureRecognizer::Result BezelGestureRecognizer::recognize(QGesture *state,
 	//Result to return
 	QGestureRecognizer::Result result;
 	
-	int triggerDistance = !IMEController::instance()->isIMEOpened() ? kGestureTriggerDistance : kGestureTriggerDistance * 4;
+	int triggerDistance = !IMEController::instance()->isIMEOpened() ? kGestureTriggerDistance : kGestureTriggerDistanceIME;
     
     //Switch statement to make sure we're actually handling touch events
     switch (event->type()) {
