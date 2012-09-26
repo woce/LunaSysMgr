@@ -1317,6 +1317,15 @@ void CardWindowManager::firstCardAlert()
     }
 }
 
+void CardWindowManager::deadzoneTap(QTapGesture* event)
+{
+	//Only send events to the active window when maximized
+	if(NULL == activeWindow() || !isMaximized())
+		return;
+
+	qCritical() << "Deadzone Tapped";
+}
+
 void CardWindowManager::handleKeyNavigationMinimized(QKeyEvent* keyEvent)
 {
     if (!m_activeGroup || keyEvent->type() != QEvent::KeyPress)

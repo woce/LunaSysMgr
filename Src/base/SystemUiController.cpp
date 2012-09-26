@@ -384,6 +384,14 @@ bool SystemUiController::handleGestureEvent (QGestureEvent* event)
 					}
 				}
 			}
+			
+			if (tap->position().x() <= kGestureBorderSize
+			|| tap->position().x() >= m_uiWidth - kGestureBorderSize
+			|| tap->position().y() <= kGestureBorderSize
+			|| tap->position().y() >= m_uiHeight - kGestureBorderSize)
+			{
+				CardWindowManager::instance()->deadzoneTap(tap);
+			}
 		}
 	}
 	

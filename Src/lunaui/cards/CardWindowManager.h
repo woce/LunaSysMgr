@@ -94,6 +94,9 @@ public:
 	
 	// cycle through cards in tabbed view
 	void cycleGroupTabs();
+	
+	// convert tap events on the gesture border to single clicks
+	void deadzoneTap(QTapGesture* event);
 
 	CardWindow* modalParent() const { return m_parentOfModalCard; }
 
