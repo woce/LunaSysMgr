@@ -333,7 +333,7 @@ bool SystemUiController::handleMouseEvent(QMouseEvent *event)
 		}
 	}
 	
-	if(event->type() == QEvent::MouseButtonPress)
+	if(event->type() == QEvent::MouseButtonPress && Preferences::instance()->sysUiEnableGestureDeadzone())
 	{
 		//Note start x for Wave Launcher
 		startX = xDown;
