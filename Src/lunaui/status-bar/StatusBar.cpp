@@ -48,7 +48,7 @@
 #include <QGestureEvent>
 
 //Comment this out to hide the version number
-#define DEBUG_VERSION
+//#define DEBUG_VERSION
 
 QColor StatusBar::s_defaultColor = QColor(0x51, 0x55, 0x58, 0xFF);
 static const std::string kDefaultCarrierName = "HP webOS";
